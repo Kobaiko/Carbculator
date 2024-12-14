@@ -62,7 +62,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">
       <Navigation />
-      <div className="max-w-7xl mx-auto space-y-6 px-4 md:px-6 pt-6 md:pt-8 md:ml-16">
+      <div className="max-w-7xl mx-auto space-y-6 px-4 md:px-6 pt-6 md:pt-8 md:ml-20">
         <div className="flex justify-end mb-8">
           <TimeRangeSelector
             value={timeRange}

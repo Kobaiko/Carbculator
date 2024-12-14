@@ -48,7 +48,7 @@ export default function DailyMeals() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">
-      <div className="max-w-7xl mx-auto space-y-6 px-4 md:px-6 pt-6 md:pt-8 md:ml-16">
+      <div className="max-w-7xl mx-auto space-y-6 px-4 md:px-6 pt-6 md:pt-8 md:ml-20">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Daily Meals</h1>
         </div>
@@ -57,7 +57,7 @@ export default function DailyMeals() {
           {meals?.map((meal) => (
             <div
               key={meal.id}
-              className="glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
+              className="glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg group"
             >
               {meal.image_url && (
                 <div className="relative aspect-video">

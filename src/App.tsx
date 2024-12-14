@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import { useSession } from '@supabase/auth-helpers-react';
 import { AppHeader } from "./components/layout/AppHeader";
 import { AppRoutes } from "./components/routing/AppRoutes";
+import { Navigation } from "./components/Navigation";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,12 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <div className="min-h-screen">
-            {session && <AppHeader />}
+            {session && (
+              <>
+                <AppHeader />
+                <Navigation />
+              </>
+            )}
             <AppRoutes />
           </div>
         </BrowserRouter>
