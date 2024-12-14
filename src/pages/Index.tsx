@@ -3,12 +3,16 @@ import { Navigation } from "@/components/Navigation";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { TrendsChart } from "@/components/dashboard/TrendsChart";
-import { Activity, Scale, Droplet } from "lucide-react";
+import { Activity, Scale, GlassWater } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardData {
-  insights: string;
+  insights: {
+    trends: string;
+    recommendations: string;
+    goals: string;
+  };
   data: {
     measurements: any[];
     nutrition: any[];
@@ -70,24 +74,24 @@ const Index = () => {
           <StatsCard
             title="Water Intake Today"
             value={`${totalWaterToday} ml`}
-            icon={Droplet}
+            icon={GlassWater}
           />
         </div>
-
-        {dashboardData?.insights && (
-          <InsightsCard insights={dashboardData.insights} />
-        )}
 
         {dashboardData?.data.measurements.length > 0 && (
           <TrendsChart
             title="Weight Trend"
             data={dashboardData.data.measurements.map((m: any) => ({
-              date: new Date(m.created_at).toLocaleDateString(),
+              date: new Date(m.created_at).toISOString(),
               value: m.weight,
             }))}
             color="#ef4444"
             unit="kg"
           />
+        )}
+
+        {dashboardData?.insights && (
+          <InsightsCard insights={dashboardData.insights} />
         )}
 
         {isLoading && (
@@ -99,6 +103,6 @@ const Index = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Index;
