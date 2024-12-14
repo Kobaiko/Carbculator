@@ -61,6 +61,7 @@ export type Database = {
           id: string
           last_name: string | null
           updated_at: string
+          username: string | null
           weight: number
           weight_unit: string
         }
@@ -76,6 +77,7 @@ export type Database = {
           id: string
           last_name?: string | null
           updated_at?: string
+          username?: string | null
           weight: number
           weight_unit?: string
         }
@@ -91,6 +93,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           updated_at?: string
+          username?: string | null
           weight?: number
           weight_unit?: string
         }

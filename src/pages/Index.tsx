@@ -1,157 +1,123 @@
-import { useState, useMemo } from "react";
-import { Navigation } from "@/components/Navigation";
-import { StatsCard } from "@/components/dashboard/StatsCard";
-import { InsightsCard } from "@/components/dashboard/InsightsCard";
-import { TrendsChart } from "@/components/dashboard/TrendsChart";
-import { Activity, Scale, GlassWater, Utensils } from "lucide-react";
-import { mockMeasurements, mockWaterIntake, mockInsights, mockNutrition } from "@/utils/mockData";
-import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
-import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
-import { AddFoodButton } from "@/components/AddFoodButton";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from '@supabase/auth-helpers-react';
+
+type FormData = {
+  username: string;
+  height: number;
+  weight: number;
+};
 
 const Index = () => {
-  const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
-  const [customStartDate, setCustomStartDate] = useState<Date>();
-  const [customEndDate, setCustomEndDate] = useState<Date>();
+  const session = useSession();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const getDateRange = () => {
-    const now = new Date();
-    switch (timeRange) {
-      case "daily":
-        return { start: startOfDay(now), end: endOfDay(now) };
-      case "weekly":
-        return { start: startOfWeek(now), end: endOfWeek(now) };
-      case "monthly":
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-      case "yearly":
-        return { start: startOfYear(now), end: endOfYear(now) };
-      case "custom":
-        return {
-          start: customStartDate ? startOfDay(customStartDate) : subDays(now, 7),
-          end: customEndDate ? endOfDay(customEndDate) : now,
-        };
-      default:
-        return { start: subDays(now, 7), end: now };
+  const form = useForm<FormData>({
+    defaultValues: {
+      username: "",
+      height: 0,
+      weight: 0,
+    },
+  });
+
+  const onSubmit = async (data: FormData) => {
+    if (!session?.user.id) return;
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username: data.username,
+          height: data.height,
+          weight: data.weight,
+        })
+        .eq('id', session.user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "There was an error updating your profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const filterDataByDateRange = (data: any[]) => {
-    const { start, end } = getDateRange();
-    return data.filter((item) => {
-      const date = new Date(item.created_at);
-      return date >= start && date <= end;
-    });
-  };
-
-  const filteredData = useMemo(() => ({
-    measurements: filterDataByDateRange(mockMeasurements),
-    water: filterDataByDateRange(mockWaterIntake),
-    nutrition: filterDataByDateRange(mockNutrition),
-  }), [timeRange, customStartDate, customEndDate]);
-
-  const latestWeight = filteredData.measurements[filteredData.measurements.length - 1]?.weight || "N/A";
-  const latestBMI = filteredData.measurements[filteredData.measurements.length - 1]?.bmi || "N/A";
-  const latestNutrition = filteredData.nutrition[filteredData.nutrition.length - 1] || { calories: "N/A", protein: "N/A" };
-  const totalWaterToday = filteredData.water
-    .filter((log) => {
-      const today = new Date().toISOString().split("T")[0];
-      return log.created_at.startsWith(today);
-    })
-    .reduce((acc, log) => acc + log.amount, 0);
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">
-      <Navigation />
-      <div className="max-w-7xl mx-auto space-y-6 px-4 md:px-6 pt-6 md:pt-8 md:ml-16">
-        <div className="flex justify-end mb-8">
-          <TimeRangeSelector
-            value={timeRange}
-            onValueChange={setTimeRange}
-            customDateRange={{
-              startDate: customStartDate,
-              endDate: customEndDate,
-              onRangeSelect: (start, end) => {
-                setCustomStartDate(start);
-                setCustomEndDate(end);
-              },
-            }}
-          />
+    <div className="container max-w-lg mx-auto py-8">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-center">Welcome to Carbculator!</h1>
+          <p className="text-muted-foreground text-center mt-2">Let's set up your profile</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            title="Current Weight"
-            value={`${latestWeight} kg`}
-            icon={Scale}
-          />
-          <StatsCard
-            title="BMI"
-            value={latestBMI}
-            icon={Activity}
-          />
-          <StatsCard
-            title="Water Intake Today"
-            value={`${totalWaterToday} ml`}
-            icon={GlassWater}
-          />
-          <StatsCard
-            title="Calories Today"
-            value={`${latestNutrition.calories} kcal`}
-            icon={Utensils}
-          />
-        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>How would you like us to call you?</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your preferred name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TrendsChart
-            title="Weight Trend"
-            data={filteredData.measurements.map((m) => ({
-              date: m.created_at,
-              value: m.weight,
-            }))}
-            color="#ef4444"
-            unit="kg"
-            timeRange={timeRange}
-          />
-          <TrendsChart
-            title="Water Intake Trend"
-            data={filteredData.water.map((w) => ({
-              date: w.created_at,
-              value: w.amount,
-            }))}
-            color="#3b82f6"
-            unit="ml"
-            timeRange={timeRange}
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="height"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height (cm)</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="Enter your height" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TrendsChart
-            title="Calories Trend"
-            data={filteredData.nutrition.map((n) => ({
-              date: n.created_at,
-              value: n.calories,
-            }))}
-            color="#f59e0b"
-            unit="kcal"
-            timeRange={timeRange}
-          />
-          <TrendsChart
-            title="Protein Intake Trend"
-            data={filteredData.nutrition.map((n) => ({
-              date: n.created_at,
-              value: n.protein,
-            }))}
-            color="#10b981"
-            unit="g"
-            timeRange={timeRange}
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight (kg)</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="Enter your weight" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <InsightsCard insights={mockInsights} />
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Profile"}
+            </Button>
+          </form>
+        </Form>
       </div>
-      <AddFoodButton />
     </div>
   );
-}
+};
 
 export default Index;
