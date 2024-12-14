@@ -7,6 +7,7 @@ import { Activity, Scale, GlassWater, Utensils } from "lucide-react";
 import { mockMeasurements, mockWaterIntake, mockInsights, mockNutrition } from "@/utils/mockData";
 import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
 import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
+import { AddFoodButton } from "@/components/AddFoodButton";
 
 const Index = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
@@ -148,6 +149,7 @@ const Index = () => {
 
         <InsightsCard insights={mockInsights} />
       </div>
+      <AddFoodButton />
     </div>
   );
 }
