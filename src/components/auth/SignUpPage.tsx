@@ -19,9 +19,8 @@ export const SignUpPage = () => {
           view="sign_up"
         />
         <div className="text-center text-sm">
-          <span className="text-muted-foreground">Already have an account? </span>
           <Link to="/login" className="text-primary hover:underline">
-            Sign in
+            Already have an account? Sign in
           </Link>
         </div>
       </div>
