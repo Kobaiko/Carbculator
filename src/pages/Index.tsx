@@ -5,6 +5,7 @@ import { Camera, Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { FoodCard } from "@/components/FoodCard";
 import { analyzeFoodImage, type FoodAnalysis } from "@/services/openai";
+import { Navigation } from "@/components/Navigation";
 
 const Index = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -18,7 +19,6 @@ const Index = () => {
     setLoading(true);
     
     try {
-      // Convert image to base64
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = async () => {
@@ -42,7 +42,6 @@ const Index = () => {
   const handleCapture = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      // Implementation for camera capture would go here
       toast({
         title: "Camera Access",
         description: "Camera functionality coming soon!",
@@ -58,7 +57,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-gradient-to-b from-background to-secondary">
-      <div className="max-w-md mx-auto space-y-6">
+      <Navigation />
+      <div className="max-w-md mx-auto space-y-6 pt-16">
         <div className="text-center space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Calorie Tracker</h1>
           <p className="text-muted-foreground">
@@ -116,6 +116,6 @@ const Index = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Index;
