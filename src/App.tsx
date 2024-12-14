@@ -9,7 +9,6 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from '@supabase/auth-helpers-react'
 import Index from "./pages/Index";
-import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -20,39 +19,13 @@ const LoginPage = () => (
     <div className="w-full max-w-md space-y-8 px-4 py-8">
       <div className="text-center">
         <h1 className="text-2xl font-semibold">Welcome to Carbculator</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Sign up to continue</p>
+        <p className="mt-2 text-sm text-muted-foreground">Sign in to continue</p>
       </div>
       <Auth
         supabaseClient={supabase}
-        appearance={{ 
-          theme: ThemeSupa,
-          variables: {
-            default: {
-              colors: {
-                brand: '#000000',
-                brandAccent: '#333333',
-              },
-            },
-          },
-        }}
-        view="sign_up"
+        appearance={{ theme: ThemeSupa }}
         theme="light"
         providers={[]}
-        redirectTo={`${window.location.origin}/auth/callback`}
-        localization={{
-          variables: {
-            sign_up: {
-              email_label: 'Email',
-              password_label: 'Password',
-              button_label: 'Sign up',
-              link_text: 'Sign up',
-            },
-            sign_in: {
-              link_text: 'Already have an account? Sign in',
-            },
-          },
-        }}
-        showLinks={true}
       />
     </div>
   </div>
@@ -87,14 +60,6 @@ const App = () => {
               <Route 
                 path="/login" 
                 element={!session ? <LoginPage /> : <Navigate to="/" replace />} 
-              />
-              <Route
-                path="/onboarding"
-                element={
-                  <AuthMiddleware>
-                    <Onboarding />
-                  </AuthMiddleware>
-                }
               />
               <Route
                 path="/"
