@@ -29,8 +29,10 @@ export function Navigation() {
           }`}
           onClick={() => setOpen(false)}
         >
-          <item.icon className="h-5 w-5" />
-          <span className="md:hidden md:group-hover:block">{item.name}</span>
+          <div className="w-5 h-5">
+            <item.icon className="h-5 w-5" />
+          </div>
+          <span className="ml-3 md:hidden">{item.name}</span>
         </Link>
       ))}
     </div>
@@ -68,8 +70,8 @@ export function Navigation() {
                     : "hover:bg-accent"
                 }`}
               >
-                <div className="min-w-[48px] h-10 flex items-center justify-center">
-                  <item.icon className="h-5 w-5 shrink-0" />
+                <div className="w-16 h-10 flex items-center justify-center shrink-0">
+                  <item.icon className="h-5 w-5" />
                 </div>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {item.name}
