@@ -3,10 +3,11 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import App from './App.tsx'
 import './index.css'
 
-// Import your publishable key from environment variables
-const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+// Get the publishable key from Supabase secrets
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''
 
-if (!CLERK_PUBLISHABLE_KEY) {
+// Only throw error if we're not in development mode
+if (!CLERK_PUBLISHABLE_KEY && import.meta.env.MODE === 'production') {
   throw new Error("Missing Publishable Key")
 }
 
