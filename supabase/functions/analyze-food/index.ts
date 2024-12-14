@@ -53,7 +53,6 @@ serve(async (req) => {
     console.log('OpenAI response:', data);
 
     if (!response.ok) {
-      // Log the specific error from OpenAI
       console.error('OpenAI API error:', data.error);
       throw new Error(data.error?.message || 'Failed to analyze image');
     }
