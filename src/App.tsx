@@ -9,6 +9,7 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from '@supabase/auth-helpers-react'
 import Index from "./pages/Index";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,14 @@ const App = () => {
               <Route 
                 path="/login" 
                 element={!session ? <LoginPage /> : <Navigate to="/" replace />} 
+              />
+              <Route
+                path="/onboarding"
+                element={
+                  <AuthMiddleware>
+                    <Onboarding />
+                  </AuthMiddleware>
+                }
               />
               <Route
                 path="/"
