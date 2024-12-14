@@ -5,7 +5,7 @@ import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { TrendsChart } from "@/components/dashboard/TrendsChart";
 import { Activity, Scale, GlassWater, Utensils } from "lucide-react";
 import { mockMeasurements, mockWaterIntake, mockInsights, mockNutrition } from "@/utils/mockData";
-import { TimeRange } from "@/components/dashboard/TimeRangeSelector";
+import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
 import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 
 const Index = () => {
