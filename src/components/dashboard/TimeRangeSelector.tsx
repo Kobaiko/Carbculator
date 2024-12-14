@@ -1,4 +1,4 @@
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export type TimeRange = "daily" | "weekly" | "monthly" | "yearly" | "custom";
 
@@ -9,27 +9,17 @@ interface TimeRangeSelectorProps {
 
 export function TimeRangeSelector({ value, onValueChange }: TimeRangeSelectorProps) {
   return (
-    <ToggleGroup
-      type="single"
-      value={value}
-      onValueChange={(value) => value && onValueChange(value as TimeRange)}
-      className="justify-start"
-    >
-      <ToggleGroupItem value="daily" aria-label="Daily view">
-        Daily
-      </ToggleGroupItem>
-      <ToggleGroupItem value="weekly" aria-label="Weekly view">
-        Weekly
-      </ToggleGroupItem>
-      <ToggleGroupItem value="monthly" aria-label="Monthly view">
-        Monthly
-      </ToggleGroupItem>
-      <ToggleGroupItem value="yearly" aria-label="Yearly view">
-        Yearly
-      </ToggleGroupItem>
-      <ToggleGroupItem value="custom" aria-label="Custom range">
-        Custom
-      </ToggleGroupItem>
-    </ToggleGroup>
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select time range" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="daily">Daily</SelectItem>
+        <SelectItem value="weekly">Weekly</SelectItem>
+        <SelectItem value="monthly">Monthly</SelectItem>
+        <SelectItem value="yearly">Yearly</SelectItem>
+        <SelectItem value="custom">Custom</SelectItem>
+      </SelectContent>
+    </Select>
   );
 }

@@ -15,15 +15,15 @@ export function TrendsChart({ data, title, color, unit }: TrendsChartProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
 
   return (
-    <Card className="col-span-full">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{title}</CardTitle>
+    <Card className="w-full">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <CardTitle className="text-lg">{title}</CardTitle>
         <TimeRangeSelector value={timeRange} onValueChange={setTimeRange} />
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[250px] sm:h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <XAxis 
                 dataKey="date"
                 tickFormatter={(value) => {
@@ -42,7 +42,7 @@ export function TrendsChart({ data, title, color, unit }: TrendsChartProps) {
                   }
                 }}
               />
-              <YAxis />
+              <YAxis width={45} />
               <ChartTooltip />
               <Area
                 type="monotone"
