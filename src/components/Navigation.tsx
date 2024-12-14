@@ -63,16 +63,16 @@ export function Navigation() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center rounded-lg transition-colors ${
+              className={`relative flex items-center rounded-lg transition-colors ${
                 location.pathname === item.path
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-accent"
               }`}
             >
-              <div className="w-10 h-10 flex items-center justify-center">
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
                 <item.icon className="h-5 w-5" />
               </div>
-              <span className="opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-[opacity,visibility] duration-200 group-hover:delay-150 delay-0">
+              <span className="absolute left-12 whitespace-nowrap opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-[opacity,visibility] duration-200 group-hover:delay-150 delay-0">
                 {item.name}
               </span>
             </Link>
