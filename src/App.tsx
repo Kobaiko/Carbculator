@@ -27,6 +27,19 @@ const LoginPage = () => (
         appearance={{ theme: ThemeSupa }}
         theme="light"
         providers={[]}
+        options={{
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          additionalData: {
+            first_name: {
+              label: 'First Name',
+              required: true,
+            },
+            last_name: {
+              label: 'Last Name',
+              required: true,
+            },
+          },
+        }}
       />
     </div>
   </div>
