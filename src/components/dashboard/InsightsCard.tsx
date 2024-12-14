@@ -19,18 +19,18 @@ export function InsightsCard({ insights }: InsightsCardProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="trends" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-white/50 backdrop-blur-sm">
-            <TabsTrigger value="trends" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-3 bg-white/50 backdrop-blur-sm rounded-full p-1">
+            <TabsTrigger value="trends" className="flex items-center gap-2 rounded-full data-[state=active]:bg-white/80">
               <TrendingUp className="h-4 w-4" />
-              Trends
+              <span className="hidden sm:inline">Trends</span>
             </TabsTrigger>
-            <TabsTrigger value="recommendations" className="flex items-center gap-2">
+            <TabsTrigger value="recommendations" className="flex items-center gap-2 rounded-full data-[state=active]:bg-white/80">
               <Activity className="h-4 w-4" />
-              Recommendations
+              <span className="hidden sm:inline">Recommendations</span>
             </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-2">
+            <TabsTrigger value="goals" className="flex items-center gap-2 rounded-full data-[state=active]:bg-white/80">
               <Target className="h-4 w-4" />
-              Goals
+              <span className="hidden sm:inline">Goals</span>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="trends" className="mt-4">
