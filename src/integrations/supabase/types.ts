@@ -50,6 +50,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           daily_calories: number
           daily_carbs: number
@@ -66,6 +67,7 @@ export type Database = {
           weight_unit: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           daily_calories?: number
           daily_carbs?: number
@@ -82,6 +84,7 @@ export type Database = {
           weight_unit?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           daily_calories?: number
           daily_carbs?: number
