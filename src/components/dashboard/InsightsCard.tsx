@@ -20,16 +20,19 @@ export function InsightsCard({ insights }: InsightsCardProps) {
       <CardContent>
         <Tabs defaultValue="trends" className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-white/50 backdrop-blur-sm rounded-full p-1">
-            <TabsTrigger value="trends" className="flex items-center gap-2 rounded-full data-[state=active]:bg-white/80">
+            <TabsTrigger value="trends" className="flex flex-col items-center gap-1 rounded-full data-[state=active]:bg-white/80">
               <TrendingUp className="h-4 w-4" />
+              <span className="sm:hidden text-[10px] font-medium">Trends</span>
               <span className="hidden sm:inline">Trends</span>
             </TabsTrigger>
-            <TabsTrigger value="recommendations" className="flex items-center gap-2 rounded-full data-[state=active]:bg-white/80">
+            <TabsTrigger value="recommendations" className="flex flex-col items-center gap-1 rounded-full data-[state=active]:bg-white/80">
               <Activity className="h-4 w-4" />
+              <span className="sm:hidden text-[10px] font-medium">Insights</span>
               <span className="hidden sm:inline">Recommendations</span>
             </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-2 rounded-full data-[state=active]:bg-white/80">
+            <TabsTrigger value="goals" className="flex flex-col items-center gap-1 rounded-full data-[state=active]:bg-white/80">
               <Target className="h-4 w-4" />
+              <span className="sm:hidden text-[10px] font-medium">Goals</span>
               <span className="hidden sm:inline">Goals</span>
             </TabsTrigger>
           </TabsList>
