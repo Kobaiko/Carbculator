@@ -39,16 +39,6 @@ const LoginPage = () => (
         theme="light"
         providers={[]}
         redirectTo={`${window.location.origin}/auth/callback`}
-        options={{
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          meta: {
-            displayName: {
-              label: 'How would you like us to call you?',
-              type: 'text',
-              required: true,
-            },
-          },
-        }}
         localization={{
           variables: {
             sign_up: {
