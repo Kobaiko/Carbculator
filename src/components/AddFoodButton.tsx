@@ -1,4 +1,4 @@
-import { Plus, Upload, Camera } from "lucide-react";
+import { Plus, Upload, Camera, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import { FoodCard } from "./FoodCard";
 import { analyzeFoodImage } from "@/services/openai";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AddFoodButton() {
   const [open, setOpen] = useState(false);
@@ -20,6 +21,7 @@ export function AddFoodButton() {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -54,7 +56,7 @@ export function AddFoodButton() {
           const foodAnalysis = await analyzeFoodImage(base64Image);
           setAnalysis(foodAnalysis);
 
-          // Save to database - Ensure property names match the database schema
+          // Save to database
           const { error: dbError } = await supabase
             .from("food_entries")
             .insert({
@@ -64,7 +66,7 @@ export function AddFoodButton() {
               protein: foodAnalysis.protein,
               carbs: foodAnalysis.carbs,
               fats: foodAnalysis.fats,
-              health_score: foodAnalysis.healthScore, // Fix: map healthScore to health_score
+              health_score: foodAnalysis.healthScore,
               image_url: publicUrl,
             });
 
@@ -100,33 +102,42 @@ export function AddFoodButton() {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto glass-card border-none">
+          <DialogHeader className="relative">
             <DialogTitle>Add Food Entry</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0"
+              onClick={() => setOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <label htmlFor="food-image" className="text-sm font-medium">
-                Upload Food Image
+                {isMobile ? "Take a Photo" : "Upload Food Image"}
               </label>
               <div className="flex gap-2">
                 <Input
                   id="food-image"
                   type="file"
                   accept="image/*"
-                  capture="environment"
+                  capture={isMobile ? "environment" : undefined}
                   onChange={handleFileUpload}
                   disabled={isLoading}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                 />
               </div>
             </div>
 
             {isLoading && (
-              <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Analyzing your food...
+              <div className="text-center py-8 space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <p className="text-sm text-muted-foreground animate-pulse">
+                  AI is analyzing your food...
                 </p>
               </div>
             )}

@@ -71,7 +71,7 @@
 }
 
 .glass-card {
-  @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg;
+  @apply bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-white/20 dark:border-black/20 shadow-lg;
 }
 
 .macro-card {
