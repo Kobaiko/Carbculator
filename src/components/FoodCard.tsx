@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Flame, Dumbbell, Wheat, Droplets, Plus, Minus } from "lucide-react";
+import { Flame, Dumbbell, Wheat, Droplets, Plus, Minus, List } from "lucide-react";
 import type { FoodAnalysis } from "@/services/openai";
 
 interface FoodCardProps {
@@ -44,6 +44,18 @@ export function FoodCard({ analysis, quantity, onQuantityChange, imageUrl }: Foo
             </Button>
           </div>
         </div>
+
+        {analysis.ingredients && (
+          <div className="p-4 rounded-lg bg-secondary/50 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <List className="h-4 w-4" />
+              <span>Ingredients</span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {analysis.ingredients.join(", ")}
+            </div>
+          </div>
+        )}
 
         <div className="p-4 rounded-lg bg-secondary/50">
           <div className="flex items-center gap-2 text-2xl font-bold">

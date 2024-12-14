@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -21,8 +20,9 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    console.log('Calling OpenAI API...');
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Step 1: Get ingredients from the image
+    console.log('Getting ingredients from image...');
+    const ingredientsResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
@@ -36,7 +36,7 @@ serve(async (req) => {
             content: [
               {
                 type: 'text',
-                text: 'Analyze this food image and provide the following information in JSON format: name of the dish, calories, protein (g), carbs (g), fats (g), and a health score from 1-10. Format: {"name": string, "calories": number, "protein": number, "carbs": number, "fats": number, "healthScore": number}',
+                text: 'List all ingredients you can see in this food image. Format your response as a comma-separated list.',
               },
               {
                 type: 'image_url',
@@ -51,25 +51,68 @@ serve(async (req) => {
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(errorData.error?.message || 'Failed to analyze image');
+    if (!ingredientsResponse.ok) {
+      const errorData = await ingredientsResponse.json();
+      console.error('OpenAI API error (ingredients):', errorData);
+      throw new Error(errorData.error?.message || 'Failed to analyze ingredients');
     }
 
-    const data = await response.json();
-    console.log('OpenAI response:', data);
+    const ingredientsData = await ingredientsResponse.json();
+    const ingredients = ingredientsData.choices[0].message.content.trim();
+    console.log('Identified ingredients:', ingredients);
 
-    if (!data.choices?.[0]?.message?.content) {
-      console.error('Invalid OpenAI response format:', data);
+    // Step 2: Get nutritional information based on ingredients
+    console.log('Calculating nutritional information...');
+    const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'user',
+            content: `Based on these ingredients: ${ingredients}
+
+            Provide nutritional information in this exact JSON format:
+            {
+              "name": "Name of the dish",
+              "ingredients": ["ingredient1", "ingredient2", ...],
+              "calories": number,
+              "protein": number (in grams),
+              "carbs": number (in grams),
+              "fats": number (in grams),
+              "healthScore": number (1-10)
+            }
+            
+            Be precise with the numbers and realistic with the health score.`,
+          },
+        ],
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!nutritionResponse.ok) {
+      const errorData = await nutritionResponse.json();
+      console.error('OpenAI API error (nutrition):', errorData);
+      throw new Error(errorData.error?.message || 'Failed to calculate nutrition');
+    }
+
+    const nutritionData = await nutritionResponse.json();
+    console.log('Nutrition response:', nutritionData);
+
+    if (!nutritionData.choices?.[0]?.message?.content) {
+      console.error('Invalid OpenAI response format:', nutritionData);
       throw new Error('Invalid response format from OpenAI');
     }
 
     try {
-      const result = JSON.parse(data.choices[0].message.content);
+      const result = JSON.parse(nutritionData.choices[0].message.content);
       
       // Validate the parsed result has all required fields
-      const requiredFields = ['name', 'calories', 'protein', 'carbs', 'fats', 'healthScore'];
+      const requiredFields = ['name', 'ingredients', 'calories', 'protein', 'carbs', 'fats', 'healthScore'];
       for (const field of requiredFields) {
         if (!(field in result)) {
           console.error(`Missing required field: ${field} in result:`, result);
@@ -82,7 +125,7 @@ serve(async (req) => {
       });
     } catch (parseError) {
       console.error('Error parsing OpenAI response:', parseError);
-      console.log('Raw content:', data.choices[0].message.content);
+      console.log('Raw content:', nutritionData.choices[0].message.content);
       throw new Error('Failed to parse OpenAI response');
     }
   } catch (error) {

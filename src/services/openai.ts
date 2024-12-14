@@ -3,6 +3,7 @@ import { toast } from "@/components/ui/use-toast";
 
 export interface FoodAnalysis {
   name: string;
+  ingredients: string[];
   calories: number;
   protein: number;
   carbs: number;
