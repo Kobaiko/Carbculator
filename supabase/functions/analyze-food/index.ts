@@ -28,7 +28,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4-vision-preview',
         messages: [
           {
             role: 'user',
@@ -46,6 +46,7 @@ serve(async (req) => {
             ],
           },
         ],
+        max_tokens: 1000,
       }),
     });
 
