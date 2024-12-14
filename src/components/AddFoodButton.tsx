@@ -102,42 +102,76 @@ export function AddFoodButton() {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto glass-card border-none">
-          <DialogHeader className="relative">
-            <DialogTitle>Add Food Entry</DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-card">
+          <DialogHeader className="relative mb-6">
+            <DialogTitle className="text-2xl font-bold">Add Food Entry</DialogTitle>
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-0 top-0"
+              className="absolute right-0 top-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={() => setOpen(false)}
             >
               <X className="h-4 w-4" />
             </Button>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <label htmlFor="food-image" className="text-sm font-medium">
-                {isMobile ? "Take a Photo" : "Upload Food Image"}
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  id="food-image"
-                  type="file"
-                  accept="image/*"
-                  capture={isMobile ? "environment" : undefined}
-                  onChange={handleFileUpload}
-                  disabled={isLoading}
-                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                />
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Upload Food Image</h2>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-full max-w-md p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg hover:border-primary transition-colors">
+                  <Input
+                    id="food-image"
+                    type="file"
+                    accept="image/*"
+                    capture={isMobile ? "environment" : undefined}
+                    onChange={handleFileUpload}
+                    disabled={isLoading}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="food-image"
+                    className="flex flex-col items-center gap-4 cursor-pointer"
+                  >
+                    <Upload className="h-8 w-8 text-gray-400" />
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {isMobile ? "Choose a file or take a photo" : "Choose a file"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        PNG, JPG up to 10MB
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {isMobile && (
+                  <Button
+                    onClick={() => {
+                      const input = document.getElementById("food-image") as HTMLInputElement;
+                      input?.click();
+                    }}
+                    variant="outline"
+                    className="w-full max-w-md"
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Take Photo
+                  </Button>
+                )}
               </div>
             </div>
 
             {isLoading && (
-              <div className="text-center py-8 space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                <p className="text-sm text-muted-foreground animate-pulse">
+              <div className="text-center py-12 space-y-4">
+                <div className="relative mx-auto w-16 h-16">
+                  <div className="absolute top-0 left-0 w-full h-full border-4 border-gray-200 rounded-full"></div>
+                  <div className="absolute top-0 left-0 w-full h-full border-4 border-primary rounded-full animate-spin border-t-transparent"></div>
+                </div>
+                <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
                   AI is analyzing your food...
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-500">
+                  This might take a few seconds
                 </p>
               </div>
             )}
