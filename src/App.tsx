@@ -7,8 +7,10 @@ import { ClerkProvider, SignIn, SignUp } from "@clerk/clerk-react";
 import { AuthMiddleware } from "./components/auth/AuthMiddleware";
 import Index from "./pages/Index";
 
-if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) {
-  throw new Error("Missing Clerk Publishable Key");
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_PUBLISHABLE_KEY) {
+  console.error("Missing Clerk Publishable Key. Please check your environment variables.");
 }
 
 const queryClient = new QueryClient();
@@ -16,7 +18,7 @@ const queryClient = new QueryClient();
 const EmptyPage = () => <div className="p-4">Coming soon...</div>;
 
 const App = () => (
-  <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+  <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY || ""}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
