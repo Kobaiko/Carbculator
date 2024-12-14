@@ -56,13 +56,13 @@ export type Database = {
           daily_fats: number
           daily_protein: number
           first_name: string | null
-          height: number
+          height: number | null
           height_unit: string
           id: string
           last_name: string | null
           updated_at: string
           username: string | null
-          weight: number
+          weight: number | null
           weight_unit: string
         }
         Insert: {
@@ -72,13 +72,13 @@ export type Database = {
           daily_fats?: number
           daily_protein?: number
           first_name?: string | null
-          height: number
+          height?: number | null
           height_unit?: string
           id: string
           last_name?: string | null
           updated_at?: string
           username?: string | null
-          weight: number
+          weight?: number | null
           weight_unit?: string
         }
         Update: {
@@ -88,13 +88,13 @@ export type Database = {
           daily_fats?: number
           daily_protein?: number
           first_name?: string | null
-          height?: number
+          height?: number | null
           height_unit?: string
           id?: string
           last_name?: string | null
           updated_at?: string
           username?: string | null
-          weight?: number
+          weight?: number | null
           weight_unit?: string
         }
         Relationships: []

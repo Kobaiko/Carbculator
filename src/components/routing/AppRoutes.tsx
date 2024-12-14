@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthMiddleware } from "../auth/AuthMiddleware";
 import { LoginPage } from "../auth/LoginPage";
 import { SignUpPage } from "../auth/SignUpPage";
+import { OnboardingPage } from "../auth/OnboardingPage";
 import Index from "../../pages/Index";
 import { useSession } from '@supabase/auth-helpers-react';
 
@@ -18,7 +19,15 @@ export const AppRoutes = () => {
       />
       <Route 
         path="/signup" 
-        element={!session ? <SignUpPage /> : <Navigate to="/" replace />} 
+        element={!session ? <SignUpPage /> : <Navigate to="/onboarding" replace />} 
+      />
+      <Route
+        path="/onboarding"
+        element={
+          <AuthMiddleware>
+            <OnboardingPage />
+          </AuthMiddleware>
+        }
       />
       <Route
         path="/"
