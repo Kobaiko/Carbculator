@@ -15,7 +15,7 @@ interface TimeRangeSelectorProps {
 
 export function TimeRangeSelector({ value, onValueChange, customDateRange }: TimeRangeSelectorProps) {
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 glass-card p-4 rounded-xl">
+    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 bg-background/50 p-4 rounded-xl border">
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select time range" />
