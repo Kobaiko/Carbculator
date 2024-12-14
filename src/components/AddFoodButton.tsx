@@ -54,11 +54,17 @@ export function AddFoodButton() {
           const foodAnalysis = await analyzeFoodImage(base64Image);
           setAnalysis(foodAnalysis);
 
-          // Save to database
+          // Save to database - Ensure property names match the database schema
           const { error: dbError } = await supabase
             .from("food_entries")
             .insert({
-              ...foodAnalysis,
+              name: foodAnalysis.name,
+              ingredients: foodAnalysis.ingredients,
+              calories: foodAnalysis.calories,
+              protein: foodAnalysis.protein,
+              carbs: foodAnalysis.carbs,
+              fats: foodAnalysis.fats,
+              health_score: foodAnalysis.healthScore, // Fix: map healthScore to health_score
               image_url: publicUrl,
             });
 
