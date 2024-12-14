@@ -20,13 +20,33 @@ const LoginPage = () => (
     <div className="w-full max-w-md space-y-8 px-4 py-8">
       <div className="text-center">
         <h1 className="text-2xl font-semibold">Welcome to Carbculator</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Sign in to continue</p>
+        <p className="mt-2 text-sm text-muted-foreground">Sign up to continue</p>
       </div>
       <Auth
         supabaseClient={supabase}
-        appearance={{ theme: ThemeSupa }}
+        appearance={{ 
+          theme: ThemeSupa,
+          variables: {
+            default: {
+              colors: {
+                brand: '#000000',
+                brandAccent: '#333333',
+              },
+            },
+          },
+        }}
+        view="sign_up"
         theme="light"
         providers={[]}
+        localization={{
+          variables: {
+            sign_up: {
+              email_label: 'Email',
+              password_label: 'Password',
+              button_label: 'Sign up',
+            },
+          },
+        }}
         additionalData={{
           first_name: {
             label: 'First Name',
