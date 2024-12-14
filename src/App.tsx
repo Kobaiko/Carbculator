@@ -44,19 +44,14 @@ const LoginPage = () => (
               email_label: 'Email',
               password_label: 'Password',
               button_label: 'Sign up',
+              link_text: 'Sign up',
+            },
+            sign_in: {
+              link_text: 'Already have an account? Sign in',
             },
           },
         }}
-        additionalData={{
-          first_name: {
-            label: 'First Name',
-            required: true,
-          },
-          last_name: {
-            label: 'Last Name',
-            required: true,
-          },
-        }}
+        showLinks={true}
         redirectTo={`${window.location.origin}/auth/callback`}
       />
     </div>
@@ -151,3 +146,4 @@ const App = () => {
 };
 
 export default App;
+
