@@ -17,7 +17,7 @@ export function TimeRangeSelector({ value, onValueChange, customDateRange }: Tim
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center gap-4 glass-card p-4 rounded-xl">
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-[180px] bg-white/50 backdrop-blur-sm">
+        <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select time range" />
         </SelectTrigger>
         <SelectContent>
