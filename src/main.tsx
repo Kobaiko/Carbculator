@@ -1,18 +1,12 @@
 import { createRoot } from 'react-dom/client'
-import { ClerkProvider } from '@clerk/clerk-react'
+import { createClient } from '@supabase/supabase-js'
+import { SessionContextProvider } from '@supabase/auth-helpers-react'
 import App from './App.tsx'
 import './index.css'
-
-// Get the publishable key from Supabase secrets
-const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''
-
-// Only throw error if we're not in development mode
-if (!CLERK_PUBLISHABLE_KEY && import.meta.env.MODE === 'production') {
-  throw new Error("Missing Publishable Key")
-}
+import { supabase } from "@/integrations/supabase/client";
 
 createRoot(document.getElementById("root")!).render(
-  <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+  <SessionContextProvider supabaseClient={supabase}>
     <App />
-  </ClerkProvider>
+  </SessionContextProvider>
 );
