@@ -20,6 +20,7 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
+    console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -27,7 +28,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'user',
@@ -52,13 +53,21 @@ serve(async (req) => {
     console.log('OpenAI response:', data);
 
     if (!response.ok) {
+      // Log the specific error from OpenAI
+      console.error('OpenAI API error:', data.error);
       throw new Error(data.error?.message || 'Failed to analyze image');
     }
 
-    const result = JSON.parse(data.choices[0].message.content);
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    try {
+      const result = JSON.parse(data.choices[0].message.content);
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (parseError) {
+      console.error('Error parsing OpenAI response:', parseError);
+      console.log('Raw content:', data.choices[0].message.content);
+      throw new Error('Failed to parse OpenAI response');
+    }
   } catch (error) {
     console.error('Error in analyze-food function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
