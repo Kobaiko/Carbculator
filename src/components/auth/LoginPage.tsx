@@ -19,8 +19,9 @@ export const LoginPage = () => {
           view="sign_in"
         />
         <div className="text-center text-sm">
+          <span className="text-muted-foreground">Don't have an account? </span>
           <Link to="/signup" className="text-primary hover:underline">
-            Don't have an account? Sign up
+            Sign up
           </Link>
         </div>
       </div>
