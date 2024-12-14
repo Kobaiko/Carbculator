@@ -14,23 +14,32 @@ const queryClient = new QueryClient();
 
 const EmptyPage = () => <div className="p-4">Coming soon...</div>;
 
-const LoginPage = () => (
-  <div className="flex min-h-screen items-center justify-center bg-background">
-    <div className="w-full max-w-md space-y-8 px-4 py-8">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold">Welcome back to Carbculator</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Sign in to continue</p>
+const LoginPage = () => {
+  const [view, setView] = React.useState<'sign_in' | 'sign_up'>('sign_up');
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="w-full max-w-md space-y-8 px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold">
+            {view === 'sign_up' ? 'Welcome to Carbculator' : 'Welcome back to Carbculator'}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {view === 'sign_up' ? 'Sign up to continue' : 'Sign in to continue'}
+          </p>
+        </div>
+        <Auth
+          supabaseClient={supabase}
+          appearance={{ theme: ThemeSupa }}
+          theme="light"
+          providers={[]}
+          view="sign_up"
+          onViewChange={(newView) => setView(newView as 'sign_in' | 'sign_up')}
+        />
       </div>
-      <Auth
-        supabaseClient={supabase}
-        appearance={{ theme: ThemeSupa }}
-        theme="light"
-        providers={[]}
-        view="sign_up"
-      />
     </div>
-  </div>
-);
+  );
+};
 
 const App = () => {
   const session = useSession();
