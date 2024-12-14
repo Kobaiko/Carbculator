@@ -21,13 +21,13 @@ export function CustomDateRangePicker({ startDate, endDate, onRangeSelect }: Cus
         <PopoverTrigger asChild>
           <Button 
             variant="outline" 
-            className="w-full md:w-[200px] justify-start text-left font-normal"
+            className="w-full md:w-[200px] justify-start text-left font-normal bg-white/50 backdrop-blur-sm"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {startDate ? format(startDate, "PPP") : "Pick start date"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 glass-card" align="start">
           <Calendar
             mode="single"
             selected={startDate}
@@ -44,13 +44,13 @@ export function CustomDateRangePicker({ startDate, endDate, onRangeSelect }: Cus
         <PopoverTrigger asChild>
           <Button 
             variant="outline" 
-            className="w-full md:w-[200px] justify-start text-left font-normal"
+            className="w-full md:w-[200px] justify-start text-left font-normal bg-white/50 backdrop-blur-sm"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {endDate ? format(endDate, "PPP") : "Pick end date"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 glass-card" align="start">
           <Calendar
             mode="single"
             selected={endDate}

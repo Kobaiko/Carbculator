@@ -12,14 +12,14 @@ interface InsightsCardProps {
 
 export function InsightsCard({ insights }: InsightsCardProps) {
   return (
-    <Card className="col-span-full">
+    <Card className="col-span-full glass-card">
       <CardHeader className="flex flex-row items-center space-x-2">
         <Lightbulb className="h-5 w-5 text-yellow-500" />
         <CardTitle>AI Insights & Recommendations</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="trends" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 bg-white/50 backdrop-blur-sm">
             <TabsTrigger value="trends" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Trends

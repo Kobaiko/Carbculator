@@ -13,7 +13,7 @@ interface TrendsChartProps {
 
 export function TrendsChart({ data, title, color, unit, timeRange }: TrendsChartProps) {
   return (
-    <Card className="w-full">
+    <Card className="w-full glass-card">
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
