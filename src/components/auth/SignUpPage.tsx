@@ -9,13 +9,16 @@ export const SignUpPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'USER_REGISTRATION_ERROR') {
-        toast({
-          title: "Account already exists",
-          description: "Please sign in with your existing account",
-          variant: "destructive",
-        });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        const error = new URL(window.location.href).searchParams.get('error_description');
+        if (error?.includes('User already registered')) {
+          toast({
+            title: "Account already exists",
+            description: "Please sign in with your existing account",
+            variant: "destructive",
+          });
+        }
       }
     });
 
