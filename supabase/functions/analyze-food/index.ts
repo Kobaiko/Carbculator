@@ -7,6 +7,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -29,7 +30,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'user',
@@ -58,6 +59,11 @@ serve(async (req) => {
     }
 
     const ingredientsData = await ingredientsResponse.json();
+    if (!ingredientsData.choices?.[0]?.message?.content) {
+      console.error('Invalid OpenAI response format (ingredients):', ingredientsData);
+      throw new Error('Invalid response format from OpenAI (ingredients)');
+    }
+
     const ingredients = ingredientsData.choices[0].message.content.trim();
     console.log('Identified ingredients:', ingredients);
 
@@ -70,7 +76,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'user',
@@ -104,8 +110,8 @@ serve(async (req) => {
     console.log('Nutrition response:', nutritionData);
 
     if (!nutritionData.choices?.[0]?.message?.content) {
-      console.error('Invalid OpenAI response format:', nutritionData);
-      throw new Error('Invalid response format from OpenAI');
+      console.error('Invalid OpenAI response format (nutrition):', nutritionData);
+      throw new Error('Invalid response format from OpenAI (nutrition)');
     }
 
     try {
@@ -119,6 +125,18 @@ serve(async (req) => {
           throw new Error(`Missing required field: ${field}`);
         }
       }
+
+      // Convert ingredients string array to actual array if needed
+      if (typeof result.ingredients === 'string') {
+        result.ingredients = result.ingredients.split(',').map(i => i.trim());
+      }
+
+      // Ensure all numeric fields are numbers
+      result.calories = Number(result.calories);
+      result.protein = Number(result.protein);
+      result.carbs = Number(result.carbs);
+      result.fats = Number(result.fats);
+      result.healthScore = Number(result.healthScore);
 
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
