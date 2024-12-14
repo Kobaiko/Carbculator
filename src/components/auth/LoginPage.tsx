@@ -1,6 +1,7 @@
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 
 export const LoginPage = () => {
   return (
@@ -17,6 +18,12 @@ export const LoginPage = () => {
           providers={[]}
           view="sign_in"
         />
+        <div className="text-center text-sm">
+          <span className="text-muted-foreground">Don't have an account? </span>
+          <Link to="/signup" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        </div>
       </div>
     </div>
   );
