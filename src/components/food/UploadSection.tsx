@@ -11,7 +11,7 @@ interface UploadSectionProps {
 export function UploadSection({ onFileUpload, isLoading, isMobile }: UploadSectionProps) {
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Upload Food Image</h2>
+      <h2 className="text-xl font-semibold">Upload Meal Image</h2>
       <div className="flex flex-col items-center gap-4">
         <div className="w-full max-w-md p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg hover:border-primary transition-colors">
           <Input

@@ -61,12 +61,12 @@ export function AddFoodButton() {
           setImageUrl(publicUrl);
 
           // Analyze the image
-          const foodAnalysis = await analyzeFoodImage(base64Image);
-          setAnalysis(foodAnalysis);
+          const mealAnalysis = await analyzeFoodImage(base64Image);
+          setAnalysis(mealAnalysis);
 
           toast({
             title: "Success!",
-            description: "Food analysis completed.",
+            description: "Meal analysis completed.",
           });
         } catch (error) {
           console.error("Error processing image:", error);
@@ -142,7 +142,7 @@ export function AddFoodButton() {
       >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-card">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Add Food Entry</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Let's add your meal! 🍽️</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-8">
