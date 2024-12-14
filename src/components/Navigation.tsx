@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Home, CalendarDays, GlassWater, Pizza, Target } from "lucide-react";
+import { Menu, LayoutDashboard, CalendarDays, GlassWater, Pizza, Target } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
-  { name: "Dashboard", icon: Home, path: "/" },
+  { name: "Dashboard", icon: LayoutDashboard, path: "/" },
   { name: "Daily Meals", icon: Pizza, path: "/meals" },
   { name: "Daily Goals", icon: Target, path: "/goals" },
   { name: "Calendar", icon: CalendarDays, path: "/calendar" },
