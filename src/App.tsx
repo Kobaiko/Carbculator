@@ -16,7 +16,7 @@ const queryClient = new QueryClient();
 const EmptyPage = () => <div className="p-4">Coming soon...</div>;
 
 const LoginPage = () => {
-  const [view, setView] = useState<'sign_in' | 'sign_up'>('sign_up');
+  const [view, setView] = useState<'sign_in' | 'sign_up'>('sign_in');
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
