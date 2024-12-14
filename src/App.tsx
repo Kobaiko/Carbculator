@@ -18,7 +18,7 @@ const LoginPage = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
     <div className="w-full max-w-md space-y-8 px-4 py-8">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold">Welcome to Health Tracker</h1>
+        <h1 className="text-2xl font-semibold">Welcome to Carbculator</h1>
         <p className="mt-2 text-sm text-muted-foreground">Sign in to continue</p>
       </div>
       <Auth
@@ -44,7 +44,7 @@ const App = () => {
             {session && (
               <header className="py-4 px-6 border-b">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
-                  <h1 className="text-xl font-semibold">Health Tracker</h1>
+                  <h1 className="text-xl font-semibold">Carbculator</h1>
                   <button 
                     onClick={() => supabase.auth.signOut()}
                     className="text-sm text-gray-600 hover:text-gray-900"

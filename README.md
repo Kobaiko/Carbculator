@@ -1,4 +1,4 @@
-# AI-Powered Calorie Tracker
+# Carbculator
 
 A beautiful, minimalist calorie tracking application that uses artificial intelligence to analyze food images and provide nutritional information.
 
