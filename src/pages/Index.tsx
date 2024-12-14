@@ -58,7 +58,7 @@ const Index = () => {
   return (
     <div className="min-h-screen p-4 md:p-6 bg-gradient-to-b from-background to-secondary">
       <Navigation />
-      <div className="max-w-md mx-auto space-y-6 pt-16">
+      <div className="max-w-md mx-auto space-y-6 pt-16 md:ml-16">
         <div className="text-center space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Calorie Tracker</h1>
           <p className="text-muted-foreground">

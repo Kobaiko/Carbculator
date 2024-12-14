@@ -22,7 +22,7 @@ export function Navigation() {
         <Link
           key={item.path}
           to={item.path}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors group relative ${
             location.pathname === item.path
               ? "bg-primary text-primary-foreground"
               : "hover:bg-accent"
@@ -30,7 +30,11 @@ export function Navigation() {
           onClick={() => setOpen(false)}
         >
           <item.icon className="h-5 w-5" />
-          <span>{item.name}</span>
+          <span className="md:hidden md:group-hover:block">{item.name}</span>
+          {/* Tooltip for desktop */}
+          <span className="hidden md:group-hover:block absolute left-full ml-2 bg-background px-2 py-1 rounded-md shadow-md whitespace-nowrap border z-50">
+            {item.name}
+          </span>
         </Link>
       ))}
     </div>
@@ -55,8 +59,10 @@ export function Navigation() {
       </div>
 
       {/* Desktop Menu */}
-      <div className="hidden md:block fixed right-4 top-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 p-4 rounded-lg border shadow-sm">
-        <NavLinks />
+      <div className="hidden md:flex fixed left-0 top-0 h-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 border-r shadow-sm hover:w-64 transition-[width] duration-300 w-16 flex-col py-4">
+        <div className="px-2">
+          <NavLinks />
+        </div>
       </div>
     </>
   );
