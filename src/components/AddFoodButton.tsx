@@ -56,25 +56,9 @@ export function AddFoodButton() {
           const foodAnalysis = await analyzeFoodImage(base64Image);
           setAnalysis(foodAnalysis);
 
-          // Save to database
-          const { error: dbError } = await supabase
-            .from("food_entries")
-            .insert({
-              name: foodAnalysis.name,
-              ingredients: foodAnalysis.ingredients,
-              calories: foodAnalysis.calories,
-              protein: foodAnalysis.protein,
-              carbs: foodAnalysis.carbs,
-              fats: foodAnalysis.fats,
-              health_score: foodAnalysis.healthScore,
-              image_url: publicUrl,
-            });
-
-          if (dbError) throw dbError;
-
           toast({
             title: "Success!",
-            description: "Food analysis completed and saved.",
+            description: "Food analysis completed.",
           });
         } catch (error) {
           console.error("Error processing image:", error);
@@ -86,6 +70,44 @@ export function AddFoodButton() {
         }
       };
       reader.readAsDataURL(file);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddToMeals = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Save to database
+      const { error: dbError } = await supabase
+        .from("food_entries")
+        .insert({
+          name: analysis.name,
+          ingredients: analysis.ingredients,
+          calories: analysis.calories,
+          protein: analysis.protein,
+          carbs: analysis.carbs,
+          fats: analysis.fats,
+          health_score: analysis.healthScore,
+          image_url: imageUrl,
+        });
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success!",
+        description: "Added to your daily meals.",
+      });
+      
+      setOpen(false);
+    } catch (error) {
+      console.error("Error saving to meals:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add to daily meals. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -116,50 +138,52 @@ export function AddFoodButton() {
           </DialogHeader>
 
           <div className="space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Upload Food Image</h2>
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-full max-w-md p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg hover:border-primary transition-colors">
-                  <Input
-                    id="food-image"
-                    type="file"
-                    accept="image/*"
-                    capture={isMobile ? "environment" : undefined}
-                    onChange={handleFileUpload}
-                    disabled={isLoading}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="food-image"
-                    className="flex flex-col items-center gap-4 cursor-pointer"
-                  >
-                    <Upload className="h-8 w-8 text-gray-400" />
-                    <div className="text-center">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {isMobile ? "Choose a file or take a photo" : "Choose a file"}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                        PNG, JPG up to 10MB
-                      </p>
-                    </div>
-                  </label>
-                </div>
+            {!analysis && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Upload Food Image</h2>
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-full max-w-md p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg hover:border-primary transition-colors">
+                    <Input
+                      id="food-image"
+                      type="file"
+                      accept="image/*"
+                      capture={isMobile ? "environment" : undefined}
+                      onChange={handleFileUpload}
+                      disabled={isLoading}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="food-image"
+                      className="flex flex-col items-center gap-4 cursor-pointer"
+                    >
+                      <Upload className="h-8 w-8 text-gray-400" />
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {isMobile ? "Choose a file or take a photo" : "Choose a file"}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          PNG, JPG up to 10MB
+                        </p>
+                      </div>
+                    </label>
+                  </div>
 
-                {isMobile && (
-                  <Button
-                    onClick={() => {
-                      const input = document.getElementById("food-image") as HTMLInputElement;
-                      input?.click();
-                    }}
-                    variant="outline"
-                    className="w-full max-w-md"
-                  >
-                    <Camera className="h-4 w-4 mr-2" />
-                    Take Photo
-                  </Button>
-                )}
+                  {isMobile && (
+                    <Button
+                      onClick={() => {
+                        const input = document.getElementById("food-image") as HTMLInputElement;
+                        input?.click();
+                      }}
+                      variant="outline"
+                      className="w-full max-w-md"
+                    >
+                      <Camera className="h-4 w-4 mr-2" />
+                      Take Photo
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {isLoading && (
               <div className="text-center py-12 space-y-4">
@@ -177,12 +201,22 @@ export function AddFoodButton() {
             )}
 
             {analysis && imageUrl && (
-              <FoodCard
-                analysis={analysis}
-                quantity={quantity}
-                onQuantityChange={setQuantity}
-                imageUrl={imageUrl}
-              />
+              <div className="space-y-6">
+                <FoodCard
+                  analysis={analysis}
+                  quantity={quantity}
+                  onQuantityChange={setQuantity}
+                  imageUrl={imageUrl}
+                />
+                <Button 
+                  className="w-full"
+                  size="lg"
+                  onClick={handleAddToMeals}
+                  disabled={isLoading}
+                >
+                  Add to Daily Meals
+                </Button>
+              </div>
             )}
           </div>
         </DialogContent>
