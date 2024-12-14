@@ -22,7 +22,7 @@ export function Navigation() {
         <Link
           key={item.path}
           to={item.path}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+          className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
             location.pathname === item.path
               ? "bg-primary text-primary-foreground"
               : "hover:bg-accent"
@@ -62,13 +62,15 @@ export function Navigation() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center rounded-lg transition-colors ${
                   location.pathname === item.path
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-accent"
                 }`}
               >
-                <item.icon className="h-5 w-5 shrink-0" />
+                <div className="min-w-[48px] h-10 flex items-center justify-center">
+                  <item.icon className="h-5 w-5 shrink-0" />
+                </div>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {item.name}
                 </span>
