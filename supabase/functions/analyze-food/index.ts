@@ -55,10 +55,12 @@ serve(async (req) => {
     if (!ingredientsResponse.ok) {
       const errorData = await ingredientsResponse.json();
       console.error('OpenAI API error (ingredients):', errorData);
-      throw new Error(errorData.error?.message || 'Failed to analyze ingredients');
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const ingredientsData = await ingredientsResponse.json();
+    console.log('Ingredients API response:', JSON.stringify(ingredientsData, null, 2));
+
     if (!ingredientsData.choices?.[0]?.message?.content) {
       console.error('Invalid OpenAI response format (ingredients):', ingredientsData);
       throw new Error('Invalid response format from OpenAI (ingredients)');
@@ -69,6 +71,21 @@ serve(async (req) => {
 
     // Step 2: Get nutritional information based on ingredients
     console.log('Calculating nutritional information...');
+    const nutritionPrompt = `Based on these ingredients: ${ingredients}
+
+    Provide nutritional information in this exact JSON format:
+    {
+      "name": "Name of the dish",
+      "ingredients": ["ingredient1", "ingredient2"],
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fats": 0,
+      "healthScore": 0
+    }
+    
+    Be precise with the numbers and realistic with the health score (1-10). Return ONLY the JSON object, no additional text.`;
+
     const nutritionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -80,20 +97,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'user',
-            content: `Based on these ingredients: ${ingredients}
-
-            Provide nutritional information in this exact JSON format:
-            {
-              "name": "Name of the dish",
-              "ingredients": ["ingredient1", "ingredient2", ...],
-              "calories": number,
-              "protein": number (in grams),
-              "carbs": number (in grams),
-              "fats": number (in grams),
-              "healthScore": number (1-10)
-            }
-            
-            Be precise with the numbers and realistic with the health score.`,
+            content: nutritionPrompt
           },
         ],
         max_tokens: 1000,
@@ -103,11 +107,11 @@ serve(async (req) => {
     if (!nutritionResponse.ok) {
       const errorData = await nutritionResponse.json();
       console.error('OpenAI API error (nutrition):', errorData);
-      throw new Error(errorData.error?.message || 'Failed to calculate nutrition');
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const nutritionData = await nutritionResponse.json();
-    console.log('Nutrition response:', nutritionData);
+    console.log('Nutrition API response:', JSON.stringify(nutritionData, null, 2));
 
     if (!nutritionData.choices?.[0]?.message?.content) {
       console.error('Invalid OpenAI response format (nutrition):', nutritionData);
@@ -115,7 +119,18 @@ serve(async (req) => {
     }
 
     try {
-      const result = JSON.parse(nutritionData.choices[0].message.content);
+      const content = nutritionData.choices[0].message.content.trim();
+      console.log('Raw nutrition content:', content);
+      
+      // Try to find JSON object in the response
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        console.error('No JSON object found in response');
+        throw new Error('No JSON object found in response');
+      }
+      
+      const result = JSON.parse(jsonMatch[0]);
+      console.log('Parsed nutrition result:', result);
       
       // Validate the parsed result has all required fields
       const requiredFields = ['name', 'ingredients', 'calories', 'protein', 'carbs', 'fats', 'healthScore'];
@@ -126,17 +141,26 @@ serve(async (req) => {
         }
       }
 
-      // Convert ingredients string array to actual array if needed
+      // Ensure ingredients is an array
       if (typeof result.ingredients === 'string') {
-        result.ingredients = result.ingredients.split(',').map(i => i.trim());
+        result.ingredients = result.ingredients.split(',').map((i: string) => i.trim());
       }
 
-      // Ensure all numeric fields are numbers
+      // Convert numeric fields
       result.calories = Number(result.calories);
       result.protein = Number(result.protein);
       result.carbs = Number(result.carbs);
       result.fats = Number(result.fats);
       result.healthScore = Number(result.healthScore);
+
+      // Validate numeric fields
+      const numericFields = ['calories', 'protein', 'carbs', 'fats', 'healthScore'];
+      for (const field of numericFields) {
+        if (isNaN(result[field])) {
+          console.error(`Invalid numeric value for ${field}:`, result[field]);
+          throw new Error(`Invalid numeric value for ${field}`);
+        }
+      }
 
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -144,7 +168,7 @@ serve(async (req) => {
     } catch (parseError) {
       console.error('Error parsing OpenAI response:', parseError);
       console.log('Raw content:', nutritionData.choices[0].message.content);
-      throw new Error('Failed to parse OpenAI response');
+      throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
     }
   } catch (error) {
     console.error('Error in analyze-food function:', error);
