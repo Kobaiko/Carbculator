@@ -3,25 +3,26 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 export const SignUpPage = () => {
   const { toast } = useToast();
 
-  const handleAuthError = (error: Error) => {
-    if (error.message.includes("User already registered")) {
-      toast({
-        title: "Account already exists",
-        description: "Please sign in with your existing account",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'USER_REGISTRATION_ERROR') {
+        toast({
+          title: "Account already exists",
+          description: "Please sign in with your existing account",
+          variant: "destructive",
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [toast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -36,7 +37,6 @@ export const SignUpPage = () => {
           theme="light"
           providers={[]}
           view="sign_up"
-          onError={handleAuthError}
         />
         <div className="text-center text-sm">
           <span className="text-muted-foreground">Already have an account? </span>
