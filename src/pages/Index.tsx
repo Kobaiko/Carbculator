@@ -67,6 +67,18 @@ const Index = () => {
           />
         )}
 
+        {dashboardData.data.water.length > 0 && (
+          <TrendsChart
+            title="Water Intake Trend"
+            data={dashboardData.data.water.map((w: any) => ({
+              date: w.created_at,
+              value: w.amount,
+            }))}
+            color="#3b82f6"
+            unit="ml"
+          />
+        )}
+
         {dashboardData.insights && (
           <InsightsCard insights={dashboardData.insights} />
         )}

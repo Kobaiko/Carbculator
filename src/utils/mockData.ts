@@ -1,31 +1,41 @@
-export const mockMeasurements = [
-  { created_at: '2024-03-20', weight: 75.5, bmi: 23.1 },
-  { created_at: '2024-03-19', weight: 75.8, bmi: 23.2 },
-  { created_at: '2024-03-18', weight: 76.0, bmi: 23.3 },
-  { created_at: '2024-03-17', weight: 76.2, bmi: 23.4 },
-  { created_at: '2024-03-16', weight: 76.5, bmi: 23.5 },
-  { created_at: '2024-03-15', weight: 76.8, bmi: 23.6 },
-  { created_at: '2024-03-14', weight: 77.0, bmi: 23.7 },
-].map(m => ({
-  ...m,
-  created_at: new Date(m.created_at).toISOString()
+const generateDailyData = (startDate: Date, days: number) => {
+  const data = [];
+  let weight = 77.0; // Starting weight
+  let waterIntake = 2500; // Starting water intake
+
+  for (let i = 0; i < days; i++) {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() - i);
+
+    // Add some random daily variations
+    weight += (Math.random() - 0.5) * 0.4; // Daily weight fluctuates by ±0.2kg
+    waterIntake += (Math.random() - 0.5) * 400; // Daily water intake fluctuates by ±200ml
+
+    data.push({
+      date: date.toISOString(),
+      weight: Number(weight.toFixed(1)),
+      bmi: Number((weight / (1.75 * 1.75)).toFixed(1)), // Assuming height of 1.75m
+      waterIntake: Math.round(waterIntake),
+    });
+  }
+  return data;
+};
+
+const dailyData = generateDailyData(new Date(), 30); // Generate 30 days of data
+
+export const mockMeasurements = dailyData.map(({ date, weight, bmi }) => ({
+  created_at: date,
+  weight,
+  bmi,
 }));
 
-export const mockWaterIntake = [
-  { created_at: '2024-03-20', amount: 2500 },
-  { created_at: '2024-03-19', amount: 2300 },
-  { created_at: '2024-03-18', amount: 2000 },
-  { created_at: '2024-03-17', amount: 2200 },
-  { created_at: '2024-03-16', amount: 1800 },
-  { created_at: '2024-03-15', amount: 2100 },
-  { created_at: '2024-03-14', amount: 2400 },
-].map(w => ({
-  ...w,
-  created_at: new Date(w.created_at).toISOString()
+export const mockWaterIntake = dailyData.map(({ date, waterIntake }) => ({
+  created_at: date,
+  amount: waterIntake,
 }));
 
 export const mockInsights = {
-  trends: `Your weight has shown a positive trend, decreasing by 1.5kg over the past week. Your water intake has been consistent, averaging 2.2L per day.
+  trends: `Your weight has shown a positive trend, decreasing by ${(mockMeasurements[0].weight - mockMeasurements[6].weight).toFixed(1)}kg over the past week. Your water intake has been consistent, averaging ${Math.round(mockWaterIntake.slice(0, 7).reduce((acc, curr) => acc + curr.amount, 0) / 7)}ml per day.
 
 Keep up the good work with your hydration habits!`,
   recommendations: `1. Consider increasing your water intake slightly to reach the recommended 2.5L per day
