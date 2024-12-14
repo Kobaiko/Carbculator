@@ -8,12 +8,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { Camera, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Database } from "@/integrations/supabase/types";
 
-type ProfileUpdateData = Pick<
-  Tables["profiles"]["Update"],
-  "username" | "height" | "weight" | "height_unit" | "weight_unit" | "avatar_url"
->;
+type ProfileUpdateData = Partial<{
+  username: string;
+  height: number;
+  weight: number;
+  height_unit: string;
+  weight_unit: string;
+  avatar_url: string;
+}>;
 
 export default function Profile() {
   const session = useSession();
