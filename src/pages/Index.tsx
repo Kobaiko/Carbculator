@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Navigation } from "@/components/Navigation";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
@@ -6,22 +6,52 @@ import { TrendsChart } from "@/components/dashboard/TrendsChart";
 import { Activity, Scale, GlassWater, Utensils } from "lucide-react";
 import { mockMeasurements, mockWaterIntake, mockInsights, mockNutrition } from "@/utils/mockData";
 import { TimeRange } from "@/components/dashboard/TimeRangeSelector";
+import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 
 const Index = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
-  const [dashboardData] = useState({
-    insights: mockInsights,
-    data: {
-      measurements: mockMeasurements,
-      water: mockWaterIntake,
-      nutrition: mockNutrition
-    }
-  });
+  const [customStartDate, setCustomStartDate] = useState<Date>();
+  const [customEndDate, setCustomEndDate] = useState<Date>();
 
-  const latestWeight = dashboardData.data.measurements[0]?.weight || "N/A";
-  const latestBMI = dashboardData.data.measurements[0]?.bmi || "N/A";
-  const latestNutrition = dashboardData.data.nutrition[0] || { calories: "N/A", protein: "N/A" };
-  const totalWaterToday = dashboardData.data.water
+  const getDateRange = () => {
+    const now = new Date();
+    switch (timeRange) {
+      case "daily":
+        return { start: startOfDay(now), end: endOfDay(now) };
+      case "weekly":
+        return { start: startOfWeek(now), end: endOfWeek(now) };
+      case "monthly":
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+      case "yearly":
+        return { start: startOfYear(now), end: endOfYear(now) };
+      case "custom":
+        return {
+          start: customStartDate ? startOfDay(customStartDate) : subDays(now, 7),
+          end: customEndDate ? endOfDay(customEndDate) : now,
+        };
+      default:
+        return { start: subDays(now, 7), end: now };
+    }
+  };
+
+  const filterDataByDateRange = (data: any[]) => {
+    const { start, end } = getDateRange();
+    return data.filter((item) => {
+      const date = new Date(item.created_at);
+      return date >= start && date <= end;
+    });
+  };
+
+  const filteredData = useMemo(() => ({
+    measurements: filterDataByDateRange(mockMeasurements),
+    water: filterDataByDateRange(mockWaterIntake),
+    nutrition: filterDataByDateRange(mockNutrition),
+  }), [timeRange, customStartDate, customEndDate]);
+
+  const latestWeight = filteredData.measurements[filteredData.measurements.length - 1]?.weight || "N/A";
+  const latestBMI = filteredData.measurements[filteredData.measurements.length - 1]?.bmi || "N/A";
+  const latestNutrition = filteredData.nutrition[filteredData.nutrition.length - 1] || { calories: "N/A", protein: "N/A" };
+  const totalWaterToday = filteredData.water
     .filter((log) => {
       const today = new Date().toISOString().split("T")[0];
       return log.created_at.startsWith(today);
@@ -32,13 +62,27 @@ const Index = () => {
     <div className="min-h-screen p-4 md:p-6 bg-gradient-to-b from-background to-secondary">
       <Navigation />
       <div className="max-w-7xl mx-auto space-y-6 pt-16 md:ml-16">
-        <div className="text-center space-y-2 mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Health Dashboard
-          </h1>
-          <p className="text-muted-foreground">
-            Track your progress and get personalized insights
-          </p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div className="text-left">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+              Health Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Track your progress and get personalized insights
+            </p>
+          </div>
+          <TimeRangeSelector
+            value={timeRange}
+            onValueChange={setTimeRange}
+            customDateRange={{
+              startDate: customStartDate,
+              endDate: customEndDate,
+              onRangeSelect: (start, end) => {
+                setCustomStartDate(start);
+                setCustomEndDate(end);
+              },
+            }}
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -67,7 +111,7 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TrendsChart
             title="Weight Trend"
-            data={dashboardData.data.measurements.map((m) => ({
+            data={filteredData.measurements.map((m) => ({
               date: m.created_at,
               value: m.weight,
             }))}
@@ -76,7 +120,7 @@ const Index = () => {
           />
           <TrendsChart
             title="Water Intake Trend"
-            data={dashboardData.data.water.map((w) => ({
+            data={filteredData.water.map((w) => ({
               date: w.created_at,
               value: w.amount,
             }))}
@@ -88,7 +132,7 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TrendsChart
             title="Calories Trend"
-            data={dashboardData.data.nutrition.map((n) => ({
+            data={filteredData.nutrition.map((n) => ({
               date: n.created_at,
               value: n.calories,
             }))}
@@ -97,7 +141,7 @@ const Index = () => {
           />
           <TrendsChart
             title="Protein Intake Trend"
-            data={dashboardData.data.nutrition.map((n) => ({
+            data={filteredData.nutrition.map((n) => ({
               date: n.created_at,
               value: n.protein,
             }))}
@@ -106,7 +150,7 @@ const Index = () => {
           />
         </div>
 
-        <InsightsCard insights={dashboardData.insights} />
+        <InsightsCard insights={mockInsights} />
       </div>
     </div>
   );

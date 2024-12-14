@@ -1,4 +1,4 @@
-const generateDailyData = (startDate: Date, days: number) => {
+const generateHistoricalData = (days: number) => {
   const data = [];
   let weight = 77.0;
   let waterIntake = 2500;
@@ -7,17 +7,23 @@ const generateDailyData = (startDate: Date, days: number) => {
   let carbs = 250;
   let fat = 65;
 
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
+
   for (let i = 0; i < days; i++) {
     const date = new Date(startDate);
     date.setDate(date.getDate() - i);
 
-    // Add some random daily variations
-    weight += (Math.random() - 0.5) * 0.4;
-    waterIntake += (Math.random() - 0.5) * 400;
-    calories += (Math.random() - 0.5) * 200;
-    protein += (Math.random() - 0.5) * 10;
-    carbs += (Math.random() - 0.5) * 30;
-    fat += (Math.random() - 0.5) * 8;
+    // Add some random daily variations with seasonal trends
+    const seasonalFactor = Math.sin((2 * Math.PI * i) / 365) * 0.1; // Yearly cycle
+    const weeklyFactor = Math.sin((2 * Math.PI * i) / 7) * 0.05; // Weekly cycle
+    
+    weight += (Math.random() - 0.5) * 0.4 + seasonalFactor;
+    waterIntake += (Math.random() - 0.5) * 400 + seasonalFactor * 500;
+    calories += (Math.random() - 0.5) * 200 + weeklyFactor * 300;
+    protein += (Math.random() - 0.5) * 10 + weeklyFactor * 15;
+    carbs += (Math.random() - 0.5) * 30 + weeklyFactor * 25;
+    fat += (Math.random() - 0.5) * 8 + weeklyFactor * 10;
 
     data.push({
       date: date.toISOString(),
@@ -32,23 +38,23 @@ const generateDailyData = (startDate: Date, days: number) => {
       }
     });
   }
-  return data;
+  return data.reverse();
 };
 
-const dailyData = generateDailyData(new Date(), 7); // Generate 7 days of data
+const yearlyData = generateHistoricalData(365);
 
-export const mockMeasurements = dailyData.map(({ date, weight, bmi }) => ({
+export const mockMeasurements = yearlyData.map(({ date, weight, bmi }) => ({
   created_at: date,
   weight,
   bmi,
 }));
 
-export const mockWaterIntake = dailyData.map(({ date, waterIntake }) => ({
+export const mockWaterIntake = yearlyData.map(({ date, waterIntake }) => ({
   created_at: date,
   amount: waterIntake,
 }));
 
-export const mockNutrition = dailyData.map(({ date, nutrition }) => ({
+export const mockNutrition = yearlyData.map(({ date, nutrition }) => ({
   created_at: date,
   ...nutrition,
 }));
