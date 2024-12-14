@@ -13,11 +13,25 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 
+type FormData = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  height: string;
+  weight: string;
+  heightUnit: string;
+  weightUnit: string;
+};
+
+type ChangeEvent = 
+  | React.ChangeEvent<HTMLInputElement>
+  | { name: string; value: string };
+
 export const OnboardingPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     username: "",
@@ -73,11 +87,14 @@ export const OnboardingPage = () => {
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement> | { name: string; value: string }
-  ) => {
-    const { name, value } = e instanceof Event ? (e.target as HTMLInputElement) : e;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (e: ChangeEvent) => {
+    if ('target' in e) {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      const { name, value } = e;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
