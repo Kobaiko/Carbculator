@@ -46,9 +46,6 @@ const LoginPage = () => (
               password_label: 'Password',
               button_label: 'Sign up',
               link_text: 'Sign up',
-              user_name: {
-                label: 'How should we call you?'
-              }
             },
             sign_in: {
               link_text: 'Already have an account? Sign in',
