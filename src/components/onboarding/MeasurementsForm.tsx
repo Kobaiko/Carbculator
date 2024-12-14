@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export function MeasurementsForm({ onNext }: { onNext: () => void }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [heightUnit, setHeightUnit] = useState("cm");
@@ -22,6 +24,8 @@ export function MeasurementsForm({ onNext }: { onNext: () => void }) {
       const { error } = await supabase
         .from("profiles")
         .update({
+          first_name: firstName,
+          last_name: lastName,
           height: Number(height),
           weight: Number(weight),
           height_unit: heightUnit,
@@ -51,6 +55,28 @@ export function MeasurementsForm({ onNext }: { onNext: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
+        <div className="space-y-2">
+          <Label>First Name</Label>
+          <Input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+            placeholder="John"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Last Name</Label>
+          <Input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+            placeholder="Doe"
+          />
+        </div>
+
         <div className="space-y-2">
           <Label>Height</Label>
           <div className="flex gap-4">

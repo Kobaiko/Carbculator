@@ -55,9 +55,11 @@ export type Database = {
           daily_carbs: number
           daily_fats: number
           daily_protein: number
+          first_name: string | null
           height: number
           height_unit: string
           id: string
+          last_name: string | null
           updated_at: string
           weight: number
           weight_unit: string
@@ -68,9 +70,11 @@ export type Database = {
           daily_carbs?: number
           daily_fats?: number
           daily_protein?: number
+          first_name?: string | null
           height: number
           height_unit?: string
           id: string
+          last_name?: string | null
           updated_at?: string
           weight: number
           weight_unit?: string
@@ -81,9 +85,11 @@ export type Database = {
           daily_carbs?: number
           daily_fats?: number
           daily_protein?: number
+          first_name?: string | null
           height?: number
           height_unit?: string
           id?: string
+          last_name?: string | null
           updated_at?: string
           weight?: number
           weight_unit?: string
