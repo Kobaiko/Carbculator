@@ -27,7 +27,7 @@ const LoginPage = () => (
         appearance={{ theme: ThemeSupa }}
         theme="light"
         providers={[]}
-        options={{
+        supabaseAuthClientOptions={{
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           additionalData: {
             first_name: {
