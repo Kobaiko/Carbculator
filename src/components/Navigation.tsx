@@ -73,7 +73,7 @@ export function Navigation() {
                 <div className="w-16 h-10 flex items-center justify-center shrink-0">
                   <item.icon className="h-5 w-5" />
                 </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-[opacity,visibility] duration-200 delay-150">
                   {item.name}
                 </span>
               </Link>
