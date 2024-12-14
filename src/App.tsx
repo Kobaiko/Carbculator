@@ -9,13 +9,14 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from '@supabase/auth-helpers-react'
 import Index from "./pages/Index";
+import { useState } from 'react';
 
 const queryClient = new QueryClient();
 
 const EmptyPage = () => <div className="p-4">Coming soon...</div>;
 
 const LoginPage = () => {
-  const [view, setView] = React.useState<'sign_in' | 'sign_up'>('sign_up');
+  const [view, setView] = useState<'sign_in' | 'sign_up'>('sign_up');
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -33,7 +34,8 @@ const LoginPage = () => {
           appearance={{ theme: ThemeSupa }}
           theme="light"
           providers={[]}
-          view="sign_up"
+          view={view}
+          // @ts-ignore
           onViewChange={(newView) => setView(newView as 'sign_in' | 'sign_up')}
         />
       </div>
