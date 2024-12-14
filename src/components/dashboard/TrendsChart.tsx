@@ -1,24 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { TimeRange, TimeRangeSelector } from "./TimeRangeSelector";
-import { useState } from "react";
+import { TimeRange } from "./TimeRangeSelector";
 
 interface TrendsChartProps {
   data: Array<{ date: string; value: number }>;
   title: string;
   color: string;
   unit: string;
+  timeRange: TimeRange;
 }
 
-export function TrendsChart({ data, title, color, unit }: TrendsChartProps) {
-  const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
-
+export function TrendsChart({ data, title, color, unit, timeRange }: TrendsChartProps) {
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
-        <TimeRangeSelector value={timeRange} onValueChange={setTimeRange} />
       </CardHeader>
       <CardContent>
         <div className="h-[250px] sm:h-[300px]">

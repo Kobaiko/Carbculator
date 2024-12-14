@@ -59,18 +59,10 @@ const Index = () => {
     .reduce((acc, log) => acc + log.amount, 0);
 
   return (
-    <div className="min-h-screen p-4 md:p-6 bg-gradient-to-b from-background to-secondary">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <Navigation />
-      <div className="max-w-7xl mx-auto space-y-6 pt-16 md:ml-16">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div className="text-left">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-              Health Dashboard
-            </h1>
-            <p className="text-muted-foreground">
-              Track your progress and get personalized insights
-            </p>
-          </div>
+      <div className="max-w-7xl mx-auto space-y-6 px-4 md:px-6 pt-6 md:pt-8 md:ml-16">
+        <div className="flex justify-end mb-8">
           <TimeRangeSelector
             value={timeRange}
             onValueChange={setTimeRange}
@@ -117,6 +109,7 @@ const Index = () => {
             }))}
             color="#ef4444"
             unit="kg"
+            timeRange={timeRange}
           />
           <TrendsChart
             title="Water Intake Trend"
@@ -126,6 +119,7 @@ const Index = () => {
             }))}
             color="#3b82f6"
             unit="ml"
+            timeRange={timeRange}
           />
         </div>
 
@@ -138,6 +132,7 @@ const Index = () => {
             }))}
             color="#f59e0b"
             unit="kcal"
+            timeRange={timeRange}
           />
           <TrendsChart
             title="Protein Intake Trend"
@@ -147,6 +142,7 @@ const Index = () => {
             }))}
             color="#10b981"
             unit="g"
+            timeRange={timeRange}
           />
         </div>
 
