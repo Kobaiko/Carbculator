@@ -48,6 +48,54 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          daily_calories: number
+          daily_carbs: number
+          daily_fats: number
+          daily_protein: number
+          first_name: string | null
+          height: number
+          height_unit: string
+          id: string
+          last_name: string | null
+          updated_at: string
+          weight: number
+          weight_unit: string
+        }
+        Insert: {
+          created_at?: string
+          daily_calories?: number
+          daily_carbs?: number
+          daily_fats?: number
+          daily_protein?: number
+          first_name?: string | null
+          height: number
+          height_unit?: string
+          id: string
+          last_name?: string | null
+          updated_at?: string
+          weight: number
+          weight_unit?: string
+        }
+        Update: {
+          created_at?: string
+          daily_calories?: number
+          daily_carbs?: number
+          daily_fats?: number
+          daily_protein?: number
+          first_name?: string | null
+          height?: number
+          height_unit?: string
+          id?: string
+          last_name?: string | null
+          updated_at?: string
+          weight?: number
+          weight_unit?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
