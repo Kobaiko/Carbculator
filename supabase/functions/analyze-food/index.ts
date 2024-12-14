@@ -17,6 +17,7 @@ serve(async (req) => {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
     }
 
@@ -28,7 +29,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4-vision-preview',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'user',
@@ -50,16 +51,32 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(errorData.error?.message || 'Failed to analyze image');
+    }
+
     const data = await response.json();
     console.log('OpenAI response:', data);
 
-    if (!response.ok) {
-      console.error('OpenAI API error:', data.error);
-      throw new Error(data.error?.message || 'Failed to analyze image');
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Invalid OpenAI response format:', data);
+      throw new Error('Invalid response format from OpenAI');
     }
 
     try {
       const result = JSON.parse(data.choices[0].message.content);
+      
+      // Validate the parsed result has all required fields
+      const requiredFields = ['name', 'calories', 'protein', 'carbs', 'fats', 'healthScore'];
+      for (const field of requiredFields) {
+        if (!(field in result)) {
+          console.error(`Missing required field: ${field} in result:`, result);
+          throw new Error(`Missing required field: ${field}`);
+        }
+      }
+
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -70,9 +87,15 @@ serve(async (req) => {
     }
   } catch (error) {
     console.error('Error in analyze-food function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        details: error instanceof Error ? error.stack : undefined
+      }), 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });
