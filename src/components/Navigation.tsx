@@ -58,7 +58,7 @@ export function Navigation() {
 
       {/* Desktop Menu */}
       <div className="hidden md:flex fixed left-0 top-0 h-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 border-r shadow-sm hover:w-64 transition-[width] duration-300 w-16 flex-col py-4 group">
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-3 px-3">
           {menuItems.map((item) => (
             <Link
               key={item.path}
@@ -69,7 +69,7 @@ export function Navigation() {
                   : "hover:bg-accent"
               }`}
             >
-              <div className="w-16 h-10 flex items-center justify-center">
+              <div className="w-10 h-10 flex items-center justify-center">
                 <item.icon className="h-5 w-5" />
               </div>
               <span className="opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-[opacity,visibility] duration-200 group-hover:delay-150 delay-0">
