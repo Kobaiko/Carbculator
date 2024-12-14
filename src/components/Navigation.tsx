@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Home, CalendarDays, Droplets, Pizza, Target } from "lucide-react";
+import { Menu, Home, CalendarDays, GlassWater, Pizza, Target } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
@@ -9,7 +9,7 @@ const menuItems = [
   { name: "Daily Meals", icon: Pizza, path: "/meals" },
   { name: "Daily Goals", icon: Target, path: "/goals" },
   { name: "Calendar", icon: CalendarDays, path: "/calendar" },
-  { name: "Water Intake", icon: Droplets, path: "/water" },
+  { name: "Water Intake", icon: GlassWater, path: "/water" },
 ];
 
 export function Navigation() {
