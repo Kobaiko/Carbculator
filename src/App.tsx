@@ -38,13 +38,7 @@ const LoginPage = () => (
         view="sign_up"
         theme="light"
         providers={[]}
-        options={{
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            first_name: '',
-            last_name: ''
-          }
-        }}
+        redirectTo={`${window.location.origin}/auth/callback`}
         localization={{
           variables: {
             sign_up: {
@@ -152,4 +146,3 @@ const App = () => {
 };
 
 export default App;
-
