@@ -16,10 +16,13 @@ export function CustomDateRangePicker({ startDate, endDate, onRangeSelect }: Cus
   const [isEndDateOpen, setIsEndDateOpen] = useState(false);
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
       <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[140px] justify-start text-left font-normal">
+          <Button 
+            variant="outline" 
+            className="w-full md:w-[200px] justify-start text-left font-normal"
+          >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {startDate ? format(startDate, "PPP") : "Pick start date"}
           </Button>
@@ -36,10 +39,13 @@ export function CustomDateRangePicker({ startDate, endDate, onRangeSelect }: Cus
           />
         </PopoverContent>
       </Popover>
-      <span>to</span>
+      <span className="hidden md:block text-muted-foreground">to</span>
       <Popover open={isEndDateOpen} onOpenChange={setIsEndDateOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[140px] justify-start text-left font-normal">
+          <Button 
+            variant="outline" 
+            className="w-full md:w-[200px] justify-start text-left font-normal"
+          >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {endDate ? format(endDate, "PPP") : "Pick end date"}
           </Button>
