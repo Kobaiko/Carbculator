@@ -53,6 +53,13 @@ const LoginPage = () => (
           },
         }}
         showLinks={true}
+        options={{
+          data: {
+            first_name: '',
+            last_name: ''
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }}
       />
     </div>
   </div>
