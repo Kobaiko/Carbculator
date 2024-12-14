@@ -18,7 +18,7 @@ const LoginPage = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
     <div className="w-full max-w-md space-y-8 px-4 py-8">
       <div className="text-center">
-        <img src="/lovable-uploads/6cccb605-f760-4a01-a949-0d9b5b9edb0e.png" alt="Carbculator Logo" className="w-16 h-16 mx-auto mb-4" />
+        <img src="/logo.svg" alt="Carbculator Logo" className="w-16 h-16 mx-auto mb-4 text-primary" />
         <h1 className="text-2xl font-semibold">Welcome to Carbculator</h1>
         <p className="mt-2 text-sm text-muted-foreground">Sign in to continue</p>
       </div>
@@ -46,7 +46,7 @@ const App = () => {
               <header className="py-4 px-6 border-b">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                   <div className="flex items-center space-x-3">
-                    <img src="/lovable-uploads/6cccb605-f760-4a01-a949-0d9b5b9edb0e.png" alt="Carbculator Logo" className="w-8 h-8" />
+                    <img src="/logo.svg" alt="Carbculator Logo" className="w-8 h-8 text-primary" />
                     <h1 className="text-xl font-semibold">Carbculator</h1>
                   </div>
                   <button 
