@@ -1,26 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <g fill="currentColor">
-    <!-- Taco Shell -->
-    <path d="M10,65 C10,65 20,35 50,35 C80,35 90,65 90,65 C90,65 70,85 50,85 C30,85 10,65 10,65 Z" 
+    <!-- Pretzel Body -->
+    <path d="M50,20 C60,20 70,25 70,35 C70,45 60,50 50,50 C40,50 30,45 30,35 C30,25 40,20 50,20"
           stroke="currentColor" 
-          stroke-width="4" 
+          stroke-width="6" 
           fill="none"/>
     
-    <!-- Lettuce -->
-    <path d="M25,55 Q35,45 45,55 Q55,45 65,55 Q75,45 85,55" 
-          stroke="#22C55E" 
-          stroke-width="3" 
+    <!-- Pretzel Crossover -->
+    <path d="M50,50 C60,50 70,55 70,65 C70,75 60,80 50,80 C40,80 30,75 30,65 C30,55 40,50 50,50"
+          stroke="currentColor" 
+          stroke-width="6" 
           fill="none"/>
     
-    <!-- Tomatoes -->
-    <circle cx="35" cy="60" r="3" fill="#EF4444"/>
-    <circle cx="55" cy="58" r="3" fill="#EF4444"/>
-    <circle cx="75" cy="60" r="3" fill="#EF4444"/>
-    
-    <!-- Cheese -->
-    <path d="M20,50 L80,50" 
-          stroke="#F59E0B" 
-          stroke-width="4" 
-          stroke-dasharray="4 2"/>
+    <!-- Salt Dots -->
+    <circle cx="35" cy="30" r="2" fill="currentColor"/>
+    <circle cx="65" cy="30" r="2" fill="currentColor"/>
+    <circle cx="50" cy="40" r="2" fill="currentColor"/>
+    <circle cx="35" cy="70" r="2" fill="currentColor"/>
+    <circle cx="65" cy="70" r="2" fill="currentColor"/>
   </g>
 </svg>
