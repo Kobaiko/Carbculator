@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WaterGlass } from "@/components/water/WaterGlass";
@@ -51,7 +50,7 @@ export default function WaterIntake() {
 
   // Calculate total water intake for today
   const totalWater = waterEntries?.reduce((sum, entry) => sum + entry.amount, 0) || 0;
-  const waterGoal = profile?.daily_water || 2000;
+  const waterGoal = profile?.daily_water ?? 2000; // Use nullish coalescing to only use default if value is null/undefined
   const progressPercentage = Math.min(100, Math.round((totalWater / waterGoal) * 100));
 
   // Add water entry mutation

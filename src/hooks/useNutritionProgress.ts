@@ -48,16 +48,16 @@ export function useNutritionProgress() {
     protein: todaysMeals?.reduce((sum, meal) => sum + Number(meal.protein), 0) || 0,
     carbs: todaysMeals?.reduce((sum, meal) => sum + Number(meal.carbs), 0) || 0,
     fats: todaysMeals?.reduce((sum, meal) => sum + Number(meal.fats), 0) || 0,
-    water: 1500, // Mock data for now
+    water: 0, // This will be updated from water entries
   };
 
-  // Get daily goals from profile
+  // Get daily goals from profile, using defaults only if no profile exists
   const goals = {
-    calories: profile?.daily_calories || 2000,
-    protein: profile?.daily_protein || 150,
-    carbs: profile?.daily_carbs || 250,
-    fats: profile?.daily_fats || 70,
-    water: 2000,
+    calories: profile?.daily_calories ?? 2000,
+    protein: profile?.daily_protein ?? 150,
+    carbs: profile?.daily_carbs ?? 250,
+    fats: profile?.daily_fats ?? 70,
+    water: profile?.daily_water ?? 2000,
   };
 
   return { profile, progress, goals };

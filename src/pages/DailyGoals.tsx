@@ -55,8 +55,6 @@ export default function DailyGoals() {
       
       // Invalidate all relevant queries to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
-      queryClient.invalidateQueries({ queryKey: ["water-entries"] });
       
       toast({
         title: "Success",
