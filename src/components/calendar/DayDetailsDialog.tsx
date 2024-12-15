@@ -24,10 +24,8 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
   const { getDayMeals } = useDayStatus();
   const { goals } = useNutritionProgress();
   
-  // Safely get meals for the selected date
   const meals = date ? getDayMeals(date) : [];
 
-  // Calculate daily totals with error handling
   const dailyTotals = meals.reduce(
     (acc, meal) => {
       try {
@@ -54,7 +52,7 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
 
   return (
     <Dialog open={!!date} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl" hideCloseButton>
         <Button
           variant="ghost"
           size="icon"

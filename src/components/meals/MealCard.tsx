@@ -15,34 +15,36 @@ interface MealCardProps {
 export function MealCard({ meal, onDelete, compact = false, extraCompact = false }: MealCardProps) {
   return (
     <div className={`glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg group ${compact ? 'text-sm' : ''} ${extraCompact ? 'text-xs' : ''}`}>
-      {meal.image_url && (
-        <div className={`relative ${extraCompact ? 'h-16' : 'aspect-video'}`}>
-          <img
-            src={meal.image_url}
-            alt={meal.name}
-            className="w-full h-full object-cover"
-          />
-          {!compact && (
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-              onClick={() => onDelete(meal.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
-          {meal.quantity > 1 && (
-            <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-sm font-medium">
-              x{meal.quantity}
-            </div>
-          )}
+      <div className="flex">
+        {meal.image_url && (
+          <div className={`relative ${extraCompact ? 'w-24' : 'w-48'} shrink-0`}>
+            <img
+              src={meal.image_url}
+              alt={meal.name}
+              className="w-full h-full object-cover"
+            />
+            {!compact && (
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                onClick={() => onDelete(meal.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+            {meal.quantity > 1 && (
+              <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-sm font-medium">
+                x{meal.quantity}
+              </div>
+            )}
+          </div>
+        )}
+        <div className={`flex-1 p-2 ${compact ? 'space-y-1' : 'space-y-4'} ${extraCompact ? '!space-y-0.5' : ''}`}>
+          <MealHeader meal={meal} />
+          <MacroNutrients meal={meal} />
+          {!extraCompact && <MealIngredients ingredients={meal.ingredients} />}
         </div>
-      )}
-      <div className={`p-2 ${compact ? 'space-y-1' : 'space-y-4'} ${extraCompact ? '!space-y-0.5' : ''}`}>
-        <MealHeader meal={meal} />
-        <MacroNutrients meal={meal} />
-        {!extraCompact && <MealIngredients ingredients={meal.ingredients} />}
       </div>
     </div>
   );
