@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
-import { GlassWater, Dumbbell, Flame, Droplets } from "lucide-react";
+import { GlassWater, Dumbbell, Flame, Wheat, Droplets } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ export default function DailyGoals() {
     dailyFats: 0,
   });
 
+  // Fetch user profile data
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -35,6 +36,7 @@ export default function DailyGoals() {
     },
   });
 
+  // Fetch today's meals
   const { data: todaysMeals } = useQuery({
     queryKey: ["todaysMeals"],
     queryFn: async () => {
@@ -52,22 +54,25 @@ export default function DailyGoals() {
     },
   });
 
+  // Calculate current progress from today's meals
   const progress = {
     calories: todaysMeals?.reduce((sum, meal) => sum + meal.calories, 0) || 0,
-    protein: todaysMeals?.reduce((sum, meal) => sum + meal.protein, 0) || 0,
-    carbs: todaysMeals?.reduce((sum, meal) => sum + meal.carbs, 0) || 0,
-    fats: todaysMeals?.reduce((sum, meal) => sum + meal.fats, 0) || 0,
+    protein: todaysMeals?.reduce((sum, meal) => sum + Number(meal.protein), 0) || 0,
+    carbs: todaysMeals?.reduce((sum, meal) => sum + Number(meal.carbs), 0) || 0,
+    fats: todaysMeals?.reduce((sum, meal) => sum + Number(meal.fats), 0) || 0,
     water: 1500, // Mock data for now
   };
 
   const handleEditClick = () => {
-    setIsEditing(true);
-    setEditedGoals({
-      dailyCalories: profile?.daily_calories || 0,
-      dailyProtein: profile?.daily_protein || 0,
-      dailyCarbs: profile?.daily_carbs || 0,
-      dailyFats: profile?.daily_fats || 0,
-    });
+    if (profile) {
+      setIsEditing(true);
+      setEditedGoals({
+        dailyCalories: profile.daily_calories,
+        dailyProtein: profile.daily_protein,
+        dailyCarbs: profile.daily_carbs,
+        dailyFats: profile.daily_fats,
+      });
+    }
   };
 
   const handleSaveGoals = async () => {
@@ -103,6 +108,7 @@ export default function DailyGoals() {
   };
 
   const calculateProgress = (current: number, target: number) => {
+    if (!target) return 0;
     return Math.min(Math.round((current / target) * 100), 100);
   };
 
@@ -133,7 +139,7 @@ export default function DailyGoals() {
                 <span className="text-2xl font-bold">{progress.calories} kcal</span>
               </div>
             </div>
-            <Progress value={calculateProgress(progress.calories, profile?.daily_calories || 2000)} className="h-2" />
+            <Progress value={calculateProgress(progress.calories, profile?.daily_calories || 0)} className="h-2" />
             {isEditing && (
               <Input
                 type="number"
@@ -161,7 +167,7 @@ export default function DailyGoals() {
                 <span className="text-2xl font-bold">{progress.protein}g</span>
               </div>
             </div>
-            <Progress value={calculateProgress(progress.protein, profile?.daily_protein || 150)} className="h-2" />
+            <Progress value={calculateProgress(progress.protein, profile?.daily_protein || 0)} className="h-2" />
             {isEditing && (
               <Input
                 type="number"
@@ -177,7 +183,7 @@ export default function DailyGoals() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-amber-500/10 rounded-full">
-                  <Droplets className="h-6 w-6 text-amber-500" />
+                  <Wheat className="h-6 w-6 text-amber-500" />
                 </div>
                 <div>
                   <h3 className="font-semibold">Carbs</h3>
@@ -189,7 +195,7 @@ export default function DailyGoals() {
                 <span className="text-2xl font-bold">{progress.carbs}g</span>
               </div>
             </div>
-            <Progress value={calculateProgress(progress.carbs, profile?.daily_carbs || 250)} className="h-2" />
+            <Progress value={calculateProgress(progress.carbs, profile?.daily_carbs || 0)} className="h-2" />
             {isEditing && (
               <Input
                 type="number"
@@ -217,7 +223,7 @@ export default function DailyGoals() {
                 <span className="text-2xl font-bold">{progress.fats}g</span>
               </div>
             </div>
-            <Progress value={calculateProgress(progress.fats, profile?.daily_fats || 70)} className="h-2" />
+            <Progress value={calculateProgress(progress.fats, profile?.daily_fats || 0)} className="h-2" />
             {isEditing && (
               <Input
                 type="number"
