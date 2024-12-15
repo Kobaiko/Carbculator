@@ -23,15 +23,20 @@ export function FileInput({ onFileSelect }: FileInputProps) {
       </p>
       <div className="flex flex-col gap-4">
         {isMobile && (
-          <Button
-            variant="default"
-            size="lg"
-            className="w-full"
-            onClick={() => document.getElementById("food-image")?.click()}
-          >
-            <Camera className="mr-2 h-4 w-4" />
-            Take Photo
-          </Button>
+          <>
+            <Button
+              variant="default"
+              size="lg"
+              className="w-full"
+              onClick={() => document.getElementById("food-image")?.click()}
+            >
+              <Camera className="mr-2 h-4 w-4" />
+              Take Photo
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              For best results, take the photo from about 1 foot (30 cm) away from your plate
+            </p>
+          </>
         )}
         
         {isMobile && (
