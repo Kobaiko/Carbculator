@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/" },
@@ -55,7 +56,8 @@ export function Navigation() {
           <span className="ml-3 md:hidden">{item.name}</span>
         </Link>
       ))}
-      <div className="mt-auto pt-4">
+      <div className="mt-auto">
+        <Separator className="my-3" />
         <Link
           to="/profile"
           className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
@@ -121,6 +123,7 @@ export function Navigation() {
             </Link>
           ))}
           <div className="mt-auto">
+            <Separator className="my-3" />
             <Link
               to="/profile"
               className={`relative flex items-center rounded-lg transition-colors ${
