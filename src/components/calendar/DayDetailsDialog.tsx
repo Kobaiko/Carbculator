@@ -52,95 +52,94 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
 
   return (
     <Dialog open={!!date} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl h-[90vh] p-0">
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0">
         <style>{`
           [data-radix-popper-content-wrapper] > div:has(> .radix-dialog-close) {
             display: none;
           }
         `}</style>
-        <div className="flex flex-col h-full">
-          <DialogHeader className="p-4 md:p-6 border-b shrink-0">
-            <DialogTitle className="text-lg md:text-xl">
-              {format(date, "EEEE, MMMM do, yyyy")}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <ScrollArea className="flex-1">
-            <div className="p-4 md:p-6 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <GoalCard
-                  icon={Flame}
-                  title="Calories"
-                  unit=" kcal"
-                  current={dailyTotals.calories}
-                  target={goals.calories}
-                  iconColor="text-orange-500"
-                  iconBgColor="bg-orange-500/10"
-                  isEditing={false}
-                  editValue={0}
-                  onEditChange={() => {}}
-                />
-                <GoalCard
-                  icon={Dumbbell}
-                  title="Protein"
-                  unit="g"
-                  current={dailyTotals.protein}
-                  target={goals.protein}
-                  iconColor="text-blue-500"
-                  iconBgColor="bg-blue-500/10"
-                  isEditing={false}
-                  editValue={0}
-                  onEditChange={() => {}}
-                />
-                <GoalCard
-                  icon={Wheat}
-                  title="Carbs"
-                  unit="g"
-                  current={dailyTotals.carbs}
-                  target={goals.carbs}
-                  iconColor="text-amber-500"
-                  iconBgColor="bg-amber-500/10"
-                  isEditing={false}
-                  editValue={0}
-                  onEditChange={() => {}}
-                />
-                <GoalCard
-                  icon={Droplets}
-                  title="Fats"
-                  unit="g"
-                  current={dailyTotals.fats}
-                  target={goals.fats}
-                  iconColor="text-green-500"
-                  iconBgColor="bg-green-500/10"
-                  isEditing={false}
-                  editValue={0}
-                  onEditChange={() => {}}
-                />
-              </div>
+        
+        <DialogHeader className="px-6 py-4 border-b">
+          <DialogTitle className="text-lg md:text-xl">
+            {format(date, "EEEE, MMMM do, yyyy")}
+          </DialogTitle>
+        </DialogHeader>
 
-              <div className="space-y-3">
-                {meals.map((meal) => (
-                  <MealCard
-                    key={meal.id}
-                    meal={meal}
-                    onDelete={() => {}}
-                    compact
-                    extraCompact
-                  />
-                ))}
-              </div>
+        <ScrollArea className="flex-1 h-[calc(90vh-8rem)]">
+          <div className="px-6 py-4 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <GoalCard
+                icon={Flame}
+                title="Calories"
+                unit=" kcal"
+                current={dailyTotals.calories}
+                target={goals.calories}
+                iconColor="text-orange-500"
+                iconBgColor="bg-orange-500/10"
+                isEditing={false}
+                editValue={0}
+                onEditChange={() => {}}
+              />
+              <GoalCard
+                icon={Dumbbell}
+                title="Protein"
+                unit="g"
+                current={dailyTotals.protein}
+                target={goals.protein}
+                iconColor="text-blue-500"
+                iconBgColor="bg-blue-500/10"
+                isEditing={false}
+                editValue={0}
+                onEditChange={() => {}}
+              />
+              <GoalCard
+                icon={Wheat}
+                title="Carbs"
+                unit="g"
+                current={dailyTotals.carbs}
+                target={goals.carbs}
+                iconColor="text-amber-500"
+                iconBgColor="bg-amber-500/10"
+                isEditing={false}
+                editValue={0}
+                onEditChange={() => {}}
+              />
+              <GoalCard
+                icon={Droplets}
+                title="Fats"
+                unit="g"
+                current={dailyTotals.fats}
+                target={goals.fats}
+                iconColor="text-green-500"
+                iconBgColor="bg-green-500/10"
+                isEditing={false}
+                editValue={0}
+                onEditChange={() => {}}
+              />
             </div>
-          </ScrollArea>
 
-          <div className="p-4 md:p-6 border-t mt-auto shrink-0">
-            <Button 
-              variant="ghost"
-              className="w-full"
-              onClick={() => onClose()}
-            >
-              Close
-            </Button>
+            <div className="space-y-3">
+              {meals.map((meal) => (
+                <MealCard
+                  key={meal.id}
+                  meal={meal}
+                  onDelete={() => {}}
+                  compact
+                  extraCompact
+                />
+              ))}
+            </div>
           </div>
+        </ScrollArea>
+
+        <div className="px-6 py-4 border-t mt-auto">
+          <Button 
+            variant="ghost"
+            className="w-full"
+            onClick={() => onClose()}
+          >
+            Close
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
