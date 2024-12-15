@@ -98,20 +98,25 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           </div>
         ))}
         
-        {days.map((day, dayIdx) => (
-          <Button
-            key={day.toString()}
-            variant="ghost"
-            className={`aspect-square w-full p-0 rounded-none flex flex-col items-center justify-start hover:bg-accent ${
-              selected && isSameDay(day, selected)
-                ? "ring-2 ring-primary"
-                : ""
-            } ${getDayClass(day)}`}
-            onClick={() => onSelect?.(day)}
-          >
-            <span className="text-xs md:text-sm font-normal">{format(day, "d")}</span>
-          </Button>
-        ))}
+        {days.map((day, dayIdx) => {
+          const isLastWeekFirstDay = dayIdx >= days.length - 7 && dayIdx % 7 === 0;
+          return (
+            <Button
+              key={day.toString()}
+              variant="ghost"
+              className={`aspect-square w-full p-0 rounded-none flex flex-col items-center justify-start hover:bg-accent ${
+                selected && isSameDay(day, selected)
+                  ? "ring-2 ring-primary"
+                  : ""
+              } ${getDayClass(day)} ${
+                isLastWeekFirstDay ? "rounded-bl-lg" : ""
+              }`}
+              onClick={() => onSelect?.(day)}
+            >
+              <span className="text-xs md:text-sm font-normal">{format(day, "d")}</span>
+            </Button>
+          );
+        })}
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2 md:gap-6 mt-3 md:mt-4 text-[10px] md:text-sm px-2">
