@@ -44,6 +44,8 @@ export function useGoalsEditor(initialGoals: Goals) {
 
   const handleSaveGoals = async () => {
     try {
+      console.log("Saving goals:", editedGoals); // Debug log
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
@@ -59,7 +61,12 @@ export function useGoalsEditor(initialGoals: Goals) {
         })
         .eq("id", user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error saving goals:", error); // Debug log
+        throw error;
+      }
+
+      console.log("Goals saved successfully"); // Debug log
 
       // Invalidate and refetch queries
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -81,6 +88,7 @@ export function useGoalsEditor(initialGoals: Goals) {
   };
 
   const handleEditChange = (field: string, value: number) => {
+    console.log("Editing field:", field, "with value:", value); // Debug log
     setEditedGoals(prev => ({ ...prev, [field]: value }));
   };
 
