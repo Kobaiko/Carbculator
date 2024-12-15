@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
-import { Dumbbell, Flame, Wheat, Droplets } from "lucide-react";
+import { Dumbbell, Flame, Wheat, Droplets, GlassWater } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +53,7 @@ export default function DailyGoals() {
       if (error) throw error;
 
       setIsEditing(false);
+      
       // Invalidate all relevant queries to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
@@ -134,7 +135,18 @@ export default function DailyGoals() {
             onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyFats: value }))}
           />
 
-          <WaterCard current={progress.water} target={editedGoals.dailyWater} />
+          <GoalCard
+            icon={GlassWater}
+            title="Water"
+            unit="ml"
+            current={progress.water}
+            target={goals.water}
+            iconColor="text-blue-500"
+            iconBgColor="bg-blue-500/10"
+            isEditing={isEditing}
+            editValue={editedGoals.dailyWater}
+            onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyWater: value }))}
+          />
         </div>
 
         <div className="flex justify-center mt-8">

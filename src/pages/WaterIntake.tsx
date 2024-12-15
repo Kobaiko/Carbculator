@@ -52,7 +52,7 @@ export default function WaterIntake() {
   // Calculate total water intake for today
   const totalWater = waterEntries?.reduce((sum, entry) => sum + entry.amount, 0) || 0;
   const waterGoal = profile?.daily_water || 2000;
-  const progressPercentage = Math.round((totalWater / waterGoal) * 100);
+  const progressPercentage = Math.min(100, Math.round((totalWater / waterGoal) * 100));
 
   // Add water entry mutation
   const addWaterMutation = useMutation({
