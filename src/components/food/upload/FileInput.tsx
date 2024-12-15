@@ -23,7 +23,7 @@ export function FileInput({ onFileSelect }: FileInputProps) {
       </p>
       <div className="flex flex-col gap-4">
         {isMobile && (
-          <>
+          <div className="space-y-2">
             <Button
               variant="default"
               size="lg"
@@ -33,10 +33,10 @@ export function FileInput({ onFileSelect }: FileInputProps) {
               <Camera className="mr-2 h-4 w-4" />
               Take Photo
             </Button>
-            <p className="text-center text-muted-foreground text-sm">
+            <p className="text-center text-muted-foreground text-sm px-2">
               For best results, take the photo from about 1 foot (30 cm) away from your plate
             </p>
-          </>
+          </div>
         )}
         
         {isMobile && (
