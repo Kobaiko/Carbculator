@@ -1,3 +1,7 @@
+import { FoodEntriesTable } from './food-entries.types';
+import { ProfilesTable } from './profiles.types';
+import { WaterEntriesTable } from './water-entries.types';
+
 export type Json =
   | string
   | number
