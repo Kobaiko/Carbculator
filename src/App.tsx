@@ -7,6 +7,7 @@ import { useSession } from '@supabase/auth-helpers-react';
 import { AppHeader } from "./components/layout/AppHeader";
 import { AppRoutes } from "./components/routing/AppRoutes";
 import { Navigation } from "./components/Navigation";
+import { AddFoodButton } from "./components/AddFoodButton";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => {
               <>
                 <AppHeader />
                 <Navigation />
+                <AddFoodButton />
               </>
             )}
             <AppRoutes />
