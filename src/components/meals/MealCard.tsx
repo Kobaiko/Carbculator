@@ -9,13 +9,14 @@ interface MealCardProps {
   meal: any;
   onDelete: (id: string) => void;
   compact?: boolean;
+  extraCompact?: boolean;
 }
 
-export function MealCard({ meal, onDelete, compact = false }: MealCardProps) {
+export function MealCard({ meal, onDelete, compact = false, extraCompact = false }: MealCardProps) {
   return (
-    <div className={`glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg group ${compact ? 'text-sm' : ''}`}>
+    <div className={`glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg group ${compact ? 'text-sm' : ''} ${extraCompact ? 'text-xs' : ''}`}>
       {meal.image_url && (
-        <div className="relative aspect-video">
+        <div className={`relative ${extraCompact ? 'h-16' : 'aspect-video'}`}>
           <img
             src={meal.image_url}
             alt={meal.name}
@@ -38,10 +39,10 @@ export function MealCard({ meal, onDelete, compact = false }: MealCardProps) {
           )}
         </div>
       )}
-      <div className={`p-4 ${compact ? 'space-y-2' : 'space-y-4'}`}>
+      <div className={`p-2 ${compact ? 'space-y-1' : 'space-y-4'} ${extraCompact ? '!space-y-0.5' : ''}`}>
         <MealHeader meal={meal} />
         <MacroNutrients meal={meal} />
-        <MealIngredients ingredients={meal.ingredients} />
+        {!extraCompact && <MealIngredients ingredients={meal.ingredients} />}
       </div>
     </div>
   );

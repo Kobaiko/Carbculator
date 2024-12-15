@@ -121,13 +121,14 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
         </div>
 
         <ScrollArea className="h-[40vh] pr-4">
-          <div className="space-y-3">
+          <div className="space-y-2">
             {meals.map((meal) => (
               <MealCard
                 key={meal.id}
                 meal={meal}
                 onDelete={() => {}}
                 compact
+                extraCompact
               />
             ))}
           </div>
