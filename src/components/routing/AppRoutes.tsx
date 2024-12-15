@@ -5,6 +5,7 @@ import { SignUpPage } from "../auth/SignUpPage";
 import { OnboardingPage } from "../auth/OnboardingPage";
 import Index from "../../pages/Index";
 import DailyMeals from "../../pages/DailyMeals";
+import DailyGoals from "../../pages/DailyGoals";
 import Profile from "../../pages/Profile";
 import { useSession } from '@supabase/auth-helpers-react';
 
@@ -48,18 +49,18 @@ export const AppRoutes = () => {
         }
       />
       <Route
-        path="/profile"
+        path="/goals"
         element={
           <AuthMiddleware>
-            <Profile />
+            <DailyGoals />
           </AuthMiddleware>
         }
       />
       <Route
-        path="/goals"
+        path="/profile"
         element={
           <AuthMiddleware>
-            <EmptyPage />
+            <Profile />
           </AuthMiddleware>
         }
       />
