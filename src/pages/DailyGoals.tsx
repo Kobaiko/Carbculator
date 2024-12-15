@@ -20,6 +20,7 @@ export default function DailyGoals() {
     dailyProtein: goals?.protein || 150,
     dailyCarbs: goals?.carbs || 250,
     dailyFats: goals?.fats || 70,
+    dailyWater: goals?.water || 2000,
   });
 
   const handleEditClick = () => {
@@ -29,6 +30,7 @@ export default function DailyGoals() {
       dailyProtein: goals.protein,
       dailyCarbs: goals.carbs,
       dailyFats: goals.fats,
+      dailyWater: goals.water,
     });
   };
 
@@ -44,13 +46,17 @@ export default function DailyGoals() {
           daily_protein: editedGoals.dailyProtein,
           daily_carbs: editedGoals.dailyCarbs,
           daily_fats: editedGoals.dailyFats,
+          daily_water: editedGoals.dailyWater,
         })
         .eq("id", user.id);
 
       if (error) throw error;
 
       setIsEditing(false);
+      // Invalidate all relevant queries to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
+      queryClient.invalidateQueries({ queryKey: ["water-entries"] });
       
       toast({
         title: "Success",
@@ -128,7 +134,7 @@ export default function DailyGoals() {
             onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyFats: value }))}
           />
 
-          <WaterCard current={progress.water} target={2000} />
+          <WaterCard current={progress.water} target={editedGoals.dailyWater} />
         </div>
 
         <div className="flex justify-center mt-8">

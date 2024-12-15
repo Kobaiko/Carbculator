@@ -1,18 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { WaterGlass } from "@/components/water/WaterGlass";
 import { WaterPortionButtons } from "@/components/water/WaterPortionButtons";
 import { WaterEntries } from "@/components/water/WaterEntries";
 import { useToast } from "@/hooks/use-toast";
 
 export default function WaterIntake() {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [newGoal, setNewGoal] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -90,85 +84,8 @@ export default function WaterIntake() {
     },
   });
 
-  // Update water goal mutation
-  const updateGoalMutation = useMutation({
-    mutationFn: async (newGoal: number) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({ daily_water: newGoal })
-        .eq("id", user.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      // Invalidate all queries that might contain the water goal
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
-      queryClient.invalidateQueries({ queryKey: ["water-entries"] });
-      setIsSettingsOpen(false);
-      setNewGoal("");
-      toast({
-        title: "Success",
-        description: "Water goal updated successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Error updating water goal:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update water goal",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleUpdateGoal = () => {
-    const goal = parseInt(newGoal);
-    if (isNaN(goal) || goal <= 0) {
-      toast({
-        title: "Invalid goal",
-        description: "Please enter a valid number greater than 0",
-        variant: "destructive",
-      });
-      return;
-    }
-    updateGoalMutation.mutate(goal);
-  };
-
   return (
     <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
-      <div className="flex justify-end">
-        <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Settings2 className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Set Daily Water Goal</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Input
-                  type="number"
-                  placeholder="Enter goal in ml"
-                  value={newGoal}
-                  onChange={(e) => setNewGoal(e.target.value)}
-                />
-                <span className="text-sm text-muted-foreground">ml</span>
-              </div>
-              <Button onClick={handleUpdateGoal} className="w-full">
-                Save Goal
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="glass-card p-6 rounded-2xl flex items-center justify-center">
