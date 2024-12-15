@@ -34,6 +34,10 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization')?.split(' ')[1];
     console.log('Auth header present:', !!authHeader);
     
+    if (!authHeader) {
+      throw new Error('No authorization header');
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
     
     if (userError || !user) {
@@ -107,6 +111,10 @@ serve(async (req) => {
 
     const aiData = await response.json();
     console.log('OpenAI response:', aiData);
+
+    if (!aiData.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from OpenAI');
+    }
 
     const insights = {
       trends: aiData.choices[0].message.content.split('\n\n')[0],
