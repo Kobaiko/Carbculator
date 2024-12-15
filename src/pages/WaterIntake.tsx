@@ -106,7 +106,10 @@ export default function WaterIntake() {
     onSuccess: () => {
       // Invalidate all queries that might contain the water goal
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
+      queryClient.invalidateQueries({ queryKey: ["water-entries"] });
       setIsSettingsOpen(false);
+      setNewGoal("");
       toast({
         title: "Success",
         description: "Water goal updated successfully",
