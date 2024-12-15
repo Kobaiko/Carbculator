@@ -99,18 +99,19 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
         ))}
         
         {days.map((day, dayIdx) => (
-          <Button
-            key={day.toString()}
-            variant="ghost"
-            className={`aspect-square w-full p-0 rounded-none flex flex-col items-center justify-start hover:bg-accent ${
-              selected && isSameDay(day, selected)
-                ? "ring-2 ring-primary"
-                : ""
-            } ${getDayClass(day)}`}
-            onClick={() => onSelect?.(day)}
-          >
-            <span className="text-xs md:text-sm font-normal">{format(day, "d")}</span>
-          </Button>
+          <div key={day.toString()} className="relative w-full pt-[100%]">
+            <Button
+              variant="ghost"
+              className={`absolute inset-0 rounded-none flex flex-col items-center justify-start hover:bg-accent ${
+                selected && isSameDay(day, selected)
+                  ? "ring-2 ring-primary"
+                  : ""
+              } ${getDayClass(day)}`}
+              onClick={() => onSelect?.(day)}
+            >
+              <span className="text-xs md:text-sm font-normal">{format(day, "d")}</span>
+            </Button>
+          </div>
         ))}
       </div>
 
