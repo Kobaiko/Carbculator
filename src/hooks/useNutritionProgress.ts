@@ -51,7 +51,7 @@ export function useNutritionProgress() {
     water: 0, // This will be updated from water entries
   };
 
-  // Get daily goals from profile
+  // Get daily goals from profile with fallback values
   const goals = {
     calories: profile?.daily_calories || 2000,
     protein: profile?.daily_protein || 150,

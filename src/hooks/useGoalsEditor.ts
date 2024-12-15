@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -30,19 +30,6 @@ export function useGoalsEditor(initialGoals: Goals) {
     dailyFats: initialGoals.fats,
     dailyWater: initialGoals.water,
   });
-
-  // Update editedGoals when initialGoals change
-  useEffect(() => {
-    if (!isEditing) {
-      setEditedGoals({
-        dailyCalories: initialGoals.calories,
-        dailyProtein: initialGoals.protein,
-        dailyCarbs: initialGoals.carbs,
-        dailyFats: initialGoals.fats,
-        dailyWater: initialGoals.water,
-      });
-    }
-  }, [initialGoals, isEditing]);
 
   const handleEditClick = () => {
     setIsEditing(true);
