@@ -86,7 +86,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px bg-muted rounded-lg overflow-hidden flex-1">
+      <div className="grid grid-cols-7 gap-px bg-muted rounded-lg">
         {weekDays.map((day, index) => (
           <div
             key={day}
