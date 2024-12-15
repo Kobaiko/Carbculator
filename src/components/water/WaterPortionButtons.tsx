@@ -34,27 +34,37 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
   };
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {defaultPortions.map((portion) => (
         <Button
           key={portion.label}
           onClick={() => onAddWater(portion.amount)}
           variant="outline"
-          className="glass-card hover:bg-accent h-16 text-lg"
+          className="glass-card hover:bg-accent h-16 text-lg flex items-center justify-start px-6"
         >
-          <GlassWater className="mr-2 h-6 w-6" />
-          {portion.label}
-          <span className="text-sm text-muted-foreground ml-2">
-            ({portion.amount}ml)
-          </span>
+          <GlassWater className="h-6 w-6 mr-4" />
+          <div className="flex flex-col items-start">
+            <span className="text-lg font-semibold">{portion.label}</span>
+            <span className="text-sm text-muted-foreground">
+              ({portion.amount}ml)
+            </span>
+          </div>
         </Button>
       ))}
 
       <Dialog open={isCustomOpen} onOpenChange={setIsCustomOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="glass-card hover:bg-accent h-16 text-lg">
-            <GlassWater className="mr-2 h-6 w-6" />
-            Custom
+          <Button 
+            variant="outline" 
+            className="glass-card hover:bg-accent h-16 text-lg flex items-center justify-start px-6"
+          >
+            <GlassWater className="h-6 w-6 mr-4" />
+            <div className="flex flex-col items-start">
+              <span className="text-lg font-semibold">Custom</span>
+              <span className="text-sm text-muted-foreground">
+                (Enter amount)
+              </span>
+            </div>
           </Button>
         </DialogTrigger>
         <DialogContent>
