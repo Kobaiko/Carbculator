@@ -11,12 +11,11 @@ interface UploadSectionProps {
 export function UploadSection({ onFileUpload, isLoading, isMobile }: UploadSectionProps) {
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Upload Meal Image</h2>
       <div className="flex flex-col items-center gap-6">
         {isMobile && (
           <Button
             onClick={() => {
-              const input = document.getElementById("food-image") as HTMLInputElement;
+              const input = document.getElementById("food-image-camera") as HTMLInputElement;
               input?.click();
             }}
             size="lg"
@@ -24,6 +23,15 @@ export function UploadSection({ onFileUpload, isLoading, isMobile }: UploadSecti
           >
             <Camera className="h-6 w-6" />
             Take a Photo
+            <Input
+              id="food-image-camera"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={onFileUpload}
+              disabled={isLoading}
+              className="hidden"
+            />
           </Button>
         )}
 
@@ -32,7 +40,6 @@ export function UploadSection({ onFileUpload, isLoading, isMobile }: UploadSecti
             id="food-image"
             type="file"
             accept="image/*"
-            capture={isMobile ? "environment" : undefined}
             onChange={onFileUpload}
             disabled={isLoading}
             className="hidden"
