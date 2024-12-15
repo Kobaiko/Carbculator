@@ -12,6 +12,18 @@ interface InsightsCardProps {
   isLoading?: boolean;
 }
 
+const formatInsightText = (text: string) => {
+  // Remove markdown headers (e.g., ### 1. Trends)
+  const withoutHeaders = text.replace(/###\s*\d+\.\s*[^\n]+\n*/g, '');
+  
+  // Convert **text** to bold by wrapping in a strong tag
+  const withBoldText = withoutHeaders.replace(/\*\*([^*]+)\*\*/g, (_, content) => {
+    return `<strong class="font-semibold">${content}</strong>`;
+  });
+
+  return withBoldText;
+};
+
 export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
   return (
     <Card className="col-span-full glass-card">
@@ -40,32 +52,65 @@ export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
           </TabsList>
           <TabsContent value="trends" className="mt-4">
             {isLoading ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </div>
                 <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-[90%]" />
+                <Skeleton className="h-4 w-[80%]" />
               </div>
             ) : (
-              <p className="text-muted-foreground whitespace-pre-line">{insights.trends}</p>
+              <p 
+                className="text-muted-foreground whitespace-pre-line"
+                dangerouslySetInnerHTML={{ __html: formatInsightText(insights.trends) }}
+              />
             )}
           </TabsContent>
           <TabsContent value="recommendations" className="mt-4">
             {isLoading ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </div>
                 <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-[90%]" />
+                <Skeleton className="h-4 w-[80%]" />
               </div>
             ) : (
-              <p className="text-muted-foreground whitespace-pre-line">{insights.recommendations}</p>
+              <p 
+                className="text-muted-foreground whitespace-pre-line"
+                dangerouslySetInnerHTML={{ __html: formatInsightText(insights.recommendations) }}
+              />
             )}
           </TabsContent>
           <TabsContent value="goals" className="mt-4">
             {isLoading ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                  </div>
+                </div>
                 <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-[90%]" />
+                <Skeleton className="h-4 w-[80%]" />
               </div>
             ) : (
-              <p className="text-muted-foreground whitespace-pre-line">{insights.goals}</p>
+              <p 
+                className="text-muted-foreground whitespace-pre-line"
+                dangerouslySetInnerHTML={{ __html: formatInsightText(insights.goals) }}
+              />
             )}
           </TabsContent>
         </Tabs>
