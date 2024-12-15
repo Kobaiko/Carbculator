@@ -52,7 +52,12 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
 
   return (
     <Dialog open={!!date} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0" hideCloseButton>
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0">
+        <style>{`
+          [data-radix-popper-content-wrapper] > div:has(> .radix-dialog-close) {
+            display: none;
+          }
+        `}</style>
         <div className="h-full flex flex-col overflow-hidden">
           <DialogHeader className="p-4 md:p-6 border-b">
             <DialogTitle className="text-lg md:text-xl">
