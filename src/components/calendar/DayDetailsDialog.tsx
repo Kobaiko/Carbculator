@@ -13,7 +13,7 @@ import { Flame, Dumbbell, Wheat, Droplets, GlassWater } from "lucide-react";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfDay, endOfDay } from "date-fns";
 
@@ -26,6 +26,7 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
   const { toast } = useToast();
   const { getDayMeals } = useDayStatus();
   const { goals } = useNutritionProgress();
+  const queryClient = useQueryClient();
   
   const meals = date ? getDayMeals(date) : [];
 
@@ -156,7 +157,7 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
                 title="Water"
                 unit="ml"
                 current={waterTotal}
-                target={2000}
+                target={goals.water}
                 iconColor="text-blue-500"
                 iconBgColor="bg-blue-500/10"
                 isEditing={false}

@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface WaterEntry {
   id: string;
@@ -16,6 +17,7 @@ interface WaterEntriesProps {
 
 export function WaterEntries({ entries }: WaterEntriesProps) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -27,7 +29,22 @@ export function WaterEntries({ entries }: WaterEntriesProps) {
       if (error) throw error;
     },
     onSuccess: () => {
+      // Invalidate all queries that might contain water data
       queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
+      queryClient.invalidateQueries({ queryKey: ["water-entries"] });
+      
+      toast({
+        title: "Success",
+        description: "Water entry deleted successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting water entry:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete water entry",
+        variant: "destructive",
+      });
     },
   });
 

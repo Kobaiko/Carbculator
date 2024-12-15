@@ -8,11 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { WaterGlass } from "@/components/water/WaterGlass";
 import { WaterPortionButtons } from "@/components/water/WaterPortionButtons";
 import { WaterEntries } from "@/components/water/WaterEntries";
+import { useToast } from "@/hooks/use-toast";
 
 export default function WaterIntake() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newGoal, setNewGoal] = useState("");
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -72,6 +74,19 @@ export default function WaterIntake() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
+      queryClient.invalidateQueries({ queryKey: ["water-entries"] });
+      toast({
+        title: "Success",
+        description: "Water entry added successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error adding water entry:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add water entry",
+        variant: "destructive",
+      });
     },
   });
 
@@ -89,14 +104,34 @@ export default function WaterIntake() {
       if (error) throw error;
     },
     onSuccess: () => {
+      // Invalidate all queries that might contain the water goal
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       setIsSettingsOpen(false);
+      toast({
+        title: "Success",
+        description: "Water goal updated successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error updating water goal:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update water goal",
+        variant: "destructive",
+      });
     },
   });
 
   const handleUpdateGoal = () => {
     const goal = parseInt(newGoal);
-    if (isNaN(goal) || goal <= 0) return;
+    if (isNaN(goal) || goal <= 0) {
+      toast({
+        title: "Invalid goal",
+        description: "Please enter a valid number greater than 0",
+        variant: "destructive",
+      });
+      return;
+    }
     updateGoalMutation.mutate(goal);
   };
 
