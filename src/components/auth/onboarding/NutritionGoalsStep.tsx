@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,7 @@ interface NutritionGoalsStepProps {
 }
 
 export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) {
-  // Fetch default goals from profile
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -35,11 +34,23 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
   });
 
   const [formData, setFormData] = useState({
-    dailyCalories: profile?.daily_calories ?? 2000,
-    dailyProtein: profile?.daily_protein ?? 150,
-    dailyCarbs: profile?.daily_carbs ?? 250,
-    dailyFats: profile?.daily_fats ?? 70,
+    dailyCalories: 2000,
+    dailyProtein: 150,
+    dailyCarbs: 250,
+    dailyFats: 70,
   });
+
+  // Update form data when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        dailyCalories: profile.daily_calories,
+        dailyProtein: profile.daily_protein,
+        dailyCarbs: profile.daily_carbs,
+        dailyFats: profile.daily_fats,
+      });
+    }
+  }, [profile]);
 
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
@@ -49,6 +60,10 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
     e.preventDefault();
     onNext(formData);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
