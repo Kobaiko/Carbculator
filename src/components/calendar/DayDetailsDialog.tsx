@@ -52,20 +52,20 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
 
   return (
     <Dialog open={!!date} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0">
+      <DialogContent className="max-w-3xl h-[90vh] p-0 gap-0">
         <style>{`
           [data-radix-popper-content-wrapper] > div:has(> .radix-dialog-close) {
             display: none;
           }
         `}</style>
-        <div className="h-full flex flex-col overflow-hidden">
-          <DialogHeader className="p-4 md:p-6 border-b">
+        <div className="flex flex-col h-full">
+          <DialogHeader className="p-4 md:p-6 border-b shrink-0">
             <DialogTitle className="text-lg md:text-xl">
               {format(date, "EEEE, MMMM do, yyyy")}
             </DialogTitle>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 px-4 md:px-6">
+          <div className="flex-1 overflow-y-auto px-4 md:px-6">
             <div className="py-4 md:py-6 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <GoalCard
@@ -130,9 +130,9 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
                 ))}
               </div>
             </div>
-          </ScrollArea>
+          </div>
 
-          <div className="p-4 md:p-6 border-t">
+          <div className="p-4 md:p-6 border-t mt-auto shrink-0">
             <Button 
               variant="ghost"
               className="w-full"
