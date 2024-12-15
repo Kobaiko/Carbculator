@@ -53,11 +53,11 @@ export function useNutritionProgress() {
 
   // Get daily goals from profile
   const goals = {
-    calories: profile?.daily_calories ?? 2000,
-    protein: profile?.daily_protein ?? 150,
-    carbs: profile?.daily_carbs ?? 250,
-    fats: profile?.daily_fats ?? 70,
-    water: profile?.daily_water ?? 2000,
+    calories: profile?.daily_calories || 2000,
+    protein: profile?.daily_protein || 150,
+    carbs: profile?.daily_carbs || 250,
+    fats: profile?.daily_fats || 70,
+    water: profile?.daily_water || 2000,
   };
 
   return { profile, progress, goals };

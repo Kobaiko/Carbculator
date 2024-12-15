@@ -1,90 +1,20 @@
 import { Navigation } from "@/components/Navigation";
-import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
-import { useQueryClient } from "@tanstack/react-query";
 import { DailyGoalsHeader } from "@/components/daily-goals/DailyGoalsHeader";
 import { GoalsGrid } from "@/components/daily-goals/GoalsGrid";
 import { EditActions } from "@/components/daily-goals/EditActions";
+import { useGoalsEditor } from "@/hooks/useGoalsEditor";
 
 export default function DailyGoals() {
-  const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
-  const queryClient = useQueryClient();
-  const { progress, goals, profile } = useNutritionProgress();
-  
-  const [editedGoals, setEditedGoals] = useState({
-    dailyCalories: goals.calories,
-    dailyProtein: goals.protein,
-    dailyCarbs: goals.carbs,
-    dailyFats: goals.fats,
-    dailyWater: goals.water,
-  });
-
-  // Update editedGoals when goals change (e.g., after initial load)
-  useEffect(() => {
-    setEditedGoals({
-      dailyCalories: goals.calories,
-      dailyProtein: goals.protein,
-      dailyCarbs: goals.carbs,
-      dailyFats: goals.fats,
-      dailyWater: goals.water,
-    });
-  }, [goals]);
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-    setEditedGoals({
-      dailyCalories: goals.calories,
-      dailyProtein: goals.protein,
-      dailyCarbs: goals.carbs,
-      dailyFats: goals.fats,
-      dailyWater: goals.water,
-    });
-  };
-
-  const handleSaveGoals = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          daily_calories: editedGoals.dailyCalories,
-          daily_protein: editedGoals.dailyProtein,
-          daily_carbs: editedGoals.dailyCarbs,
-          daily_fats: editedGoals.dailyFats,
-          daily_water: editedGoals.dailyWater,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
-
-      if (error) throw error;
-
-      setIsEditing(false);
-      
-      // Invalidate and refetch the profile query to ensure we have the latest data
-      await queryClient.invalidateQueries({ queryKey: ["profile"] });
-      
-      toast({
-        title: "Success",
-        description: "Your daily goals have been updated.",
-      });
-    } catch (error) {
-      console.error("Error saving goals:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update your goals. Please try again.",
-      });
-    }
-  };
-
-  const handleEditChange = (field: string, value: number) => {
-    setEditedGoals(prev => ({ ...prev, [field]: value }));
-  };
+  const { progress, goals } = useNutritionProgress();
+  const {
+    isEditing,
+    editedGoals,
+    handleEditClick,
+    handleSaveGoals,
+    handleEditChange,
+    setIsEditing
+  } = useGoalsEditor(goals);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-background pb-16">
