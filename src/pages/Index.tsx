@@ -3,7 +3,7 @@ import { Navigation } from "@/components/Navigation";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { TrendsChart } from "@/components/dashboard/TrendsChart";
-import { Activity, Scale, GlassWater, Utensils } from "lucide-react";
+import { Dumbbell, Flame, Apple, Droplets } from "lucide-react";
 import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
 import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { AddFoodButton } from "@/components/AddFoodButton";
@@ -71,18 +71,8 @@ const Index = () => {
     },
   });
 
-  // Calculate daily totals
-  const todayEntries = foodEntries.filter(entry => {
-    const entryDate = new Date(entry.created_at);
-    const today = new Date();
-    return (
-      entryDate.getDate() === today.getDate() &&
-      entryDate.getMonth() === today.getMonth() &&
-      entryDate.getFullYear() === today.getFullYear()
-    );
-  });
-
-  const dailyTotals = todayEntries.reduce(
+  // Calculate totals based on time range
+  const totals = foodEntries.reduce(
     (acc, entry) => ({
       calories: acc.calories + entry.calories,
       protein: acc.protein + Number(entry.protein),
@@ -109,6 +99,32 @@ const Index = () => {
     return { calories: caloriesData, macros: macroData };
   }, [foodEntries]);
 
+  // Format stats card values based on time range
+  const getStatsCardValue = (value: number, goal: number) => {
+    if (timeRange === "daily") {
+      return `${value} / ${goal}`;
+    }
+    return value.toString();
+  };
+
+  const getStatsCardDescription = (value: number, goal: number) => {
+    if (timeRange === "daily") {
+      return `${Math.round((value / goal) * 100)}% of goal`;
+    }
+    switch (timeRange) {
+      case "weekly":
+        return "Weekly total";
+      case "monthly":
+        return "Monthly total";
+      case "yearly":
+        return "Yearly total";
+      case "custom":
+        return "Total for selected period";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">
       <Navigation />
@@ -130,31 +146,31 @@ const Index = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
-            title="Daily Calories"
-            value={`${dailyTotals.calories} / ${profile?.daily_calories || 2000}`}
-            description={`${Math.round((dailyTotals.calories / (profile?.daily_calories || 2000)) * 100)}% of goal`}
-            icon={Utensils}
+            title="Calories"
+            value={getStatsCardValue(totals.calories, profile?.daily_calories || 2000)}
+            description={getStatsCardDescription(totals.calories, profile?.daily_calories || 2000)}
+            icon={Flame}
             className="bg-gradient-to-br from-orange-500/10 to-amber-500/10"
           />
           <StatsCard
-            title="Daily Protein"
-            value={`${dailyTotals.protein}g / ${profile?.daily_protein || 150}g`}
-            description={`${Math.round((dailyTotals.protein / (profile?.daily_protein || 150)) * 100)}% of goal`}
-            icon={Activity}
+            title="Protein"
+            value={getStatsCardValue(totals.protein, profile?.daily_protein || 150)}
+            description={getStatsCardDescription(totals.protein, profile?.daily_protein || 150)}
+            icon={Dumbbell}
             className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10"
           />
           <StatsCard
-            title="Daily Carbs"
-            value={`${dailyTotals.carbs}g / ${profile?.daily_carbs || 250}g`}
-            description={`${Math.round((dailyTotals.carbs / (profile?.daily_carbs || 250)) * 100)}% of goal`}
-            icon={Scale}
+            title="Carbs"
+            value={getStatsCardValue(totals.carbs, profile?.daily_carbs || 250)}
+            description={getStatsCardDescription(totals.carbs, profile?.daily_carbs || 250)}
+            icon={Apple}
             className="bg-gradient-to-br from-green-500/10 to-emerald-500/10"
           />
           <StatsCard
-            title="Daily Fats"
-            value={`${dailyTotals.fats}g / ${profile?.daily_fats || 70}g`}
-            description={`${Math.round((dailyTotals.fats / (profile?.daily_fats || 70)) * 100)}% of goal`}
-            icon={GlassWater}
+            title="Fats"
+            value={getStatsCardValue(totals.fats, profile?.daily_fats || 70)}
+            description={getStatsCardDescription(totals.fats, profile?.daily_fats || 70)}
+            icon={Droplets}
             className="bg-gradient-to-br from-purple-500/10 to-pink-500/10"
           />
         </div>
@@ -169,12 +185,7 @@ const Index = () => {
           />
           <TrendsChart
             title="Macronutrients Trend"
-            data={chartData.macros.map(entry => ({
-              date: entry.date,
-              protein: entry.protein,
-              carbs: entry.carbs,
-              fats: entry.fats,
-            }))}
+            data={chartData.macros}
             color="hsl(var(--primary))"
             unit="g"
             timeRange={timeRange}
