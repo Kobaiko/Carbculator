@@ -1,64 +1,115 @@
-import { Upload, Camera } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Camera, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { analyzeFoodImage } from "@/services/openai";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UploadSectionProps {
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  isLoading: boolean;
-  isMobile: boolean;
+  onUploadStart: () => void;
+  onUploadComplete: (url: string) => void;
+  onAnalysisComplete: (analysis: any) => void;
 }
 
-export function UploadSection({ onFileUpload, isLoading, isMobile }: UploadSectionProps) {
+export function UploadSection({ 
+  onUploadStart,
+  onUploadComplete,
+  onAnalysisComplete,
+}: UploadSectionProps) {
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      onUploadStart();
+
+      // Convert the file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64Image = e.target?.result?.toString().split(",")[1];
+        if (!base64Image) return;
+
+        try {
+          // Upload to Supabase Storage
+          const fileName = `${Date.now()}-${file.name}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from("food-images")
+            .upload(fileName, file);
+
+          if (uploadError) throw uploadError;
+
+          // Get public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from("food-images")
+            .getPublicUrl(fileName);
+
+          onUploadComplete(publicUrl);
+
+          // Analyze the image
+          const mealAnalysis = await analyzeFoodImage(base64Image);
+          onAnalysisComplete(mealAnalysis);
+
+          toast({
+            title: "Success!",
+            description: "Meal analysis completed.",
+          });
+        } catch (error) {
+          console.error("Error processing image:", error);
+          toast({
+            title: "Error",
+            description: "Failed to process the image. Please try again.",
+            variant: "destructive",
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload the image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col items-center gap-6">
+    <div className="space-y-4">
+      <p className="text-center text-muted-foreground">
+        Upload a photo of your meal to get started
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Button
+          variant="outline"
+          size="lg"
+          className="w-full sm:w-auto"
+          onClick={() => document.getElementById("food-image")?.click()}
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          Upload Image
+        </Button>
         {isMobile && (
           <Button
-            onClick={() => {
-              const input = document.getElementById("food-image-camera") as HTMLInputElement;
-              input?.click();
-            }}
+            variant="outline"
             size="lg"
-            className="w-full max-w-md flex items-center justify-center gap-2 text-lg py-6"
+            className="w-full sm:w-auto"
+            onClick={() => document.getElementById("food-image")?.click()}
           >
-            <Camera className="h-6 w-6" />
-            Take a Photo
-            <Input
-              id="food-image-camera"
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={onFileUpload}
-              disabled={isLoading}
-              className="hidden"
-            />
+            <Camera className="mr-2 h-4 w-4" />
+            Take Photo
           </Button>
         )}
-
-        <div className="w-full max-w-md">
-          <Input
-            id="food-image"
-            type="file"
-            accept="image/*"
-            onChange={onFileUpload}
-            disabled={isLoading}
-            className="hidden"
-          />
-          <label
-            htmlFor="food-image"
-            className="flex flex-col items-center gap-4 cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 hover:border-primary transition-colors"
-          >
-            <Upload className="h-8 w-8 text-gray-400" />
-            <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {isMobile ? "Choose from gallery" : "Choose a file"}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                PNG, JPG up to 10MB
-              </p>
-            </div>
-          </label>
-        </div>
+        <input
+          type="file"
+          id="food-image"
+          accept="image/*"
+          capture={isMobile ? "environment" : undefined}
+          className="hidden"
+          onChange={handleFileUpload}
+        />
       </div>
     </div>
   );

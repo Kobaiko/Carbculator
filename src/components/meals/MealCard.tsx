@@ -1,6 +1,9 @@
 import { format } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MacroNutrients } from "./MacroNutrients";
+import { MealHeader } from "./MealHeader";
+import { MealIngredients } from "./MealIngredients";
 
 interface MealCardProps {
   meal: any;
@@ -33,39 +36,9 @@ export function MealCard({ meal, onDelete }: MealCardProps) {
         </div>
       )}
       <div className="p-4 space-y-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-lg font-semibold">{meal.name}</h3>
-            <p className="text-sm text-muted-foreground">
-              {format(new Date(meal.created_at), "MMM d, yyyy 'at' h:mm a")}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4">
-          <div className="text-center">
-            <p className="text-lg font-semibold">{meal.calories}</p>
-            <p className="text-xs text-muted-foreground">Calories</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold">{meal.protein}g</p>
-            <p className="text-xs text-muted-foreground">Protein</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold">{meal.fats}g</p>
-            <p className="text-xs text-muted-foreground">Fat</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold">{meal.carbs}g</p>
-            <p className="text-xs text-muted-foreground">Carbs</p>
-          </div>
-        </div>
-
-        {meal.ingredients && (
-          <p className="text-sm text-muted-foreground">
-            {meal.ingredients.join(", ")}
-          </p>
-        )}
+        <MealHeader meal={meal} />
+        <MacroNutrients meal={meal} />
+        <MealIngredients ingredients={meal.ingredients} />
       </div>
     </div>
   );
