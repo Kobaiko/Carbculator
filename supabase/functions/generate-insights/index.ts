@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -28,45 +29,6 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    // Prepare date range
-    let dateFilter;
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    switch (timeRange) {
-      case 'daily':
-        dateFilter = {
-          start: today.toISOString(),
-          end: new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString(),
-        };
-        break;
-      case 'weekly':
-        const weekStart = new Date(today);
-        weekStart.setDate(today.getDate() - today.getDay());
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 7);
-        dateFilter = { start: weekStart.toISOString(), end: weekEnd.toISOString() };
-        break;
-      case 'monthly':
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        dateFilter = { start: monthStart.toISOString(), end: monthEnd.toISOString() };
-        break;
-      case 'yearly':
-        const yearStart = new Date(today.getFullYear(), 0, 1);
-        const yearEnd = new Date(today.getFullYear(), 11, 31);
-        dateFilter = { start: yearStart.toISOString(), end: yearEnd.toISOString() };
-        break;
-      case 'custom':
-        dateFilter = {
-          start: new Date(startDate).toISOString(),
-          end: new Date(endDate).toISOString(),
-        };
-        break;
-      default:
-        throw new Error('Invalid time range');
-    }
-
     // Fetch user's profile for goals
     const { data: profile } = await supabase
       .from('profiles')
@@ -79,16 +41,16 @@ serve(async (req) => {
       .from('food_entries')
       .select('*')
       .eq('user_id', user.id)
-      .gte('created_at', dateFilter.start)
-      .lte('created_at', dateFilter.end);
+      .gte('created_at', startDate)
+      .lte('created_at', endDate);
 
     // Fetch water entries
     const { data: waterEntries } = await supabase
       .from('water_entries')
       .select('*')
       .eq('user_id', user.id)
-      .gte('created_at', dateFilter.start)
-      .lte('created_at', dateFilter.end);
+      .gte('created_at', startDate)
+      .lte('created_at', endDate);
 
     // Calculate totals and averages
     const totals = (foodEntries || []).reduce(
@@ -102,7 +64,7 @@ serve(async (req) => {
     );
 
     const waterTotal = (waterEntries || []).reduce((sum, entry) => sum + entry.amount, 0);
-    const daysInRange = Math.ceil((new Date(dateFilter.end).getTime() - new Date(dateFilter.start).getTime()) / (1000 * 60 * 60 * 24));
+    const daysInRange = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
     
     const averages = {
       calories: totals.calories / daysInRange,
@@ -123,9 +85,11 @@ serve(async (req) => {
         protein: profile?.daily_protein || 150,
         carbs: profile?.daily_carbs || 250,
         fats: profile?.daily_fats || 70,
-        water: 2000, // Default water goal
+        water: 2000, // Default water goal in ml
       },
     };
+
+    console.log('Sending request to OpenAI with data:', dataSummary);
 
     // Generate insights using OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -143,7 +107,8 @@ serve(async (req) => {
             1. Trends: Analyze patterns in nutrition and water intake data
             2. Recommendations: Provide actionable advice based on the data
             3. Goals: Suggest realistic goals and adjustments based on current progress
-            Keep each section concise, focused, and data-driven.`
+            Keep each section concise, focused, and data-driven.
+            Use ** for important numbers or key points you want to emphasize.`
           },
           {
             role: 'user',
@@ -155,6 +120,7 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
+      console.error('OpenAI API error:', await response.text());
       throw new Error('OpenAI API error');
     }
 
@@ -164,6 +130,8 @@ serve(async (req) => {
       recommendations: aiData.choices[0].message.content.split('\n\n')[1],
       goals: aiData.choices[0].message.content.split('\n\n')[2],
     };
+
+    console.log('Generated insights:', insights);
 
     return new Response(JSON.stringify(insights), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
