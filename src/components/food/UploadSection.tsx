@@ -52,11 +52,6 @@ export function UploadSection({
           // Analyze the image
           const mealAnalysis = await analyzeFoodImage(base64Image);
           onAnalysisComplete(mealAnalysis);
-
-          toast({
-            title: "Success!",
-            description: "Meal analysis completed.",
-          });
         } catch (error) {
           console.error("Error processing image:", error);
           toast({
