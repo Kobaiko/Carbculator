@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Legend, Line, ComposedChart } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Legend, ComposedChart } from "recharts";
 import { TimeRange } from "./TimeRangeSelector";
-import { format } from "date-fns";
+import { format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, startOfDay, endOfDay } from "date-fns";
 
 interface TrendsChartProps {
   data: Array<{ date: string; value?: number; protein?: number; carbs?: number; fats?: number }>;
@@ -24,12 +24,69 @@ const formatDate = (dateStr: string, timeRange: TimeRange) => {
       return format(date, "d MMM");
     case "yearly":
       return format(date, "MMM");
+    case "custom":
+      return format(date, "d MMM");
     default:
       return format(date, "PP");
   }
 };
 
+const generateTimePoints = (start: Date, end: Date, timeRange: TimeRange) => {
+  switch (timeRange) {
+    case "daily":
+      // For daily view, use hours
+      const points = [];
+      for (let i = 0; i <= 23; i++) {
+        const date = new Date(start);
+        date.setHours(i, 0, 0, 0);
+        if (date <= end) {
+          points.push(date);
+        }
+      }
+      return points;
+    case "weekly":
+      return eachDayOfInterval({ start, end });
+    case "monthly":
+      return eachDayOfInterval({ start, end });
+    case "yearly":
+      return eachMonthOfInterval({ start, end });
+    case "custom":
+      return eachDayOfInterval({ start, end });
+    default:
+      return eachDayOfInterval({ start, end });
+  }
+};
+
+const prepareChartData = (
+  rawData: Array<{ date: string; value?: number; protein?: number; carbs?: number; fats?: number }>,
+  timeRange: TimeRange
+) => {
+  if (!rawData.length) return [];
+
+  const dates = rawData.map(d => new Date(d.date));
+  const start = startOfDay(new Date(Math.min(...dates.map(d => d.getTime()))));
+  const end = endOfDay(new Date(Math.max(...dates.map(d => d.getTime()))));
+  
+  const timePoints = generateTimePoints(start, end, timeRange);
+
+  return timePoints.map(date => {
+    const matchingData = rawData.find(d => {
+      const dataDate = new Date(d.date);
+      return timeRange === "daily" 
+        ? dataDate.getHours() === date.getHours() 
+        : dataDate.toDateString() === date.toDateString();
+    });
+
+    return {
+      date: date.toISOString(),
+      ...(matchingData || { value: 0, protein: 0, carbs: 0, fats: 0 })
+    };
+  });
+};
+
 export function TrendsChart({ data, title, color, unit, timeRange, showMultipleLines }: TrendsChartProps) {
+  const chartData = prepareChartData(data, timeRange);
+
   if (showMultipleLines) {
     return (
       <Card className="w-full glass-card">
@@ -39,7 +96,7 @@ export function TrendsChart({ data, title, color, unit, timeRange, showMultipleL
         <CardContent>
           <div className="h-[250px] sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorProtein" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
@@ -105,7 +162,7 @@ export function TrendsChart({ data, title, color, unit, timeRange, showMultipleL
       <CardContent>
         <div className="h-[250px] sm:h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={color} stopOpacity={0.1}/>
