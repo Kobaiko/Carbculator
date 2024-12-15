@@ -142,7 +142,7 @@ export function AddFoodButton() {
       >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-card">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Let's add your meal! 🍽️</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Meal paparazzi time! 📸</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-8">
