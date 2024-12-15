@@ -21,6 +21,12 @@ export function WaterGlass({ percentage }: WaterGlassProps) {
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
 
+      // Draw glass container with shadow
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+
       // Draw glass container
       ctx.beginPath();
       ctx.moveTo(width * 0.2, height * 0.1);
@@ -29,11 +35,17 @@ export function WaterGlass({ percentage }: WaterGlassProps) {
       ctx.lineTo(width * 0.7, height * 0.95);
       ctx.quadraticCurveTo(width * 0.8, height * 0.95, width * 0.8, height * 0.9);
       ctx.lineTo(width * 0.8, height * 0.1);
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+      ctx.lineWidth = 3;
       ctx.stroke();
 
-      // Calculate water height based on percentage
+      // Reset shadow for water
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Calculate water height based on percentage (no capping at 100%)
       const waterHeight = height * 0.85 * (percentage / 100);
       const baseY = height * 0.95 - waterHeight;
 

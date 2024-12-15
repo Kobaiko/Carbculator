@@ -5,14 +5,12 @@ import { GlassWater, Droplets, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useToast } from "@/components/ui/use-toast";
 import { WaterGlass } from "@/components/water/WaterGlass";
 import { WaterPortionButtons } from "@/components/water/WaterPortionButtons";
 
 export default function WaterIntake() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [newGoal, setNewGoal] = useState("");
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch user's daily water goal
@@ -58,7 +56,7 @@ export default function WaterIntake() {
   // Calculate total water intake for today
   const totalWater = waterEntries?.reduce((sum, entry) => sum + entry.amount, 0) || 0;
   const waterGoal = profile?.daily_water || 2000;
-  const progressPercentage = Math.min(Math.round((totalWater / waterGoal) * 100), 100);
+  const progressPercentage = Math.round((totalWater / waterGoal) * 100);
 
   // Add water entry mutation
   const addWaterMutation = useMutation({
@@ -74,10 +72,6 @@ export default function WaterIntake() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["waterEntries"] });
-      toast({
-        title: "Water intake added!",
-        description: "Keep up the good work! 💧",
-      });
     },
   });
 
@@ -97,23 +91,12 @@ export default function WaterIntake() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       setIsSettingsOpen(false);
-      toast({
-        title: "Daily water goal updated!",
-        description: "Your new goal has been set. 🎯",
-      });
     },
   });
 
   const handleUpdateGoal = () => {
     const goal = parseInt(newGoal);
-    if (isNaN(goal) || goal <= 0) {
-      toast({
-        title: "Invalid goal",
-        description: "Please enter a valid number greater than 0.",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (isNaN(goal) || goal <= 0) return;
     updateGoalMutation.mutate(goal);
   };
 
