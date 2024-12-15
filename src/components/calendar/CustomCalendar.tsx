@@ -58,7 +58,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col pt-16 md:pt-0">
       <div className="flex items-center justify-between mb-2 md:mb-4">
         <div className="flex items-center gap-1 md:gap-2">
           <CalendarDays className="h-4 w-4 md:h-5 md:w-5" />
@@ -91,7 +91,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           {weekDays.map((day, index) => (
             <div
               key={day}
-              className={`p-1.5 md:p-3 text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
+              className={`p-0.5 md:p-3 text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
                 index === 0 ? 'rounded-tl-lg' : ''
               } ${index === 6 ? 'rounded-tr-lg' : ''}`}
             >
@@ -104,7 +104,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           <Button
             key={day.toString()}
             variant="ghost"
-            className={`h-full min-h-[40px] md:min-h-[80px] rounded-none flex flex-col items-center justify-start p-1 md:p-2 hover:bg-accent ${
+            className={`h-full aspect-square md:aspect-auto min-h-[40px] md:min-h-[80px] rounded-none flex flex-col items-center justify-start p-1 md:p-2 hover:bg-accent ${
               selected && isSameDay(day, selected)
                 ? "ring-2 ring-primary"
                 : ""
