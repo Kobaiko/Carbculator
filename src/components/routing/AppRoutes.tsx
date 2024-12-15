@@ -8,9 +8,8 @@ import DailyMeals from "../../pages/DailyMeals";
 import DailyGoals from "../../pages/DailyGoals";
 import Profile from "../../pages/Profile";
 import Calendar from "../../pages/Calendar";
+import WaterIntake from "../../pages/WaterIntake";
 import { useSession } from '@supabase/auth-helpers-react';
-
-const EmptyPage = () => <div className="p-4">Coming soon...</div>;
 
 export const AppRoutes = () => {
   const session = useSession();
@@ -77,7 +76,7 @@ export const AppRoutes = () => {
         path="/water"
         element={
           <AuthMiddleware>
-            <EmptyPage />
+            <WaterIntake />
           </AuthMiddleware>
         }
       />
