@@ -21,6 +21,7 @@ export type Database = {
           ingredients: string[]
           name: string
           protein: number
+          user_id: string
         }
         Insert: {
           calories: number
@@ -33,6 +34,7 @@ export type Database = {
           ingredients: string[]
           name: string
           protein: number
+          user_id: string
         }
         Update: {
           calories?: number
@@ -45,6 +47,7 @@ export type Database = {
           ingredients?: string[]
           name?: string
           protein?: number
+          user_id?: string
         }
         Relationships: []
       }

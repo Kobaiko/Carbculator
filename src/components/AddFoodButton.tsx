@@ -87,6 +87,9 @@ export function AddFoodButton() {
     try {
       setIsLoading(true);
       
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       // Save to database
       const { error: dbError } = await supabase
         .from("food_entries")
@@ -99,6 +102,7 @@ export function AddFoodButton() {
           fats: analysis.fats,
           health_score: analysis.healthScore,
           image_url: imageUrl,
+          user_id: user.id,
         });
 
       if (dbError) throw dbError;
