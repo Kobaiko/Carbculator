@@ -14,13 +14,13 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary to-background">
-      <div className="w-full max-w-3xl p-4">
+    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary to-background">
+      <div className="w-full h-full max-w-4xl p-8 flex items-center justify-center">
         <Calendar
           mode="single"
           selected={selectedDate}
           onSelect={handleDayClick}
-          className="rounded-md border shadow-lg p-4 bg-background"
+          className="rounded-xl border shadow-lg p-6 bg-background/95 backdrop-blur-sm w-full max-h-[90vh]"
           modifiers={{
             goals_met: (date) => getDayStatus(date) === "goals_met",
             goals_not_met: (date) => getDayStatus(date) === "goals_not_met",
