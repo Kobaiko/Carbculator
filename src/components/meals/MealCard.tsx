@@ -17,7 +17,7 @@ export function MealCard({ meal, onDelete, compact = false, extraCompact = false
     <div className={`glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg group ${compact ? 'text-sm' : ''} ${extraCompact ? 'text-xs' : ''}`}>
       <div className="flex">
         {meal.image_url && (
-          <div className={`relative ${extraCompact ? 'w-24' : 'w-48'} shrink-0`}>
+          <div className={`relative ${extraCompact ? 'w-20 md:w-24' : 'w-32 md:w-48'} shrink-0`}>
             <img
               src={meal.image_url}
               alt={meal.name}
@@ -34,13 +34,13 @@ export function MealCard({ meal, onDelete, compact = false, extraCompact = false
               </Button>
             )}
             {meal.quantity > 1 && (
-              <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-sm font-medium">
+              <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-1.5 py-0.5 md:px-2 md:py-1 rounded-full text-xs md:text-sm font-medium">
                 x{meal.quantity}
               </div>
             )}
           </div>
         )}
-        <div className={`flex-1 p-2 ${compact ? 'space-y-1' : 'space-y-4'} ${extraCompact ? '!space-y-0.5' : ''}`}>
+        <div className={`flex-1 p-1.5 md:p-2 ${compact ? 'space-y-0.5 md:space-y-1' : 'space-y-2 md:space-y-4'} ${extraCompact ? '!space-y-0.5' : ''}`}>
           <MealHeader meal={meal} />
           <MacroNutrients meal={meal} />
           {!extraCompact && <MealIngredients ingredients={meal.ingredients} />}

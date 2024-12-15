@@ -52,22 +52,22 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
 
   return (
     <Dialog open={!!date} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl" hideCloseButton>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-4 rounded-full"
-          onClick={() => onClose()}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 rounded-full"
+            onClick={() => onClose()}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          <DialogTitle className="pr-8 text-lg md:text-xl">
             {format(date, "EEEE, MMMM do, yyyy")}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
           <GoalCard
             icon={Flame}
             title="Calories"
@@ -118,7 +118,7 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
           />
         </div>
 
-        <ScrollArea className="h-[40vh] pr-4">
+        <ScrollArea className="h-[30vh] md:h-[40vh] pr-4">
           <div className="space-y-2">
             {meals.map((meal) => (
               <MealCard
