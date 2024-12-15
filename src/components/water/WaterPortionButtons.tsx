@@ -19,9 +19,9 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
   const [customAmount, setCustomAmount] = useState("");
 
   const defaultPortions = [
-    { label: "Small", amount: 200 },
-    { label: "Medium", amount: 350 },
-    { label: "Large", amount: 500 },
+    { label: "Small", amount: 200, iconSize: 16 },
+    { label: "Medium", amount: 350, iconSize: 20 },
+    { label: "Large", amount: 500, iconSize: 24 },
   ];
 
   const handleCustomSubmit = () => {
@@ -40,10 +40,10 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
           key={portion.label}
           onClick={() => onAddWater(portion.amount)}
           variant="outline"
-          className="glass-card hover:bg-accent h-16 text-lg flex items-center justify-start px-6"
+          className="glass-card hover:bg-accent h-16 text-lg flex flex-col sm:flex-row items-center justify-center sm:justify-start px-6 gap-2 sm:gap-4"
         >
-          <GlassWater className="h-6 w-6 mr-4" />
-          <div className="flex flex-col items-start">
+          <GlassWater className={`h-${portion.iconSize/4} w-${portion.iconSize/4}`} />
+          <div className="flex flex-col items-center sm:items-start">
             <span className="text-lg font-semibold">{portion.label}</span>
             <span className="text-sm text-muted-foreground">
               ({portion.amount}ml)
@@ -56,10 +56,10 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
         <DialogTrigger asChild>
           <Button 
             variant="outline" 
-            className="glass-card hover:bg-accent h-16 text-lg flex items-center justify-start px-6"
+            className="glass-card hover:bg-accent h-16 text-lg flex flex-col sm:flex-row items-center justify-center sm:justify-start px-6 gap-2 sm:gap-4"
           >
-            <GlassWater className="h-6 w-6 mr-4" />
-            <div className="flex flex-col items-start">
+            <GlassWater className="h-5 w-5" />
+            <div className="flex flex-col items-center sm:items-start">
               <span className="text-lg font-semibold">Custom</span>
               <span className="text-sm text-muted-foreground">
                 (Enter amount)
