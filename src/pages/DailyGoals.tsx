@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,6 +21,17 @@ export default function DailyGoals() {
     dailyFats: goals.fats,
     dailyWater: goals.water,
   });
+
+  // Update editedGoals when goals change (e.g., after initial load)
+  useEffect(() => {
+    setEditedGoals({
+      dailyCalories: goals.calories,
+      dailyProtein: goals.protein,
+      dailyCarbs: goals.carbs,
+      dailyFats: goals.fats,
+      dailyWater: goals.water,
+    });
+  }, [goals]);
 
   const handleEditClick = () => {
     setIsEditing(true);

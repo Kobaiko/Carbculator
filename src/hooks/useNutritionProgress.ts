@@ -51,7 +51,7 @@ export function useNutritionProgress() {
     water: 0, // This will be updated from water entries
   };
 
-  // Get daily goals from profile, using defaults only if no profile exists
+  // Get daily goals from profile
   const goals = {
     calories: profile?.daily_calories ?? 2000,
     protein: profile?.daily_protein ?? 150,
