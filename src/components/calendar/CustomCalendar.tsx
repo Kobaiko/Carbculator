@@ -38,13 +38,13 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
     }
     
     if (modifiers?.goals_met(date)) {
-      return "bg-green-100 dark:bg-green-900/30 text-green-900 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-900/50";
+      return "bg-green-100/80 dark:bg-green-900/30 text-green-900 dark:text-green-100 hover:bg-green-200/80 dark:hover:bg-green-900/50 backdrop-blur-sm";
     }
     if (modifiers?.goals_not_met(date)) {
-      return "bg-red-100 dark:bg-red-900/30 text-red-900 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-900/50";
+      return "bg-red-100/80 dark:bg-red-900/30 text-red-900 dark:text-red-100 hover:bg-red-200/80 dark:hover:bg-red-900/50 backdrop-blur-sm";
     }
     if (modifiers?.no_meals(date)) {
-      return "bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-800";
+      return "bg-gray-100/80 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 hover:bg-gray-200/80 dark:hover:bg-gray-800/70 backdrop-blur-sm";
     }
     
     return "";
@@ -70,7 +70,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 md:h-10 md:w-10"
+            className="h-8 w-8 md:h-10 md:w-10 bg-white/50 dark:bg-black/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-black/70"
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -78,7 +78,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 md:h-10 md:w-10"
+            className="h-8 w-8 md:h-10 md:w-10 bg-white/50 dark:bg-black/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-black/70"
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
           >
             <ChevronRight className="h-4 w-4" />
@@ -86,11 +86,11 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px bg-muted rounded-lg">
+      <div className="grid grid-cols-7 gap-px bg-muted/50 backdrop-blur-sm rounded-lg shadow-lg border border-white/20 dark:border-black/20">
         {weekDays.map((day, index) => (
           <div
             key={day}
-            className={`flex items-center justify-center text-center p-2 font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
+            className={`flex items-center justify-center text-center p-2 font-medium text-[10px] md:text-sm bg-primary/5 backdrop-blur-sm text-primary ${
               index === 0 ? 'rounded-tl-lg' : ''
             } ${index === 6 ? 'rounded-tr-lg' : ''}`}
           >
@@ -104,7 +104,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
             <Button
               key={day.toString()}
               variant="ghost"
-              className={`aspect-square w-full p-0 rounded-none flex flex-col items-center justify-start hover:bg-accent ${
+              className={`aspect-square w-full p-0 rounded-none flex flex-col items-center justify-start hover:bg-accent/50 backdrop-blur-sm ${
                 selected && isSameDay(day, selected)
                   ? "ring-2 ring-primary"
                   : ""
