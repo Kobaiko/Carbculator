@@ -16,8 +16,11 @@ const formatInsightText = (text: string) => {
   // Remove markdown headers more thoroughly
   const withoutHeaders = text.replace(/###\s*(?:\d+\.)?\s*(?:Trends|Recommendations|Goals)[^\n]*/gi, '').trim();
   
+  // Add line breaks after periods, but not after decimal numbers
+  const withLineBreaks = withoutHeaders.replace(/\.(?!\d)\s+/g, '.<br>');
+  
   // Split text into bullet points if they exist
-  const bulletPoints = withoutHeaders.split(/(?:\r?\n|\r)(?=[-•*])/g);
+  const bulletPoints = withLineBreaks.split(/(?:\r?\n|\r)(?=[-•*])/g);
   
   // Convert **text** to bold and handle bullet points
   const formattedPoints = bulletPoints.map(point => {
@@ -28,13 +31,13 @@ const formatInsightText = (text: string) => {
 
     // Add proper bullet point styling
     if (point.trim().startsWith('-') || point.trim().startsWith('•') || point.trim().startsWith('*')) {
-      return `<div class="flex gap-2 mb-2">
+      return `<div class="flex gap-2 mb-3">
                 <span class="text-primary">•</span>
                 <span>${withBoldText.replace(/^[-•*]\s*/, '')}</span>
               </div>`;
     }
     
-    return `<div class="mb-2">${withBoldText}</div>`;
+    return `<div class="mb-3">${withBoldText}</div>`;
   });
 
   return formattedPoints.join('');
