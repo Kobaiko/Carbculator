@@ -90,7 +90,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
         {weekDays.map((day, index) => (
           <div
             key={day}
-            className={`h-8 md:h-12 flex items-center justify-center text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
+            className={`aspect-square flex items-center justify-center text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
               index === 0 ? 'rounded-tl-lg' : ''
             } ${index === 6 ? 'rounded-tr-lg' : ''}`}
           >
