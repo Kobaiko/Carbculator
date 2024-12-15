@@ -12,14 +12,14 @@ export default function DailyGoals() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
-  const { progress, goals } = useNutritionProgress();
+  const { progress, goals, profile } = useNutritionProgress();
   
   const [editedGoals, setEditedGoals] = useState({
-    dailyCalories: goals?.calories || 2000,
-    dailyProtein: goals?.protein || 150,
-    dailyCarbs: goals?.carbs || 250,
-    dailyFats: goals?.fats || 70,
-    dailyWater: goals?.water || 2000,
+    dailyCalories: goals.calories,
+    dailyProtein: goals.protein,
+    dailyCarbs: goals.carbs,
+    dailyFats: goals.fats,
+    dailyWater: goals.water,
   });
 
   const handleEditClick = () => {
@@ -46,6 +46,7 @@ export default function DailyGoals() {
           daily_carbs: editedGoals.dailyCarbs,
           daily_fats: editedGoals.dailyFats,
           daily_water: editedGoals.dailyWater,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 
@@ -53,8 +54,8 @@ export default function DailyGoals() {
 
       setIsEditing(false);
       
-      // Invalidate all relevant queries to ensure data consistency
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      // Invalidate and refetch the profile query to ensure we have the latest data
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
       
       toast({
         title: "Success",
