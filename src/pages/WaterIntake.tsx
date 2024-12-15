@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { GlassWater, Droplets, Settings2 } from "lucide-react";
+import { Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { WaterGlass } from "@/components/water/WaterGlass";
 import { WaterPortionButtons } from "@/components/water/WaterPortionButtons";
+import { WaterEntries } from "@/components/water/WaterEntries";
 
 export default function WaterIntake() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -132,17 +133,22 @@ export default function WaterIntake() {
         </Dialog>
       </div>
 
-      <div className="glass-card p-6 rounded-2xl">
-        <WaterGlass percentage={progressPercentage} />
-        <div className="text-center mt-4">
-          <p className="text-2xl font-bold">{progressPercentage}%</p>
-          <p className="text-sm text-muted-foreground">
-            {totalWater}ml / {waterGoal}ml
-          </p>
+      <div className="grid md:grid-cols-2 gap-8">
+        <div className="glass-card p-6 rounded-2xl">
+          <WaterGlass percentage={progressPercentage} />
+          <div className="text-center mt-4">
+            <p className="text-2xl font-bold">{progressPercentage}%</p>
+            <p className="text-sm text-muted-foreground">
+              {totalWater}ml / {waterGoal}ml
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-8">
+          <WaterPortionButtons onAddWater={(amount) => addWaterMutation.mutate(amount)} />
+          {waterEntries && <WaterEntries entries={waterEntries} />}
         </div>
       </div>
-
-      <WaterPortionButtons onAddWater={(amount) => addWaterMutation.mutate(amount)} />
     </div>
   );
 }
