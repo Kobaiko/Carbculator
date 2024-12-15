@@ -1,0 +1,51 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export function useNutritionProgress() {
+  // Fetch user profile data
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch today's meals
+  const { data: todaysMeals } = useQuery({
+    queryKey: ["todaysMeals"],
+    queryFn: async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const { data, error } = await supabase
+        .from("food_entries")
+        .select("*")
+        .gte("created_at", today.toISOString())
+        .lt("created_at", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Calculate current progress from today's meals
+  const progress = {
+    calories: todaysMeals?.reduce((sum, meal) => sum + meal.calories, 0) || 0,
+    protein: todaysMeals?.reduce((sum, meal) => sum + Number(meal.protein), 0) || 0,
+    carbs: todaysMeals?.reduce((sum, meal) => sum + Number(meal.carbs), 0) || 0,
+    fats: todaysMeals?.reduce((sum, meal) => sum + Number(meal.fats), 0) || 0,
+    water: 1500, // Mock data for now
+  };
+
+  return { profile, progress };
+}
