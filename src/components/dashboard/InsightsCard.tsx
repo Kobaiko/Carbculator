@@ -13,8 +13,8 @@ interface InsightsCardProps {
 }
 
 const formatInsightText = (text: string) => {
-  // Remove markdown headers (e.g., ### 1. Trends)
-  const withoutHeaders = text.replace(/###\s*\d+\.\s*[^\n]+\n*/g, '');
+  // Remove markdown headers more thoroughly (e.g., ### Trends, ### 1. Trends, etc.)
+  const withoutHeaders = text.replace(/###\s*(?:\d+\.)?\s*(?:Trends|Recommendations|Goals)[^\n]*/gi, '').trim();
   
   // Convert **text** to bold by wrapping in a strong tag
   const withBoldText = withoutHeaders.replace(/\*\*([^*]+)\*\*/g, (_, content) => {
