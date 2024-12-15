@@ -11,6 +11,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { FoodAnalysisSection } from "./FoodAnalysisSection";
 import { UploadSection } from "./UploadSection";
 import { LoadingSection } from "./LoadingSection";
@@ -94,13 +95,20 @@ export function AddFoodDialog({ open, onOpenChange, onAddMeal }: AddFoodDialogPr
         }}
       >
         <DrawerContent className="bg-white text-black px-4 pb-8 fixed bottom-0 left-0 right-0 max-h-[95vh] rounded-t-[20px]">
-          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-300 my-4" />
-          <DrawerHeader className="px-0">
-            <DrawerTitle className="text-2xl font-bold text-center">
-              Meal paparazzi time! 📸
-            </DrawerTitle>
-          </DrawerHeader>
-          {dialogContent}
+          <div 
+            className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-300 my-4 cursor-pointer" 
+            onClick={() => onOpenChange(false)}
+          />
+          {(!analysis && !isLoading && !isUploading) && (
+            <DrawerHeader className="px-0">
+              <DrawerTitle className="text-2xl font-bold text-center">
+                Meal paparazzi time! 📸
+              </DrawerTitle>
+            </DrawerHeader>
+          )}
+          <ScrollArea className="h-[calc(95vh-100px)] overflow-y-auto px-1">
+            {dialogContent}
+          </ScrollArea>
         </DrawerContent>
       </Drawer>
     );
