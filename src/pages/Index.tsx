@@ -1,14 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
-import { StatsCard } from "@/components/dashboard/StatsCard";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
-import { TrendsChart } from "@/components/dashboard/TrendsChart";
-import { Dumbbell, Flame, Wheat, Droplets } from "lucide-react";
 import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
 import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { AddFoodButton } from "@/components/AddFoodButton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { MacroTrends } from "@/components/dashboard/MacroTrends";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
 
 const Index = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
@@ -53,6 +52,23 @@ const Index = () => {
     },
   });
 
+  // Fetch water entries
+  const { data: waterEntries = [] } = useQuery({
+    queryKey: ["water-entries", timeRange, customStartDate, customEndDate],
+    queryFn: async () => {
+      const { start, end } = getDateRange();
+      const { data, error } = await supabase
+        .from("water_entries")
+        .select("*")
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString())
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   // Fetch user profile for goals
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -72,58 +88,44 @@ const Index = () => {
   });
 
   // Calculate totals based on time range
-  const totals = foodEntries.reduce(
-    (acc, entry) => ({
-      calories: acc.calories + entry.calories,
-      protein: acc.protein + Number(entry.protein),
-      carbs: acc.carbs + Number(entry.carbs),
-      fats: acc.fats + Number(entry.fats),
-    }),
-    { calories: 0, protein: 0, carbs: 0, fats: 0 }
-  );
+  const totals = {
+    ...foodEntries.reduce(
+      (acc, entry) => ({
+        calories: acc.calories + entry.calories,
+        protein: acc.protein + Number(entry.protein),
+        carbs: acc.carbs + Number(entry.carbs),
+        fats: acc.fats + Number(entry.fats),
+      }),
+      { calories: 0, protein: 0, carbs: 0, fats: 0 }
+    ),
+    water: waterEntries.reduce((acc, entry) => acc + entry.amount, 0),
+  };
 
   // Prepare data for charts
-  const chartData = useMemo(() => {
-    const caloriesData = foodEntries.map(entry => ({
+  const chartData = {
+    calories: foodEntries.map(entry => ({
       date: entry.created_at,
       value: entry.calories,
-    }));
-
-    const macroData = foodEntries.map(entry => ({
+    })),
+    macros: foodEntries.map(entry => ({
       date: entry.created_at,
       protein: Number(entry.protein),
       carbs: Number(entry.carbs),
       fats: Number(entry.fats),
-    }));
-
-    return { calories: caloriesData, macros: macroData };
-  }, [foodEntries]);
-
-  // Format stats card values based on time range
-  const getStatsCardValue = (value: number, goal: number) => {
-    if (timeRange === "daily") {
-      return `${value} / ${goal}`;
-    }
-    return value.toString();
+    })),
+    water: waterEntries.map(entry => ({
+      date: entry.created_at,
+      value: entry.amount,
+    })),
   };
 
-  const getStatsCardDescription = (value: number, goal: number) => {
-    if (timeRange === "daily") {
-      return `${Math.round((value / goal) * 100)}% of goal`;
-    }
-    switch (timeRange) {
-      case "weekly":
-        return "Weekly total";
-      case "monthly":
-        return "Monthly total";
-      case "yearly":
-        return "Yearly total";
-      case "custom":
-        return "Total for selected period";
-      default:
-        return "";
-    }
-  };
+  const goals = profile ? {
+    calories: profile.daily_calories,
+    protein: profile.daily_protein,
+    carbs: profile.daily_carbs,
+    fats: profile.daily_fats,
+    water: 2000, // Default water goal in ml
+  } : undefined;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">
@@ -144,54 +146,18 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            title="Calories"
-            value={getStatsCardValue(totals.calories, profile?.daily_calories || 2000)}
-            description={getStatsCardDescription(totals.calories, profile?.daily_calories || 2000)}
-            icon={Flame}
-            className="bg-gradient-to-br from-orange-500/10 to-amber-500/10"
-          />
-          <StatsCard
-            title="Protein"
-            value={getStatsCardValue(totals.protein, profile?.daily_protein || 150)}
-            description={getStatsCardDescription(totals.protein, profile?.daily_protein || 150)}
-            icon={Dumbbell}
-            className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10"
-          />
-          <StatsCard
-            title="Carbs"
-            value={getStatsCardValue(totals.carbs, profile?.daily_carbs || 250)}
-            description={getStatsCardDescription(totals.carbs, profile?.daily_carbs || 250)}
-            icon={Wheat}
-            className="bg-gradient-to-br from-green-500/10 to-emerald-500/10"
-          />
-          <StatsCard
-            title="Fats"
-            value={getStatsCardValue(totals.fats, profile?.daily_fats || 70)}
-            description={getStatsCardDescription(totals.fats, profile?.daily_fats || 70)}
-            icon={Droplets}
-            className="bg-gradient-to-br from-purple-500/10 to-pink-500/10"
-          />
-        </div>
+        <DashboardStats
+          timeRange={timeRange}
+          totals={totals}
+          goals={goals}
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TrendsChart
-            title="Calories Trend"
-            data={chartData.calories}
-            color="hsl(var(--primary))"
-            unit="kcal"
-            timeRange={timeRange}
-          />
-          <TrendsChart
-            title="Macronutrients Trend"
-            data={chartData.macros}
-            color="hsl(var(--primary))"
-            unit="g"
-            timeRange={timeRange}
-            showMultipleLines
-          />
-        </div>
+        <MacroTrends
+          timeRange={timeRange}
+          caloriesData={chartData.calories}
+          macrosData={chartData.macros}
+          waterData={chartData.water}
+        />
 
         <InsightsCard insights={{
           trends: "Based on your recent entries, you're maintaining a consistent caloric intake.",
