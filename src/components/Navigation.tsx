@@ -67,16 +67,24 @@ export function Navigation() {
           }`}
           onClick={() => setOpen(false)}
         >
-          {profile?.avatar_url ? (
-            <Avatar className="h-5 w-5">
-              <AvatarImage src={profile.avatar_url} />
-              <AvatarFallback>
-                {profile.username?.[0]?.toUpperCase() || <UserCircle2 className="h-5 w-5" />}
-              </AvatarFallback>
-            </Avatar>
-          ) : (
-            <UserCircle2 className="h-5 w-5" />
-          )}
+          <div className="relative w-5 h-5">
+            {profile?.avatar_url ? (
+              <div className="relative">
+                <Avatar className="h-5 w-5">
+                  <AvatarImage src={profile.avatar_url} />
+                  <AvatarFallback>
+                    {profile.username?.[0]?.toUpperCase() || <UserCircle2 className="h-5 w-5" />}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+              </div>
+            ) : (
+              <div className="relative">
+                <UserCircle2 className="h-5 w-5" />
+                <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+              </div>
+            )}
+          </div>
           <span className="ml-3 md:hidden">Profile</span>
         </Link>
       </div>
@@ -133,16 +141,24 @@ export function Navigation() {
               }`}
             >
               <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
-                {profile?.avatar_url ? (
-                  <Avatar className="h-5 w-5">
-                    <AvatarImage src={profile.avatar_url} />
-                    <AvatarFallback>
-                      {profile.username?.[0]?.toUpperCase() || <UserCircle2 className="h-5 w-5" />}
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <UserCircle2 className="h-5 w-5" />
-                )}
+                <div className="relative">
+                  {profile?.avatar_url ? (
+                    <>
+                      <Avatar className="h-5 w-5">
+                        <AvatarImage src={profile.avatar_url} />
+                        <AvatarFallback>
+                          {profile.username?.[0]?.toUpperCase() || <UserCircle2 className="h-5 w-5" />}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+                    </>
+                  ) : (
+                    <>
+                      <UserCircle2 className="h-5 w-5" />
+                      <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+                    </>
+                  )}
+                </div>
               </div>
               <span className="absolute left-12 whitespace-nowrap opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-[opacity,visibility] duration-200 group-hover:delay-150 delay-0">
                 Profile
