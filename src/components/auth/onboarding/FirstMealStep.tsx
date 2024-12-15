@@ -32,10 +32,6 @@ export function FirstMealStep({ onBack, onComplete }: FirstMealStepProps) {
   const handleAnalysisComplete = (result: any) => {
     setAnalysis(result);
     setIsLoading(false);
-    toast({
-      title: "Success!",
-      description: "Meal analysis completed.",
-    });
   };
 
   const handleAddToMeals = async () => {
