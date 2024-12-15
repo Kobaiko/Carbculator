@@ -27,9 +27,13 @@ export function useNutritionProgress() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { data, error } = await supabase
         .from("food_entries")
         .select("*")
+        .eq("user_id", user.id)
         .gte("created_at", today.toISOString())
         .lt("created_at", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
 
@@ -47,5 +51,14 @@ export function useNutritionProgress() {
     water: 1500, // Mock data for now
   };
 
-  return { profile, progress };
+  // Get daily goals from profile
+  const goals = {
+    calories: profile?.daily_calories || 2000,
+    protein: profile?.daily_protein || 150,
+    carbs: profile?.daily_carbs || 250,
+    fats: profile?.daily_fats || 70,
+    water: 2000,
+  };
+
+  return { profile, progress, goals };
 }

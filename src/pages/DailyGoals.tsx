@@ -7,29 +7,29 @@ import { useToast } from "@/hooks/use-toast";
 import { GoalCard } from "@/components/daily-goals/GoalCard";
 import { WaterCard } from "@/components/daily-goals/WaterCard";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function DailyGoals() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const queryClient = useQueryClient();
+  const { progress, goals, profile } = useNutritionProgress();
+  
   const [editedGoals, setEditedGoals] = useState({
-    dailyCalories: 0,
-    dailyProtein: 0,
-    dailyCarbs: 0,
-    dailyFats: 0,
+    dailyCalories: goals?.calories || 2000,
+    dailyProtein: goals?.protein || 150,
+    dailyCarbs: goals?.carbs || 250,
+    dailyFats: goals?.fats || 70,
   });
 
-  const { profile, progress } = useNutritionProgress();
-
   const handleEditClick = () => {
-    if (profile) {
-      setIsEditing(true);
-      setEditedGoals({
-        dailyCalories: profile.daily_calories,
-        dailyProtein: profile.daily_protein,
-        dailyCarbs: profile.daily_carbs,
-        dailyFats: profile.daily_fats,
-      });
-    }
+    setIsEditing(true);
+    setEditedGoals({
+      dailyCalories: goals.calories,
+      dailyProtein: goals.protein,
+      dailyCarbs: goals.carbs,
+      dailyFats: goals.fats,
+    });
   };
 
   const handleSaveGoals = async () => {
@@ -50,6 +50,8 @@ export default function DailyGoals() {
       if (error) throw error;
 
       setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
       toast({
         title: "Success",
         description: "Your daily goals have been updated.",
@@ -79,7 +81,7 @@ export default function DailyGoals() {
             title="Calories"
             unit=" kcal"
             current={progress.calories}
-            target={profile?.daily_calories || 0}
+            target={goals.calories}
             iconColor="text-orange-500"
             iconBgColor="bg-orange-500/10"
             isEditing={isEditing}
@@ -92,7 +94,7 @@ export default function DailyGoals() {
             title="Protein"
             unit="g"
             current={progress.protein}
-            target={profile?.daily_protein || 0}
+            target={goals.protein}
             iconColor="text-blue-500"
             iconBgColor="bg-blue-500/10"
             isEditing={isEditing}
@@ -105,7 +107,7 @@ export default function DailyGoals() {
             title="Carbs"
             unit="g"
             current={progress.carbs}
-            target={profile?.daily_carbs || 0}
+            target={goals.carbs}
             iconColor="text-amber-500"
             iconBgColor="bg-amber-500/10"
             isEditing={isEditing}
@@ -118,7 +120,7 @@ export default function DailyGoals() {
             title="Fats"
             unit="g"
             current={progress.fats}
-            target={profile?.daily_fats || 0}
+            target={goals.fats}
             iconColor="text-green-500"
             iconBgColor="bg-green-500/10"
             isEditing={isEditing}
