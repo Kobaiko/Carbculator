@@ -74,22 +74,22 @@ export function UploadSection({
 
   return (
     <div className="space-y-6">
-      <p className="text-center text-muted-foreground">
+      <p className="text-center text-zinc-600 dark:text-zinc-400">
         Upload a photo of your meal to get started
       </p>
       <div className="flex flex-col gap-4">
         {isMobile && (
           <div className="space-y-2">
             <Button
-              variant="default"
+              variant="outline"
               size="lg"
-              className="w-full"
+              className="w-full bg-white text-black border-zinc-200 hover:bg-zinc-50 hover:text-black"
               onClick={() => document.getElementById("food-image")?.click()}
             >
               <Camera className="mr-2 h-4 w-4" />
               Take Photo
             </Button>
-            <p className="text-center text-muted-foreground text-sm px-2">
+            <p className="text-center text-zinc-500 text-sm px-2">
               For best results, take the photo from about 1 foot (30 cm) away from your plate
             </p>
           </div>
@@ -98,10 +98,10 @@ export function UploadSection({
         {isMobile && (
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-zinc-200" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-white px-2 text-zinc-500">
                 Or
               </span>
             </div>
@@ -111,7 +111,7 @@ export function UploadSection({
         <Button
           variant={isMobile ? "outline" : "default"}
           size="lg"
-          className="w-full"
+          className={`w-full ${isMobile ? "bg-white text-black border-zinc-200 hover:bg-zinc-50 hover:text-black" : ""}`}
           onClick={() => document.getElementById("food-image")?.click()}
         >
           <Upload className="mr-2 h-4 w-4" />
