@@ -76,12 +76,12 @@ export function Navigation() {
                     {profile.username?.[0]?.toUpperCase() || <UserCircle2 className="h-5 w-5" />}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+                <div className="absolute inset-0 rounded-full border-2 border-black -m-0.5" />
               </div>
             ) : (
               <div className="relative">
                 <UserCircle2 className="h-5 w-5" />
-                <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+                <div className="absolute inset-0 rounded-full border-2 border-black -m-0.5" />
               </div>
             )}
           </div>
@@ -150,12 +150,12 @@ export function Navigation() {
                           {profile.username?.[0]?.toUpperCase() || <UserCircle2 className="h-5 w-5" />}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+                      <div className="absolute inset-0 rounded-full border-2 border-black -m-0.5" />
                     </>
                   ) : (
                     <>
                       <UserCircle2 className="h-5 w-5" />
-                      <div className="absolute inset-0 rounded-full border-2 border-primary -m-0.5" />
+                      <div className="absolute inset-0 rounded-full border-2 border-black -m-0.5" />
                     </>
                   )}
                 </div>
