@@ -87,7 +87,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
         {weekDays.map((day) => (
           <div
             key={day}
-            className="p-3 text-center font-medium text-muted-foreground"
+            className="p-3 text-center font-medium text-sm bg-primary/10 text-primary first:rounded-tl-lg last:rounded-tr-lg"
           >
             {day}
           </div>
