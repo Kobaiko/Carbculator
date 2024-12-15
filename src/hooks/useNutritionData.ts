@@ -1,31 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TimeRange } from "@/components/dashboard/TimeRangeSelector";
-import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 
-const getTimeRangeFilter = (timeRange: TimeRange, customStartDate?: Date, customEndDate?: Date) => {
-  const now = new Date();
-  
+const getTimeRangeFilter = (
+  timeRange: TimeRange,
+  currentDate: Date,
+  customStartDate?: Date,
+  customEndDate?: Date
+) => {
   switch (timeRange) {
-    case "daily":
+    case "hour":
       return {
-        start: startOfDay(now),
-        end: endOfDay(now),
+        start: startOfDay(currentDate),
+        end: endOfDay(currentDate),
       };
-    case "weekly":
+    case "day":
       return {
-        start: startOfWeek(now),
-        end: endOfWeek(now),
+        start: startOfWeek(currentDate),
+        end: endOfWeek(currentDate),
       };
-    case "monthly":
+    case "week":
       return {
-        start: startOfMonth(now),
-        end: endOfMonth(now),
+        start: startOfMonth(currentDate),
+        end: endOfMonth(currentDate),
       };
-    case "yearly":
+    case "month":
       return {
-        start: startOfYear(now),
-        end: endOfYear(now),
+        start: startOfYear(currentDate),
+        end: endOfYear(currentDate),
+      };
+    case "year":
+      return {
+        start: startOfYear(currentDate),
+        end: endOfYear(currentDate),
       };
     case "custom":
       if (customStartDate && customEndDate) {
@@ -34,25 +42,25 @@ const getTimeRangeFilter = (timeRange: TimeRange, customStartDate?: Date, custom
           end: endOfDay(customEndDate),
         };
       }
-      // Fallback to last 7 days if custom dates are not provided
       return {
-        start: startOfDay(subDays(now, 7)),
-        end: endOfDay(now),
+        start: startOfDay(new Date()),
+        end: endOfDay(new Date()),
       };
     default:
       return {
-        start: startOfWeek(now),
-        end: endOfWeek(now),
+        start: startOfWeek(currentDate),
+        end: endOfWeek(currentDate),
       };
   }
 };
 
 export const useNutritionData = (
   timeRange: TimeRange,
+  currentDate: Date,
   customStartDate?: Date,
   customEndDate?: Date
 ) => {
-  const { start, end } = getTimeRangeFilter(timeRange, customStartDate, customEndDate);
+  const { start, end } = getTimeRangeFilter(timeRange, currentDate, customStartDate, customEndDate);
 
   const { data: foodEntries = [] } = useQuery({
     queryKey: ["food-entries", timeRange, start, end],

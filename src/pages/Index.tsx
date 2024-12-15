@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
-import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { AddFoodButton } from "@/components/AddFoodButton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,11 +58,12 @@ const useDailyInsights = () => {
 };
 
 const Index = () => {
-  const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
+  const [timeRange, setTimeRange] = useState<TimeRange>("day");
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [customStartDate, setCustomStartDate] = useState<Date>();
   const [customEndDate, setCustomEndDate] = useState<Date>();
 
-  const { foodEntries, waterEntries } = useNutritionData(timeRange, customStartDate, customEndDate);
+  const { foodEntries, waterEntries } = useNutritionData(timeRange, currentDate, customStartDate, customEndDate);
   const { data: profile } = useProfileData();
   const { data: insights, isLoading: isLoadingInsights } = useDailyInsights();
 
@@ -115,6 +115,8 @@ const Index = () => {
           <TimeRangeSelector
             value={timeRange}
             onValueChange={setTimeRange}
+            currentDate={currentDate}
+            onDateChange={setCurrentDate}
             customDateRange={{
               startDate: customStartDate,
               endDate: customEndDate,
