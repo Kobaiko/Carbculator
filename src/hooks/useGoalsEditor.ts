@@ -61,10 +61,10 @@ export function useGoalsEditor(initialGoals: Goals) {
 
       if (error) throw error;
 
-      setIsEditing(false);
-      
       // Invalidate and refetch the profile query
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
+      setIsEditing(false);
       
       toast({
         title: "Success",
