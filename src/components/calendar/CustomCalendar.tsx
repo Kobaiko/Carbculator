@@ -22,6 +22,8 @@ import {
 interface CustomCalendarProps {
   selected?: Date;
   onSelect?: (date: Date) => void;
+  currentMonth?: Date;
+  onMonthChange?: (date: Date) => void;
   modifiers?: {
     goals_met: (date: Date) => boolean;
     goals_not_met: (date: Date) => boolean;
@@ -29,8 +31,23 @@ interface CustomCalendarProps {
   };
 }
 
-export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+export function CustomCalendar({ 
+  selected, 
+  onSelect, 
+  currentMonth: controlledMonth,
+  onMonthChange,
+  modifiers 
+}: CustomCalendarProps) {
+  const [internalMonth, setInternalMonth] = useState(new Date());
+  
+  const currentMonth = controlledMonth || internalMonth;
+  const handleMonthChange = (date: Date) => {
+    if (onMonthChange) {
+      onMonthChange(date);
+    } else {
+      setInternalMonth(date);
+    }
+  };
   
   const getDayClass = (date: Date) => {
     if (!isSameMonth(date, currentMonth)) {
@@ -71,7 +88,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
             variant="outline"
             size="icon"
             className="h-8 w-8 md:h-10 md:w-10 bg-white/50 dark:bg-black/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-black/70"
-            onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+            onClick={() => handleMonthChange(subMonths(currentMonth, 1))}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -79,7 +96,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
             variant="outline"
             size="icon"
             className="h-8 w-8 md:h-10 md:w-10 bg-white/50 dark:bg-black/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-black/70"
-            onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+            onClick={() => handleMonthChange(addMonths(currentMonth, 1))}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
