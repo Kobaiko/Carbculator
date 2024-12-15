@@ -102,7 +102,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           <Button
             key={day.toString()}
             variant="ghost"
-            className={`aspect-square w-full rounded-none flex flex-col items-center justify-start p-1 md:p-2 hover:bg-accent ${
+            className={`aspect-square w-full p-0 rounded-none flex flex-col items-center justify-start hover:bg-accent ${
               selected && isSameDay(day, selected)
                 ? "ring-2 ring-primary"
                 : ""
