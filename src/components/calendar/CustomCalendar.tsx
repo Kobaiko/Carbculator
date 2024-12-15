@@ -62,7 +62,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5" />
-          <h2 className="text-2xl font-semibold">
+          <h2 className="text-lg md:text-2xl font-semibold truncate">
             {format(currentMonth, "MMMM yyyy")}
           </h2>
         </div>
@@ -89,7 +89,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           {weekDays.map((day, index) => (
             <div
               key={day}
-              className={`p-3 text-center font-medium text-sm bg-primary/10 text-primary ${
+              className={`p-2 md:p-3 text-center font-medium text-xs md:text-sm bg-primary/10 text-primary ${
                 index === 0 ? 'rounded-tl-lg' : ''
               } ${index === 6 ? 'rounded-tr-lg' : ''}`}
             >
@@ -102,29 +102,29 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           <Button
             key={day.toString()}
             variant="ghost"
-            className={`h-full min-h-[80px] rounded-none flex flex-col items-center justify-start p-2 hover:bg-accent ${
+            className={`h-full min-h-[60px] md:min-h-[80px] rounded-none flex flex-col items-center justify-start p-1 md:p-2 hover:bg-accent ${
               selected && isSameDay(day, selected)
                 ? "ring-2 ring-primary"
                 : ""
             } ${getDayClass(day)}`}
             onClick={() => onSelect?.(day)}
           >
-            <span className="text-sm">{format(day, "d")}</span>
+            <span className="text-xs md:text-sm">{format(day, "d")}</span>
           </Button>
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-4 text-sm">
+      <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mt-4 text-xs md:text-sm px-2">
         <div className="flex items-center gap-2">
-          <Circle className="h-3 w-3 fill-green-100 text-green-100 dark:fill-green-900 dark:text-green-900" />
+          <Circle className="h-2.5 md:h-3 w-2.5 md:w-3 fill-green-100 text-green-100 dark:fill-green-900 dark:text-green-900" />
           <span>Goals Met</span>
         </div>
         <div className="flex items-center gap-2">
-          <Circle className="h-3 w-3 fill-red-100 text-red-100 dark:fill-red-900 dark:text-red-900" />
+          <Circle className="h-2.5 md:h-3 w-2.5 md:w-3 fill-red-100 text-red-100 dark:fill-red-900 dark:text-red-900" />
           <span>Goals Not Met</span>
         </div>
         <div className="flex items-center gap-2">
-          <Circle className="h-3 w-3 fill-gray-100 text-gray-100 dark:fill-gray-800 dark:text-gray-800" />
+          <Circle className="h-2.5 md:h-3 w-2.5 md:w-3 fill-gray-100 text-gray-100 dark:fill-gray-800 dark:text-gray-800" />
           <span>No Meals</span>
         </div>
       </div>
