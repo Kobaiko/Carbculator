@@ -9,7 +9,7 @@ import { useDayStatus } from "@/hooks/useDayStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MealCard } from "@/components/meals/MealCard";
 import { GoalCard } from "@/components/daily-goals/GoalCard";
-import { Flame, Dumbbell, Wheat, Droplets, X } from "lucide-react";
+import { Flame, Dumbbell, Wheat, Droplets } from "lucide-react";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -52,85 +52,91 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
 
   return (
     <Dialog open={!!date} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-0 top-0 rounded-full"
-            onClick={() => onClose()}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          <DialogTitle className="pr-8 text-lg md:text-xl">
-            {format(date, "EEEE, MMMM do, yyyy")}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
-          <GoalCard
-            icon={Flame}
-            title="Calories"
-            unit=" kcal"
-            current={dailyTotals.calories}
-            target={goals.calories}
-            iconColor="text-orange-500"
-            iconBgColor="bg-orange-500/10"
-            isEditing={false}
-            editValue={0}
-            onEditChange={() => {}}
-          />
-          <GoalCard
-            icon={Dumbbell}
-            title="Protein"
-            unit="g"
-            current={dailyTotals.protein}
-            target={goals.protein}
-            iconColor="text-blue-500"
-            iconBgColor="bg-blue-500/10"
-            isEditing={false}
-            editValue={0}
-            onEditChange={() => {}}
-          />
-          <GoalCard
-            icon={Wheat}
-            title="Carbs"
-            unit="g"
-            current={dailyTotals.carbs}
-            target={goals.carbs}
-            iconColor="text-amber-500"
-            iconBgColor="bg-amber-500/10"
-            isEditing={false}
-            editValue={0}
-            onEditChange={() => {}}
-          />
-          <GoalCard
-            icon={Droplets}
-            title="Fats"
-            unit="g"
-            current={dailyTotals.fats}
-            target={goals.fats}
-            iconColor="text-green-500"
-            iconBgColor="bg-green-500/10"
-            isEditing={false}
-            editValue={0}
-            onEditChange={() => {}}
-          />
-        </div>
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0" hideCloseButton>
+        <div className="h-full flex flex-col overflow-hidden">
+          <DialogHeader className="p-4 md:p-6 border-b">
+            <DialogTitle className="text-lg md:text-xl">
+              {format(date, "EEEE, MMMM do, yyyy")}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <ScrollArea className="flex-1 px-4 md:px-6">
+            <div className="py-4 md:py-6 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <GoalCard
+                  icon={Flame}
+                  title="Calories"
+                  unit=" kcal"
+                  current={dailyTotals.calories}
+                  target={goals.calories}
+                  iconColor="text-orange-500"
+                  iconBgColor="bg-orange-500/10"
+                  isEditing={false}
+                  editValue={0}
+                  onEditChange={() => {}}
+                />
+                <GoalCard
+                  icon={Dumbbell}
+                  title="Protein"
+                  unit="g"
+                  current={dailyTotals.protein}
+                  target={goals.protein}
+                  iconColor="text-blue-500"
+                  iconBgColor="bg-blue-500/10"
+                  isEditing={false}
+                  editValue={0}
+                  onEditChange={() => {}}
+                />
+                <GoalCard
+                  icon={Wheat}
+                  title="Carbs"
+                  unit="g"
+                  current={dailyTotals.carbs}
+                  target={goals.carbs}
+                  iconColor="text-amber-500"
+                  iconBgColor="bg-amber-500/10"
+                  isEditing={false}
+                  editValue={0}
+                  onEditChange={() => {}}
+                />
+                <GoalCard
+                  icon={Droplets}
+                  title="Fats"
+                  unit="g"
+                  current={dailyTotals.fats}
+                  target={goals.fats}
+                  iconColor="text-green-500"
+                  iconBgColor="bg-green-500/10"
+                  isEditing={false}
+                  editValue={0}
+                  onEditChange={() => {}}
+                />
+              </div>
 
-        <ScrollArea className="h-[30vh] md:h-[40vh] pr-4">
-          <div className="space-y-2">
-            {meals.map((meal) => (
-              <MealCard
-                key={meal.id}
-                meal={meal}
-                onDelete={() => {}}
-                compact
-                extraCompact
-              />
-            ))}
+              <div className="space-y-3">
+                {meals.map((meal) => (
+                  <MealCard
+                    key={meal.id}
+                    meal={meal}
+                    onDelete={() => {}}
+                    compact
+                    extraCompact
+                  />
+                ))}
+              </div>
+            </div>
+          </ScrollArea>
+
+          <div className="p-4 md:p-6 border-t">
+            <Button 
+              variant="ghost"
+              className="w-full"
+              onClick={() => onClose()}
+            >
+              Close
+            </Button>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
