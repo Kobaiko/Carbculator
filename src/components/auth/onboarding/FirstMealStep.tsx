@@ -73,6 +73,9 @@ export function FirstMealStep({ onBack, onComplete }: FirstMealStepProps) {
     try {
       setIsLoading(true);
       
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { error: dbError } = await supabase
         .from("food_entries")
         .insert({
@@ -84,6 +87,7 @@ export function FirstMealStep({ onBack, onComplete }: FirstMealStepProps) {
           fats: analysis.fats,
           health_score: analysis.healthScore,
           image_url: imageUrl,
+          user_id: user.id,
         });
 
       if (dbError) throw dbError;
