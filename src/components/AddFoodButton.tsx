@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { UploadSection } from "./food/UploadSection";
 import { LoadingSection } from "./food/LoadingSection";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function AddFoodButton() {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,7 @@ export function AddFoodButton() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const resetState = () => {
     setImageUrl("");
@@ -106,6 +108,9 @@ export function AddFoodButton() {
         });
 
       if (dbError) throw dbError;
+
+      // Invalidate the meals query to trigger a refresh
+      queryClient.invalidateQueries({ queryKey: ["meals"] });
 
       toast({
         title: "Success!",
