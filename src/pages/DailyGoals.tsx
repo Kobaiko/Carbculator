@@ -3,8 +3,21 @@ import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { GlassWater, Dumbbell, Flame, Droplets } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DailyGoals() {
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedGoals, setEditedGoals] = useState({
+    dailyCalories: 0,
+    dailyProtein: 0,
+    dailyCarbs: 0,
+    dailyFats: 0,
+  });
+
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -22,13 +35,71 @@ export default function DailyGoals() {
     },
   });
 
-  // Mock progress data (to be implemented later)
+  const { data: todaysMeals } = useQuery({
+    queryKey: ["todaysMeals"],
+    queryFn: async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const { data, error } = await supabase
+        .from("food_entries")
+        .select("*")
+        .gte("created_at", today.toISOString())
+        .lt("created_at", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const progress = {
-    calories: 1200,
-    protein: 75,
-    carbs: 120,
-    fats: 35,
-    water: 1500, // in ml
+    calories: todaysMeals?.reduce((sum, meal) => sum + meal.calories, 0) || 0,
+    protein: todaysMeals?.reduce((sum, meal) => sum + meal.protein, 0) || 0,
+    carbs: todaysMeals?.reduce((sum, meal) => sum + meal.carbs, 0) || 0,
+    fats: todaysMeals?.reduce((sum, meal) => sum + meal.fats, 0) || 0,
+    water: 1500, // Mock data for now
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setEditedGoals({
+      dailyCalories: profile?.daily_calories || 0,
+      dailyProtein: profile?.daily_protein || 0,
+      dailyCarbs: profile?.daily_carbs || 0,
+      dailyFats: profile?.daily_fats || 0,
+    });
+  };
+
+  const handleSaveGoals = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          daily_calories: editedGoals.dailyCalories,
+          daily_protein: editedGoals.dailyProtein,
+          daily_carbs: editedGoals.dailyCarbs,
+          daily_fats: editedGoals.dailyFats,
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Your daily goals have been updated.",
+      });
+    } catch (error) {
+      console.error("Error saving goals:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update your goals. Please try again.",
+      });
+    }
   };
 
   const calculateProgress = (current: number, target: number) => {
@@ -57,9 +128,20 @@ export default function DailyGoals() {
                   <p className="text-sm text-muted-foreground">Daily Target: {profile?.daily_calories} kcal</p>
                 </div>
               </div>
-              <span className="text-2xl font-bold">{progress.calories} kcal</span>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Current</div>
+                <span className="text-2xl font-bold">{progress.calories} kcal</span>
+              </div>
             </div>
             <Progress value={calculateProgress(progress.calories, profile?.daily_calories || 2000)} className="h-2" />
+            {isEditing && (
+              <Input
+                type="number"
+                value={editedGoals.dailyCalories}
+                onChange={(e) => setEditedGoals(prev => ({ ...prev, dailyCalories: parseInt(e.target.value) }))}
+                className="mt-2"
+              />
+            )}
           </div>
 
           {/* Protein Card */}
@@ -74,9 +156,20 @@ export default function DailyGoals() {
                   <p className="text-sm text-muted-foreground">Daily Target: {profile?.daily_protein}g</p>
                 </div>
               </div>
-              <span className="text-2xl font-bold">{progress.protein}g</span>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Current</div>
+                <span className="text-2xl font-bold">{progress.protein}g</span>
+              </div>
             </div>
             <Progress value={calculateProgress(progress.protein, profile?.daily_protein || 150)} className="h-2" />
+            {isEditing && (
+              <Input
+                type="number"
+                value={editedGoals.dailyProtein}
+                onChange={(e) => setEditedGoals(prev => ({ ...prev, dailyProtein: parseInt(e.target.value) }))}
+                className="mt-2"
+              />
+            )}
           </div>
 
           {/* Carbs Card */}
@@ -91,9 +184,20 @@ export default function DailyGoals() {
                   <p className="text-sm text-muted-foreground">Daily Target: {profile?.daily_carbs}g</p>
                 </div>
               </div>
-              <span className="text-2xl font-bold">{progress.carbs}g</span>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Current</div>
+                <span className="text-2xl font-bold">{progress.carbs}g</span>
+              </div>
             </div>
             <Progress value={calculateProgress(progress.carbs, profile?.daily_carbs || 250)} className="h-2" />
+            {isEditing && (
+              <Input
+                type="number"
+                value={editedGoals.dailyCarbs}
+                onChange={(e) => setEditedGoals(prev => ({ ...prev, dailyCarbs: parseInt(e.target.value) }))}
+                className="mt-2"
+              />
+            )}
           </div>
 
           {/* Fats Card */}
@@ -108,9 +212,20 @@ export default function DailyGoals() {
                   <p className="text-sm text-muted-foreground">Daily Target: {profile?.daily_fats}g</p>
                 </div>
               </div>
-              <span className="text-2xl font-bold">{progress.fats}g</span>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Current</div>
+                <span className="text-2xl font-bold">{progress.fats}g</span>
+              </div>
             </div>
             <Progress value={calculateProgress(progress.fats, profile?.daily_fats || 70)} className="h-2" />
+            {isEditing && (
+              <Input
+                type="number"
+                value={editedGoals.dailyFats}
+                onChange={(e) => setEditedGoals(prev => ({ ...prev, dailyFats: parseInt(e.target.value) }))}
+                className="mt-2"
+              />
+            )}
           </div>
 
           {/* Water Intake Card - Full Width */}
@@ -125,10 +240,24 @@ export default function DailyGoals() {
                   <p className="text-sm text-muted-foreground">Daily Target: 2000ml</p>
                 </div>
               </div>
-              <span className="text-2xl font-bold">{progress.water}ml</span>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Current</div>
+                <span className="text-2xl font-bold">{progress.water}ml</span>
+              </div>
             </div>
             <Progress value={calculateProgress(progress.water, 2000)} className="h-2" />
           </div>
+        </div>
+
+        <div className="flex justify-center mt-8">
+          {!isEditing ? (
+            <Button onClick={handleEditClick}>Edit Goals</Button>
+          ) : (
+            <div className="space-x-4">
+              <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+              <Button onClick={handleSaveGoals}>Save Goals</Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
