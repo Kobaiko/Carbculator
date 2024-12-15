@@ -43,7 +43,7 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
           className="glass-card hover:bg-accent h-16 text-lg flex items-center justify-start px-6 gap-4"
         >
           <GlassWater style={{ width: portion.iconSize, height: portion.iconSize }} />
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-center flex-1">
             <span className="text-lg font-semibold">{portion.label}</span>
             <span className="text-sm text-muted-foreground">
               ({portion.amount}ml)
@@ -59,7 +59,7 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
             className="glass-card hover:bg-accent h-16 text-lg flex items-center justify-start px-6 gap-4"
           >
             <GlassWater className="h-5 w-5 rotate-180" />
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-center flex-1">
               <span className="text-lg font-semibold">Custom</span>
               <span className="text-sm text-muted-foreground">
                 (Enter amount)
