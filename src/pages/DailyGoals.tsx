@@ -1,19 +1,18 @@
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
-import { Dumbbell, Flame, Wheat, Droplets, GlassWater } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { GoalCard } from "@/components/daily-goals/GoalCard";
-import { WaterCard } from "@/components/daily-goals/WaterCard";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
 import { useQueryClient } from "@tanstack/react-query";
+import { DailyGoalsHeader } from "@/components/daily-goals/DailyGoalsHeader";
+import { GoalsGrid } from "@/components/daily-goals/GoalsGrid";
+import { EditActions } from "@/components/daily-goals/EditActions";
 
 export default function DailyGoals() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
-  const { progress, goals, profile } = useNutritionProgress();
+  const { progress, goals } = useNutritionProgress();
   
   const [editedGoals, setEditedGoals] = useState({
     dailyCalories: goals?.calories || 2000,
@@ -73,92 +72,30 @@ export default function DailyGoals() {
     }
   };
 
+  const handleEditChange = (field: string, value: number) => {
+    setEditedGoals(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-background pb-16">
       <Navigation />
       <div className="max-w-7xl mx-auto space-y-8 px-4 md:px-6 pt-8 md:pt-12 md:ml-20">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">Daily Goals</h1>
-          <p className="text-muted-foreground">Track your daily nutrition progress</p>
-        </div>
+        <DailyGoalsHeader />
+        
+        <GoalsGrid
+          progress={progress}
+          goals={goals}
+          isEditing={isEditing}
+          editedGoals={editedGoals}
+          onEditChange={handleEditChange}
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <GoalCard
-            icon={Flame}
-            title="Calories"
-            unit=" kcal"
-            current={progress.calories}
-            target={goals.calories}
-            iconColor="text-orange-500"
-            iconBgColor="bg-orange-500/10"
-            isEditing={isEditing}
-            editValue={editedGoals.dailyCalories}
-            onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyCalories: value }))}
-          />
-
-          <GoalCard
-            icon={Dumbbell}
-            title="Protein"
-            unit="g"
-            current={progress.protein}
-            target={goals.protein}
-            iconColor="text-blue-500"
-            iconBgColor="bg-blue-500/10"
-            isEditing={isEditing}
-            editValue={editedGoals.dailyProtein}
-            onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyProtein: value }))}
-          />
-
-          <GoalCard
-            icon={Wheat}
-            title="Carbs"
-            unit="g"
-            current={progress.carbs}
-            target={goals.carbs}
-            iconColor="text-amber-500"
-            iconBgColor="bg-amber-500/10"
-            isEditing={isEditing}
-            editValue={editedGoals.dailyCarbs}
-            onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyCarbs: value }))}
-          />
-
-          <GoalCard
-            icon={Droplets}
-            title="Fats"
-            unit="g"
-            current={progress.fats}
-            target={goals.fats}
-            iconColor="text-green-500"
-            iconBgColor="bg-green-500/10"
-            isEditing={isEditing}
-            editValue={editedGoals.dailyFats}
-            onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyFats: value }))}
-          />
-
-          <GoalCard
-            icon={GlassWater}
-            title="Water"
-            unit="ml"
-            current={progress.water}
-            target={goals.water}
-            iconColor="text-blue-500"
-            iconBgColor="bg-blue-500/10"
-            isEditing={isEditing}
-            editValue={editedGoals.dailyWater}
-            onEditChange={(value) => setEditedGoals(prev => ({ ...prev, dailyWater: value }))}
-          />
-        </div>
-
-        <div className="flex justify-center mt-8">
-          {!isEditing ? (
-            <Button onClick={handleEditClick}>Edit Goals</Button>
-          ) : (
-            <div className="space-x-4">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-              <Button onClick={handleSaveGoals}>Save Goals</Button>
-            </div>
-          )}
-        </div>
+        <EditActions
+          isEditing={isEditing}
+          onEdit={handleEditClick}
+          onCancel={() => setIsEditing(false)}
+          onSave={handleSaveGoals}
+        />
       </div>
     </div>
   );
