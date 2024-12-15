@@ -91,7 +91,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           {weekDays.map((day, index) => (
             <div
               key={day}
-              className={`p-0.5 md:p-3 text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
+              className={`h-8 md:h-12 flex items-center justify-center text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
                 index === 0 ? 'rounded-tl-lg' : ''
               } ${index === 6 ? 'rounded-tr-lg' : ''}`}
             >
@@ -104,7 +104,7 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
           <Button
             key={day.toString()}
             variant="ghost"
-            className={`h-full aspect-square md:aspect-auto min-h-[40px] md:min-h-[80px] rounded-none flex flex-col items-center justify-start p-1 md:p-2 hover:bg-accent ${
+            className={`aspect-square w-full rounded-none flex flex-col items-center justify-start p-1 md:p-2 hover:bg-accent ${
               selected && isSameDay(day, selected)
                 ? "ring-2 ring-primary"
                 : ""
