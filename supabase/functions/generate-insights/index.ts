@@ -8,6 +8,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Generate insights function called');
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -15,7 +17,14 @@ serve(async (req) => {
 
   try {
     const { timeRange, startDate, endDate } = await req.json();
+    console.log('Request data:', { timeRange, startDate, endDate });
+
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
+      throw new Error('OpenAI API key not configured');
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -23,34 +32,54 @@ serve(async (req) => {
 
     // Get the authenticated user
     const authHeader = req.headers.get('Authorization')?.split(' ')[1];
+    console.log('Auth header present:', !!authHeader);
+    
     const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
     
     if (userError || !user) {
+      console.error('User authentication error:', userError);
       throw new Error('Unauthorized');
     }
 
+    console.log('User authenticated:', user.id);
+
     // Fetch user's profile for goals
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      throw profileError;
+    }
+
     // Fetch food entries
-    const { data: foodEntries } = await supabase
+    const { data: foodEntries, error: foodError } = await supabase
       .from('food_entries')
       .select('*')
       .eq('user_id', user.id)
       .gte('created_at', startDate)
       .lte('created_at', endDate);
 
+    if (foodError) {
+      console.error('Error fetching food entries:', foodError);
+      throw foodError;
+    }
+
     // Fetch water entries
-    const { data: waterEntries } = await supabase
+    const { data: waterEntries, error: waterError } = await supabase
       .from('water_entries')
       .select('*')
       .eq('user_id', user.id)
       .gte('created_at', startDate)
       .lte('created_at', endDate);
+
+    if (waterError) {
+      console.error('Error fetching water entries:', waterError);
+      throw waterError;
+    }
 
     // Calculate totals and averages
     const totals = (foodEntries || []).reduce(
@@ -85,7 +114,7 @@ serve(async (req) => {
         protein: profile?.daily_protein || 150,
         carbs: profile?.daily_carbs || 250,
         fats: profile?.daily_fats || 70,
-        water: 2000, // Default water goal in ml
+        water: 2000,
       },
     };
 
@@ -120,11 +149,14 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      console.error('OpenAI API error:', await response.text());
-      throw new Error('OpenAI API error');
+      const errorText = await response.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${errorText}`);
     }
 
     const aiData = await response.json();
+    console.log('OpenAI response:', aiData);
+
     const insights = {
       trends: aiData.choices[0].message.content.split('\n\n')[0],
       recommendations: aiData.choices[0].message.content.split('\n\n')[1],
@@ -138,9 +170,15 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in generate-insights function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        details: error instanceof Error ? error.stack : undefined
+      }), 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });
