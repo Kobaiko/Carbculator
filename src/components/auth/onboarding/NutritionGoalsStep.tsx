@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NutritionGoalsStepProps {
   onBack: () => void;
@@ -14,11 +16,29 @@ interface NutritionGoalsStepProps {
 }
 
 export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) {
+  // Fetch default goals from profile
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const [formData, setFormData] = useState({
-    dailyCalories: 2000,
-    dailyProtein: 150,
-    dailyCarbs: 250,
-    dailyFats: 70,
+    dailyCalories: profile?.daily_calories ?? 2000,
+    dailyProtein: profile?.daily_protein ?? 150,
+    dailyCarbs: profile?.daily_carbs ?? 250,
+    dailyFats: profile?.daily_fats ?? 70,
   });
 
   const handleChange = (name: string, value: string) => {
