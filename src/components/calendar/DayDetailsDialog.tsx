@@ -11,6 +11,7 @@ import { MealCard } from "@/components/meals/MealCard";
 import { GoalCard } from "@/components/daily-goals/GoalCard";
 import { Flame, Dumbbell, Wheat, Droplets } from "lucide-react";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
+import { useToast } from "@/hooks/use-toast";
 
 interface DayDetailsDialogProps {
   date: Date | undefined;
@@ -18,17 +19,33 @@ interface DayDetailsDialogProps {
 }
 
 export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
+  const { toast } = useToast();
   const { getDayMeals } = useDayStatus();
   const { goals } = useNutritionProgress();
+  
+  // Safely get meals for the selected date
   const meals = date ? getDayMeals(date) : [];
 
+  // Calculate daily totals with error handling
   const dailyTotals = meals.reduce(
-    (acc, meal) => ({
-      calories: acc.calories + meal.calories,
-      protein: acc.protein + Number(meal.protein),
-      carbs: acc.carbs + Number(meal.carbs),
-      fats: acc.fats + Number(meal.fats),
-    }),
+    (acc, meal) => {
+      try {
+        return {
+          calories: acc.calories + (meal.calories || 0),
+          protein: acc.protein + (Number(meal.protein) || 0),
+          carbs: acc.carbs + (Number(meal.carbs) || 0),
+          fats: acc.fats + (Number(meal.fats) || 0),
+        };
+      } catch (error) {
+        console.error("Error calculating meal totals:", error);
+        toast({
+          title: "Error",
+          description: "There was an error calculating meal totals",
+          variant: "destructive",
+        });
+        return acc;
+      }
+    },
     { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
