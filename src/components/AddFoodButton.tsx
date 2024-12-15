@@ -71,6 +71,7 @@ export function AddFoodButton() {
           // Analyze the image
           const mealAnalysis = await analyzeFoodImage(base64Image);
           setAnalysis(mealAnalysis);
+          setIsLoading(false);
 
           toast({
             title: "Success!",
@@ -83,11 +84,20 @@ export function AddFoodButton() {
             description: "Failed to process the image. Please try again.",
             variant: "destructive",
           });
+          setIsLoading(false);
+          setIsUploading(false);
         }
       };
       reader.readAsDataURL(file);
-    } finally {
+    } catch (error) {
       setIsLoading(false);
+      setIsUploading(false);
+      console.error("Error uploading file:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload the image. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -125,8 +135,8 @@ export function AddFoodButton() {
       });
       
       setOpen(false);
-      // Navigate to daily meals page
-      navigate("/daily-meals");
+      // Navigate to daily meals page and ensure the new data is shown
+      navigate("/meals");
     } catch (error) {
       console.error("Error saving to meals:", error);
       toast({
@@ -167,14 +177,14 @@ export function AddFoodButton() {
             {!analysis && !isLoading && !isUploading && (
               <UploadSection
                 onFileUpload={handleFileUpload}
-                isLoading={isLoading}
+                isLoading={isLoading || isUploading}
                 isMobile={isMobile}
               />
             )}
 
             {(isLoading || isUploading) && <LoadingSection />}
 
-            {analysis && imageUrl && !isLoading && (
+            {analysis && imageUrl && !isLoading && !isUploading && (
               <div className="space-y-6">
                 <FoodCard
                   analysis={analysis}
