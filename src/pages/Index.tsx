@@ -3,7 +3,7 @@ import { Navigation } from "@/components/Navigation";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { TrendsChart } from "@/components/dashboard/TrendsChart";
-import { Dumbbell, Flame, Apple, Droplets } from "lucide-react";
+import { Dumbbell, Flame, Wheat, Droplets } from "lucide-react";
 import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
 import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { AddFoodButton } from "@/components/AddFoodButton";
@@ -163,7 +163,7 @@ const Index = () => {
             title="Carbs"
             value={getStatsCardValue(totals.carbs, profile?.daily_carbs || 250)}
             description={getStatsCardDescription(totals.carbs, profile?.daily_carbs || 250)}
-            icon={Apple}
+            icon={Wheat}
             className="bg-gradient-to-br from-green-500/10 to-emerald-500/10"
           />
           <StatsCard
