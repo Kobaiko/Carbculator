@@ -14,7 +14,6 @@ export default function WaterIntake() {
   const [newGoal, setNewGoal] = useState("");
   const queryClient = useQueryClient();
 
-  // Fetch user's daily water goal
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -103,8 +102,7 @@ export default function WaterIntake() {
 
   return (
     <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Water Intake</h1>
+      <div className="flex justify-end">
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="icon">
@@ -133,8 +131,8 @@ export default function WaterIntake() {
         </Dialog>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-4 space-y-6">
+      <div className="grid lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
           <div className="glass-card p-6 rounded-2xl flex items-center justify-center">
             <WaterGlass percentage={progressPercentage} />
           </div>
@@ -146,7 +144,7 @@ export default function WaterIntake() {
           </div>
         </div>
 
-        <div className="lg:col-span-8 space-y-8">
+        <div className="space-y-8">
           <div className="glass-card p-6 rounded-2xl">
             <WaterPortionButtons onAddWater={(amount) => addWaterMutation.mutate(amount)} />
           </div>
