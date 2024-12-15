@@ -13,15 +13,31 @@ interface InsightsCardProps {
 }
 
 const formatInsightText = (text: string) => {
-  // Remove markdown headers more thoroughly (e.g., ### Trends, ### 1. Trends, etc.)
+  // Remove markdown headers more thoroughly
   const withoutHeaders = text.replace(/###\s*(?:\d+\.)?\s*(?:Trends|Recommendations|Goals)[^\n]*/gi, '').trim();
   
-  // Convert **text** to bold by wrapping in a strong tag
-  const withBoldText = withoutHeaders.replace(/\*\*([^*]+)\*\*/g, (_, content) => {
-    return `<strong class="font-semibold">${content}</strong>`;
+  // Split text into bullet points if they exist
+  const bulletPoints = withoutHeaders.split(/(?:\r?\n|\r)(?=[-•*])/g);
+  
+  // Convert **text** to bold and handle bullet points
+  const formattedPoints = bulletPoints.map(point => {
+    // Convert **text** to bold
+    const withBoldText = point.replace(/\*\*([^*]+)\*\*/g, (_, content) => {
+      return `<strong class="font-semibold text-primary">${content}</strong>`;
+    });
+
+    // Add proper bullet point styling
+    if (point.trim().startsWith('-') || point.trim().startsWith('•') || point.trim().startsWith('*')) {
+      return `<div class="flex gap-2 mb-2">
+                <span class="text-primary">•</span>
+                <span>${withBoldText.replace(/^[-•*]\s*/, '')}</span>
+              </div>`;
+    }
+    
+    return `<div class="mb-2">${withBoldText}</div>`;
   });
 
-  return withBoldText;
+  return formattedPoints.join('');
 };
 
 export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
@@ -50,7 +66,7 @@ export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
               <span className="hidden sm:inline">Goals</span>
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="trends" className="mt-4">
+          <TabsContent value="trends" className="mt-4 space-y-2">
             {isLoading ? (
               <div className="space-y-3">
                 <div className="flex items-center space-x-4">
@@ -65,13 +81,13 @@ export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
                 <Skeleton className="h-4 w-[80%]" />
               </div>
             ) : (
-              <p 
-                className="text-muted-foreground whitespace-pre-line"
+              <div 
+                className="text-muted-foreground leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: formatInsightText(insights.trends) }}
               />
             )}
           </TabsContent>
-          <TabsContent value="recommendations" className="mt-4">
+          <TabsContent value="recommendations" className="mt-4 space-y-2">
             {isLoading ? (
               <div className="space-y-3">
                 <div className="flex items-center space-x-4">
@@ -86,13 +102,13 @@ export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
                 <Skeleton className="h-4 w-[80%]" />
               </div>
             ) : (
-              <p 
-                className="text-muted-foreground whitespace-pre-line"
+              <div 
+                className="text-muted-foreground leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: formatInsightText(insights.recommendations) }}
               />
             )}
           </TabsContent>
-          <TabsContent value="goals" className="mt-4">
+          <TabsContent value="goals" className="mt-4 space-y-2">
             {isLoading ? (
               <div className="space-y-3">
                 <div className="flex items-center space-x-4">
@@ -107,8 +123,8 @@ export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
                 <Skeleton className="h-4 w-[80%]" />
               </div>
             ) : (
-              <p 
-                className="text-muted-foreground whitespace-pre-line"
+              <div 
+                className="text-muted-foreground leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: formatInsightText(insights.goals) }}
               />
             )}
