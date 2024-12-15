@@ -1,3 +1,5 @@
 project_id = "zycuzckmgivqsmxumqut"
 [functions.analyze-food]
 verify_jwt = false
+[functions.generate-insights]
+verify_jwt = false
