@@ -40,10 +40,38 @@ export function MealCard({ meal, onDelete, compact = false, extraCompact = false
             )}
           </div>
         )}
-        <div className={`flex-1 p-1.5 md:p-2 ${compact ? 'space-y-0.5 md:space-y-1' : 'space-y-2 md:space-y-4'} ${extraCompact ? '!space-y-0.5' : ''}`}>
-          <MealHeader meal={meal} />
-          <MacroNutrients meal={meal} />
-          {!extraCompact && <MealIngredients ingredients={meal.ingredients} />}
+        <div className="flex-1 p-4 space-y-3">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-semibold leading-tight">{meal.name}</h3>
+            <p className="text-sm text-muted-foreground">
+              {format(new Date(meal.created_at), "MMM d, yyyy 'at' h:mm a")}
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-lg font-semibold">{meal.calories}</p>
+              <p className="text-xs text-muted-foreground">Calories</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold">{meal.protein}g</p>
+              <p className="text-xs text-muted-foreground">Protein</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold">{meal.carbs}g</p>
+              <p className="text-xs text-muted-foreground">Carbs</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold">{meal.fats}g</p>
+              <p className="text-xs text-muted-foreground">Fats</p>
+            </div>
+          </div>
+
+          {meal.ingredients && meal.ingredients.length > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {meal.ingredients.join(", ")}
+            </p>
+          )}
         </div>
       </div>
     </div>
