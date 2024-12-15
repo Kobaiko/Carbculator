@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { 
   ChevronLeft, 
   ChevronRight,
-  CalendarDays
+  CalendarDays,
+  Circle
 } from "lucide-react";
 import { 
   startOfMonth, 
@@ -111,6 +112,21 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
             <span className="text-sm">{format(day, "d")}</span>
           </Button>
         ))}
+      </div>
+
+      <div className="flex items-center justify-center gap-6 mt-4 text-sm">
+        <div className="flex items-center gap-2">
+          <Circle className="h-3 w-3 fill-green-100 text-green-100 dark:fill-green-900 dark:text-green-900" />
+          <span>Goals Met</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Circle className="h-3 w-3 fill-red-100 text-red-100 dark:fill-red-900 dark:text-red-900" />
+          <span>Goals Not Met</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Circle className="h-3 w-3 fill-gray-100 text-gray-100 dark:fill-gray-800 dark:text-gray-800" />
+          <span>No Meals</span>
+        </div>
       </div>
     </div>
   );
