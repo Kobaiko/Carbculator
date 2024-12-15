@@ -43,12 +43,6 @@ serve(async (req) => {
 
     console.log('User authenticated:', user.id);
 
-    // Get today's date range
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setDate(endOfDay.getDate() + 1);
-
     // Fetch user's profile for goals
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -61,49 +55,8 @@ serve(async (req) => {
       throw profileError;
     }
 
-    // Fetch today's food entries
-    const { data: foodEntries, error: foodError } = await supabase
-      .from('food_entries')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('created_at', startOfDay.toISOString())
-      .lt('created_at', endOfDay.toISOString());
-
-    if (foodError) {
-      console.error('Error fetching food entries:', foodError);
-      throw foodError;
-    }
-
-    // Fetch today's water entries
-    const { data: waterEntries, error: waterError } = await supabase
-      .from('water_entries')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('created_at', startOfDay.toISOString())
-      .lt('created_at', endOfDay.toISOString());
-
-    if (waterError) {
-      console.error('Error fetching water entries:', waterError);
-      throw waterError;
-    }
-
-    // Calculate today's totals
-    const totals = (foodEntries || []).reduce(
-      (acc, entry) => ({
-        calories: acc.calories + entry.calories,
-        protein: acc.protein + Number(entry.protein),
-        carbs: acc.carbs + Number(entry.carbs),
-        fats: acc.fats + Number(entry.fats),
-      }),
-      { calories: 0, protein: 0, carbs: 0, fats: 0 }
-    );
-
-    const waterTotal = (waterEntries || []).reduce((sum, entry) => sum + entry.amount, 0);
-
     // Prepare data summary for OpenAI
     const dataSummary = {
-      totals,
-      waterTotal,
       goals: {
         calories: profile?.daily_calories || 2000,
         protein: profile?.daily_protein || 150,
@@ -134,7 +87,8 @@ serve(async (req) => {
             2. Recommendations: Provide actionable advice for maintaining a healthy diet
             3. Goals: Suggest realistic goals based on the user's targets
             Keep each section concise and focused.
-            Use ** for important numbers or key points you want to emphasize.`
+            Use ** for important numbers or key points you want to emphasize.
+            Do not include section headers in your response.`
           },
           {
             role: 'user',

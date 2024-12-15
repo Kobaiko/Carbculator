@@ -9,66 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { MacroTrends } from "@/components/dashboard/MacroTrends";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { toast } from "sonner";
+import { useNutritionData } from "@/hooks/useNutritionData";
 
-// Separate the data fetching logic into a custom hook for better organization
-const useNutritionData = (timeRange: TimeRange, customStartDate?: Date, customEndDate?: Date) => {
-  const getDateRange = () => {
-    const now = new Date();
-    switch (timeRange) {
-      case "daily":
-        return { start: startOfDay(now), end: endOfDay(now) };
-      case "weekly":
-        return { start: startOfWeek(now), end: endOfWeek(now) };
-      case "monthly":
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-      case "yearly":
-        return { start: startOfYear(now), end: endOfYear(now) };
-      case "custom":
-        return {
-          start: customStartDate ? startOfDay(customStartDate) : subDays(now, 7),
-          end: customEndDate ? endOfDay(customEndDate) : now,
-        };
-      default:
-        return { start: subDays(now, 7), end: now };
-    }
-  };
-
-  const { data: foodEntries = [] } = useQuery({
-    queryKey: ["food-entries", timeRange, customStartDate, customEndDate],
-    queryFn: async () => {
-      const { start, end } = getDateRange();
-      const { data, error } = await supabase
-        .from("food_entries")
-        .select("*")
-        .gte("created_at", start.toISOString())
-        .lte("created_at", end.toISOString())
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const { data: waterEntries = [] } = useQuery({
-    queryKey: ["water-entries", timeRange, customStartDate, customEndDate],
-    queryFn: async () => {
-      const { start, end } = getDateRange();
-      const { data, error } = await supabase
-        .from("water_entries")
-        .select("*")
-        .gte("created_at", start.toISOString())
-        .lte("created_at", end.toISOString())
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  return { foodEntries, waterEntries };
-};
-
-// Separate hook for profile data
+// Move data fetching logic to separate hooks for better organization
 const useProfileData = () => {
   return useQuery({
     queryKey: ["profile"],
@@ -95,7 +38,7 @@ const useDailyInsights = () => {
     queryFn: async () => {
       try {
         const { data, error } = await supabase.functions.invoke('generate-insights', {
-          body: { type: "general" }, // New parameter to indicate we want general insights
+          body: { type: "general" },
         });
 
         if (error) throw error;
@@ -111,7 +54,7 @@ const useDailyInsights = () => {
       }
     },
     staleTime: 24 * 60 * 60 * 1000, // Consider data fresh for 24 hours
-    cacheTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
+    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours (replaced cacheTime)
   });
 };
 
