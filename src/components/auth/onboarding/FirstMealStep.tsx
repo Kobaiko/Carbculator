@@ -21,52 +21,21 @@ export function FirstMealStep({ onBack, onComplete }: FirstMealStepProps) {
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleUploadStart = () => {
+    setIsLoading(true);
+  };
 
-    try {
-      setIsLoading(true);
+  const handleUploadComplete = (url: string) => {
+    setImageUrl(url);
+  };
 
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64Image = e.target?.result?.toString().split(",")[1];
-        if (!base64Image) return;
-
-        try {
-          const fileName = `${Date.now()}-${file.name}`;
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from("food-images")
-            .upload(fileName, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: { publicUrl } } = supabase.storage
-            .from("food-images")
-            .getPublicUrl(fileName);
-
-          setImageUrl(publicUrl);
-
-          const mealAnalysis = await analyzeFoodImage(base64Image);
-          setAnalysis(mealAnalysis);
-
-          toast({
-            title: "Success!",
-            description: "Meal analysis completed.",
-          });
-        } catch (error) {
-          console.error("Error processing image:", error);
-          toast({
-            title: "Error",
-            description: "Failed to process the image. Please try again.",
-            variant: "destructive",
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleAnalysisComplete = (result: any) => {
+    setAnalysis(result);
+    setIsLoading(false);
+    toast({
+      title: "Success!",
+      description: "Meal analysis completed.",
+    });
   };
 
   const handleAddToMeals = async () => {
@@ -121,9 +90,9 @@ export function FirstMealStep({ onBack, onComplete }: FirstMealStepProps) {
 
       {!analysis && !isLoading && (
         <UploadSection
-          onFileUpload={handleFileUpload}
-          isLoading={isLoading}
-          isMobile={isMobile}
+          onUploadStart={handleUploadStart}
+          onUploadComplete={handleUploadComplete}
+          onAnalysisComplete={handleAnalysisComplete}
         />
       )}
 
