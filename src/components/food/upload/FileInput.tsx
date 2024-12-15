@@ -33,7 +33,7 @@ export function FileInput({ onFileSelect }: FileInputProps) {
               <Camera className="mr-2 h-4 w-4" />
               Take Photo
             </Button>
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center text-muted-foreground text-sm px-4 -mt-2">
               For best results, take the photo from about 1 foot (30 cm) away from your plate
             </p>
           </>
