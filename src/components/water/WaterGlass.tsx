@@ -27,16 +27,16 @@ export function WaterGlass({ percentage }: WaterGlassProps) {
       ctx.shadowOffsetX = 3;
       ctx.shadowOffsetY = 3;
 
-      // Draw glass container with tapered bottom
+      // Draw glass container with tapered top
       ctx.beginPath();
-      ctx.moveTo(width * 0.3, height * 0.1); // Top left, moved in
-      ctx.lineTo(width * 0.25, height * 0.85); // Bottom left, tapered
-      ctx.quadraticCurveTo(width * 0.25, height * 0.9, width * 0.35, height * 0.9);
-      ctx.lineTo(width * 0.65, height * 0.9);
-      ctx.quadraticCurveTo(width * 0.75, height * 0.9, width * 0.75, height * 0.85);
-      ctx.lineTo(width * 0.7, height * 0.1); // Top right, moved in
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-      ctx.lineWidth = 4;
+      ctx.moveTo(width * 0.25, height * 0.1); // Top left
+      ctx.lineTo(width * 0.3, height * 0.85); // Bottom left, moved in
+      ctx.quadraticCurveTo(width * 0.3, height * 0.9, width * 0.4, height * 0.9);
+      ctx.lineTo(width * 0.6, height * 0.9);
+      ctx.quadraticCurveTo(width * 0.7, height * 0.9, width * 0.7, height * 0.85);
+      ctx.lineTo(width * 0.75, height * 0.1); // Top right
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.8)"; // Darker border color
+      ctx.lineWidth = 3;
       ctx.stroke();
 
       // Reset shadow for water
@@ -45,21 +45,21 @@ export function WaterGlass({ percentage }: WaterGlassProps) {
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
 
-      // Calculate water height based on percentage (no capping at 100%)
+      // Calculate water height based on percentage
       const waterHeight = height * 0.8 * (percentage / 100);
       const baseY = height * 0.9 - waterHeight;
 
       // Draw water
       ctx.beginPath();
-      ctx.moveTo(width * 0.25, height * 0.9);
+      ctx.moveTo(width * 0.3, height * 0.9);
       
       // Create wave effect
-      for (let x = width * 0.25; x <= width * 0.75; x++) {
+      for (let x = width * 0.3; x <= width * 0.7; x++) {
         const y = baseY + Math.sin(x * 0.05 + time) * 5;
         ctx.lineTo(x, y);
       }
 
-      ctx.lineTo(width * 0.75, height * 0.9);
+      ctx.lineTo(width * 0.7, height * 0.9);
       ctx.closePath();
 
       // Create gradient
@@ -82,7 +82,7 @@ export function WaterGlass({ percentage }: WaterGlassProps) {
       ref={canvasRef}
       width={300}
       height={400}
-      className="w-full max-w-[200px] mx-auto"
+      className="w-full max-w-[150px] mx-auto" // Made the glass smaller
     />
   );
 }

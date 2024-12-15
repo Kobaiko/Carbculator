@@ -102,7 +102,7 @@ export default function WaterIntake() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8 space-y-8">
+    <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Water Intake</h1>
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
@@ -133,10 +133,12 @@ export default function WaterIntake() {
         </Dialog>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="glass-card p-6 rounded-2xl">
-          <WaterGlass percentage={progressPercentage} />
-          <div className="text-center mt-4">
+      <div className="grid lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-4 space-y-6">
+          <div className="glass-card p-6 rounded-2xl flex items-center justify-center">
+            <WaterGlass percentage={progressPercentage} />
+          </div>
+          <div className="text-center">
             <p className="text-2xl font-bold">{progressPercentage}%</p>
             <p className="text-sm text-muted-foreground">
               {totalWater}ml / {waterGoal}ml
@@ -144,8 +146,10 @@ export default function WaterIntake() {
           </div>
         </div>
 
-        <div className="space-y-8">
-          <WaterPortionButtons onAddWater={(amount) => addWaterMutation.mutate(amount)} />
+        <div className="lg:col-span-8 space-y-8">
+          <div className="glass-card p-6 rounded-2xl">
+            <WaterPortionButtons onAddWater={(amount) => addWaterMutation.mutate(amount)} />
+          </div>
           {waterEntries && <WaterEntries entries={waterEntries} />}
         </div>
       </div>

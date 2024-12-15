@@ -34,17 +34,17 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
   };
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
       {defaultPortions.map((portion) => (
         <Button
           key={portion.label}
           onClick={() => onAddWater(portion.amount)}
           variant="outline"
-          className="glass-card hover:bg-accent"
+          className="glass-card hover:bg-accent h-16 text-lg"
         >
-          <GlassWater className="mr-2 h-4 w-4" />
+          <GlassWater className="mr-2 h-6 w-6" />
           {portion.label}
-          <span className="text-xs text-muted-foreground ml-1">
+          <span className="text-sm text-muted-foreground ml-2">
             ({portion.amount}ml)
           </span>
         </Button>
@@ -52,8 +52,8 @@ export function WaterPortionButtons({ onAddWater }: WaterPortionButtonsProps) {
 
       <Dialog open={isCustomOpen} onOpenChange={setIsCustomOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="glass-card hover:bg-accent">
-            <GlassWater className="mr-2 h-4 w-4" />
+          <Button variant="outline" className="glass-card hover:bg-accent h-16 text-lg">
+            <GlassWater className="mr-2 h-6 w-6" />
             Custom
           </Button>
         </DialogTrigger>
