@@ -16,14 +16,16 @@ interface TrendsChartProps {
 const formatDate = (dateStr: string, timeRange: TimeRange) => {
   const date = new Date(dateStr);
   switch (timeRange) {
-    case "daily":
+    case "hour":
       return format(date, "HH:mm");
-    case "weekly":
+    case "day":
       return format(date, "EEE");
-    case "monthly":
+    case "week":
       return format(date, "d MMM");
-    case "yearly":
+    case "month":
       return format(date, "MMM");
+    case "year":
+      return format(date, "yyyy");
     case "custom":
       return format(date, "d MMM");
     default:
@@ -33,8 +35,8 @@ const formatDate = (dateStr: string, timeRange: TimeRange) => {
 
 const generateTimePoints = (start: Date, end: Date, timeRange: TimeRange) => {
   switch (timeRange) {
-    case "daily":
-      // For daily view, use hours
+    case "hour":
+      // For hourly view, use hours
       const points = [];
       for (let i = 0; i <= 23; i++) {
         const date = new Date(start);
@@ -44,11 +46,13 @@ const generateTimePoints = (start: Date, end: Date, timeRange: TimeRange) => {
         }
       }
       return points;
-    case "weekly":
+    case "day":
       return eachDayOfInterval({ start, end });
-    case "monthly":
-      return eachDayOfInterval({ start, end });
-    case "yearly":
+    case "week":
+      return eachWeekOfInterval({ start, end });
+    case "month":
+      return eachMonthOfInterval({ start, end });
+    case "year":
       return eachMonthOfInterval({ start, end });
     case "custom":
       return eachDayOfInterval({ start, end });
@@ -72,7 +76,7 @@ const prepareChartData = (
   return timePoints.map(date => {
     const matchingData = rawData.find(d => {
       const dataDate = new Date(d.date);
-      return timeRange === "daily" 
+      return timeRange === "hour" 
         ? dataDate.getHours() === date.getHours() 
         : dataDate.toDateString() === date.toDateString();
     });
