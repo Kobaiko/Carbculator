@@ -9,10 +9,13 @@ import { useDayStatus } from "@/hooks/useDayStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MealCard } from "@/components/meals/MealCard";
 import { GoalCard } from "@/components/daily-goals/GoalCard";
-import { Flame, Dumbbell, Wheat, Droplets } from "lucide-react";
+import { Flame, Dumbbell, Wheat, Droplets, GlassWater } from "lucide-react";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { startOfDay, endOfDay } from "date-fns";
 
 interface DayDetailsDialogProps {
   date: Date | undefined;
@@ -25,6 +28,36 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
   const { goals } = useNutritionProgress();
   
   const meals = date ? getDayMeals(date) : [];
+
+  // Fetch water entries for the selected date
+  const { data: waterEntries = [] } = useQuery({
+    queryKey: ["water-entries", date?.toISOString()],
+    queryFn: async () => {
+      if (!date) return [];
+      
+      const start = startOfDay(date);
+      const end = endOfDay(date);
+
+      const { data, error } = await supabase
+        .from("water_entries")
+        .select("*")
+        .gte("created_at", start.toISOString())
+        .lt("created_at", end.toISOString())
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch water entries",
+          variant: "destructive",
+        });
+        throw error;
+      }
+
+      return data || [];
+    },
+    enabled: !!date,
+  });
 
   const dailyTotals = meals.reduce(
     (acc, meal) => {
@@ -48,6 +81,8 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
     { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
+  const waterTotal = waterEntries.reduce((total, entry) => total + entry.amount, 0);
+
   if (!date) return null;
 
   return (
@@ -59,7 +94,7 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
           }
         `}</style>
         
-        <DialogHeader className="px-6 py-4 border-b">
+        <DialogHeader className="px-6 py-4 border-b shrink-0">
           <DialogTitle className="text-lg md:text-xl">
             {format(date, "EEEE, MMMM do, yyyy")}
           </DialogTitle>
@@ -116,6 +151,18 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
                 editValue={0}
                 onEditChange={() => {}}
               />
+              <GoalCard
+                icon={GlassWater}
+                title="Water"
+                unit="ml"
+                current={waterTotal}
+                target={2000}
+                iconColor="text-blue-500"
+                iconBgColor="bg-blue-500/10"
+                isEditing={false}
+                editValue={0}
+                onEditChange={() => {}}
+              />
             </div>
 
             <div className="space-y-3">
@@ -132,7 +179,7 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
           </div>
         </ScrollArea>
 
-        <div className="px-6 py-4 border-t mt-auto">
+        <div className="px-6 py-4 border-t mt-auto shrink-0">
           <Button 
             variant="ghost"
             className="w-full"
