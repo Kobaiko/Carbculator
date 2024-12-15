@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Flame, Dumbbell, Wheat, Droplets } from "lucide-react";
+import { Flame, Dumbbell, Wheat, Droplets, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { format, startOfDay, endOfDay } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,13 +20,19 @@ import { MealCard } from "@/components/meals/MealCard";
 export default function DailyMeals() {
   const { toast } = useToast();
   const [mealToDelete, setMealToDelete] = useState<string | null>(null);
+  const today = new Date();
 
   const { data: meals, refetch } = useQuery({
-    queryKey: ["meals"],
+    queryKey: ["meals", format(today, "yyyy-MM-dd")],
     queryFn: async () => {
+      const start = startOfDay(today).toISOString();
+      const end = endOfDay(today).toISOString();
+
       const { data, error } = await supabase
         .from("food_entries")
         .select("*")
+        .gte("created_at", start)
+        .lte("created_at", end)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -73,7 +80,12 @@ export default function DailyMeals() {
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">
       <div className="max-w-7xl mx-auto space-y-6 px-4 md:px-6 pt-6 md:pt-8 md:ml-20">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Daily Meals</h1>
+          <div>
+            <h1 className="text-3xl font-bold">Daily Meals</h1>
+            <p className="text-muted-foreground">
+              {format(today, "EEEE, MMMM d, yyyy")}
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -102,6 +114,18 @@ export default function DailyMeals() {
             className="bg-green-500/10"
           />
         </div>
+
+        {meals?.length === 0 && (
+          <div className="text-center py-12 space-y-4">
+            <p className="text-lg text-muted-foreground">No meals added today</p>
+            <div className="relative inline-block">
+              <p className="text-sm text-muted-foreground">
+                Click the + button to add your first meal
+              </p>
+              <Plus className="absolute -right-8 top-0 text-primary animate-bounce" />
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {meals?.map((meal) => (
