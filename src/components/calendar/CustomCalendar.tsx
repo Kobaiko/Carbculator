@@ -87,18 +87,16 @@ export function CustomCalendar({ selected, onSelect, modifiers }: CustomCalendar
       </div>
 
       <div className="grid grid-cols-7 gap-px bg-muted rounded-lg overflow-hidden flex-1">
-        <div className="col-span-7 grid grid-cols-7">
-          {weekDays.map((day, index) => (
-            <div
-              key={day}
-              className={`h-8 md:h-12 flex items-center justify-center text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
-                index === 0 ? 'rounded-tl-lg' : ''
-              } ${index === 6 ? 'rounded-tr-lg' : ''}`}
-            >
-              {day}
-            </div>
-          ))}
-        </div>
+        {weekDays.map((day, index) => (
+          <div
+            key={day}
+            className={`h-8 md:h-12 flex items-center justify-center text-center font-medium text-[10px] md:text-sm bg-primary/5 text-primary ${
+              index === 0 ? 'rounded-tl-lg' : ''
+            } ${index === 6 ? 'rounded-tr-lg' : ''}`}
+          >
+            {day}
+          </div>
+        ))}
         
         {days.map((day, dayIdx) => (
           <Button
