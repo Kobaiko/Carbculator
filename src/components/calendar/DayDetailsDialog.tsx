@@ -9,9 +9,10 @@ import { useDayStatus } from "@/hooks/useDayStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MealCard } from "@/components/meals/MealCard";
 import { GoalCard } from "@/components/daily-goals/GoalCard";
-import { Flame, Dumbbell, Wheat, Droplets } from "lucide-react";
+import { Flame, Dumbbell, Wheat, Droplets, X } from "lucide-react";
 import { useNutritionProgress } from "@/hooks/useNutritionProgress";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface DayDetailsDialogProps {
   date: Date | undefined;
@@ -54,13 +55,21 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
   return (
     <Dialog open={!!date} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-3xl">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-4 top-4 rounded-full"
+          onClick={() => onClose()}
+        >
+          <X className="h-4 w-4" />
+        </Button>
         <DialogHeader>
           <DialogTitle>
             {format(date, "EEEE, MMMM do, yyyy")}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <GoalCard
             icon={Flame}
             title="Calories"
@@ -111,13 +120,14 @@ export function DayDetailsDialog({ date, onClose }: DayDetailsDialogProps) {
           />
         </div>
 
-        <ScrollArea className="h-[60vh] pr-4">
-          <div className="space-y-4">
+        <ScrollArea className="h-[40vh] pr-4">
+          <div className="space-y-3">
             {meals.map((meal) => (
               <MealCard
                 key={meal.id}
                 meal={meal}
                 onDelete={() => {}}
+                compact
               />
             ))}
           </div>
