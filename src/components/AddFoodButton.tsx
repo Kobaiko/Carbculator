@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { UploadSection } from "./food/UploadSection";
 import { LoadingSection } from "./food/LoadingSection";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 export function AddFoodButton() {
   const [open, setOpen] = useState(false);
@@ -22,15 +23,18 @@ export function AddFoodButton() {
   const [analysis, setAnalysis] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const resetState = () => {
     setImageUrl("");
     setAnalysis(null);
     setQuantity(1);
     setIsLoading(false);
+    setIsUploading(false);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +42,7 @@ export function AddFoodButton() {
     if (!file) return;
 
     try {
-      setIsLoading(true);
+      setIsUploading(true);
 
       // Convert the file to base64
       const reader = new FileReader();
@@ -61,6 +65,8 @@ export function AddFoodButton() {
             .getPublicUrl(fileName);
 
           setImageUrl(publicUrl);
+          setIsUploading(false);
+          setIsLoading(true);
 
           // Analyze the image
           const mealAnalysis = await analyzeFoodImage(base64Image);
@@ -92,25 +98,26 @@ export function AddFoodButton() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      // Save to database
+      // Save to database with quantity
       const { error: dbError } = await supabase
         .from("food_entries")
         .insert({
           name: analysis.name,
           ingredients: analysis.ingredients,
-          calories: analysis.calories,
-          protein: analysis.protein,
-          carbs: analysis.carbs,
-          fats: analysis.fats,
+          calories: analysis.calories * quantity,
+          protein: analysis.protein * quantity,
+          carbs: analysis.carbs * quantity,
+          fats: analysis.fats * quantity,
           health_score: analysis.healthScore,
           image_url: imageUrl,
           user_id: user.id,
+          quantity: quantity,
         });
 
       if (dbError) throw dbError;
 
       // Invalidate the meals query to trigger a refresh
-      queryClient.invalidateQueries({ queryKey: ["meals"] });
+      await queryClient.invalidateQueries({ queryKey: ["meals"] });
 
       toast({
         title: "Success!",
@@ -118,6 +125,8 @@ export function AddFoodButton() {
       });
       
       setOpen(false);
+      // Navigate to daily meals page
+      navigate("/daily-meals");
     } catch (error) {
       console.error("Error saving to meals:", error);
       toast({
@@ -155,7 +164,7 @@ export function AddFoodButton() {
           </DialogHeader>
 
           <div className="space-y-8">
-            {!analysis && !isLoading && (
+            {!analysis && !isLoading && !isUploading && (
               <UploadSection
                 onFileUpload={handleFileUpload}
                 isLoading={isLoading}
@@ -163,9 +172,9 @@ export function AddFoodButton() {
               />
             )}
 
-            {isLoading && <LoadingSection />}
+            {(isLoading || isUploading) && <LoadingSection />}
 
-            {analysis && imageUrl && (
+            {analysis && imageUrl && !isLoading && (
               <div className="space-y-6">
                 <FoodCard
                   analysis={analysis}
