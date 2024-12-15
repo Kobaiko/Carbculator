@@ -10,11 +10,8 @@ import { MacroTrends } from "@/components/dashboard/MacroTrends";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { toast } from "sonner";
 
-const Index = () => {
-  const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
-  const [customStartDate, setCustomStartDate] = useState<Date>();
-  const [customEndDate, setCustomEndDate] = useState<Date>();
-
+// Separate the data fetching logic into a custom hook for better organization
+const useNutritionData = (timeRange: TimeRange, customStartDate?: Date, customEndDate?: Date) => {
   const getDateRange = () => {
     const now = new Date();
     switch (timeRange) {
@@ -52,7 +49,6 @@ const Index = () => {
     },
   });
 
-  // Fetch water entries
   const { data: waterEntries = [] } = useQuery({
     queryKey: ["water-entries", timeRange, customStartDate, customEndDate],
     queryFn: async () => {
@@ -69,8 +65,12 @@ const Index = () => {
     },
   });
 
-  // Fetch user profile for goals
-  const { data: profile } = useQuery({
+  return { foodEntries, waterEntries };
+};
+
+// Separate hook for profile data
+const useProfileData = () => {
+  return useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -86,6 +86,43 @@ const Index = () => {
       return data;
     },
   });
+};
+
+// Separate hook for daily insights that refreshes only once per day
+const useDailyInsights = () => {
+  return useQuery({
+    queryKey: ["daily-insights", new Date().toDateString()], // Changes only once per day
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-insights', {
+          body: { type: "general" }, // New parameter to indicate we want general insights
+        });
+
+        if (error) throw error;
+        return data;
+      } catch (error) {
+        console.error('Error fetching insights:', error);
+        toast.error('Failed to generate insights');
+        return {
+          trends: "Unable to analyze trends at the moment.",
+          recommendations: "Recommendations are currently unavailable.",
+          goals: "Goal analysis is temporarily unavailable.",
+        };
+      }
+    },
+    staleTime: 24 * 60 * 60 * 1000, // Consider data fresh for 24 hours
+    cacheTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
+  });
+};
+
+const Index = () => {
+  const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
+  const [customStartDate, setCustomStartDate] = useState<Date>();
+  const [customEndDate, setCustomEndDate] = useState<Date>();
+
+  const { foodEntries, waterEntries } = useNutritionData(timeRange, customStartDate, customEndDate);
+  const { data: profile } = useProfileData();
+  const { data: insights, isLoading: isLoadingInsights } = useDailyInsights();
 
   // Calculate totals based on time range
   const totals = {
@@ -126,33 +163,6 @@ const Index = () => {
     fats: profile.daily_fats,
     water: 2000, // Default water goal in ml
   } : undefined;
-
-  // Fetch AI insights
-  const { data: insights, isLoading: isLoadingInsights } = useQuery({
-    queryKey: ["insights", timeRange, customStartDate, customEndDate],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('generate-insights', {
-          body: {
-            timeRange,
-            startDate: getDateRange().start.toISOString(),
-            endDate: getDateRange().end.toISOString(),
-          },
-        });
-
-        if (error) throw error;
-        return data;
-      } catch (error) {
-        console.error('Error fetching insights:', error);
-        toast.error('Failed to generate insights');
-        return {
-          trends: "Unable to analyze trends at the moment.",
-          recommendations: "Recommendations are currently unavailable.",
-          goals: "Goal analysis is temporarily unavailable.",
-        };
-      }
-    },
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">

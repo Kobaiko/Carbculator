@@ -16,8 +16,8 @@ serve(async (req) => {
   }
 
   try {
-    const { timeRange, startDate, endDate } = await req.json();
-    console.log('Request data:', { timeRange, startDate, endDate });
+    const { type } = await req.json();
+    console.log('Request type:', type);
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
@@ -43,6 +43,12 @@ serve(async (req) => {
 
     console.log('User authenticated:', user.id);
 
+    // Get today's date range
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
     // Fetch user's profile for goals
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -55,33 +61,33 @@ serve(async (req) => {
       throw profileError;
     }
 
-    // Fetch food entries
+    // Fetch today's food entries
     const { data: foodEntries, error: foodError } = await supabase
       .from('food_entries')
       .select('*')
       .eq('user_id', user.id)
-      .gte('created_at', startDate)
-      .lte('created_at', endDate);
+      .gte('created_at', startOfDay.toISOString())
+      .lt('created_at', endOfDay.toISOString());
 
     if (foodError) {
       console.error('Error fetching food entries:', foodError);
       throw foodError;
     }
 
-    // Fetch water entries
+    // Fetch today's water entries
     const { data: waterEntries, error: waterError } = await supabase
       .from('water_entries')
       .select('*')
       .eq('user_id', user.id)
-      .gte('created_at', startDate)
-      .lte('created_at', endDate);
+      .gte('created_at', startOfDay.toISOString())
+      .lt('created_at', endOfDay.toISOString());
 
     if (waterError) {
       console.error('Error fetching water entries:', waterError);
       throw waterError;
     }
 
-    // Calculate totals and averages
+    // Calculate today's totals
     const totals = (foodEntries || []).reduce(
       (acc, entry) => ({
         calories: acc.calories + entry.calories,
@@ -93,22 +99,11 @@ serve(async (req) => {
     );
 
     const waterTotal = (waterEntries || []).reduce((sum, entry) => sum + entry.amount, 0);
-    const daysInRange = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
-    
-    const averages = {
-      calories: totals.calories / daysInRange,
-      protein: totals.protein / daysInRange,
-      carbs: totals.carbs / daysInRange,
-      fats: totals.fats / daysInRange,
-      water: waterTotal / daysInRange,
-    };
 
     // Prepare data summary for OpenAI
     const dataSummary = {
-      timeRange,
-      daysInRange,
       totals,
-      averages,
+      waterTotal,
       goals: {
         calories: profile?.daily_calories || 2000,
         protein: profile?.daily_protein || 150,
@@ -132,16 +127,18 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a nutrition expert analyzing health data. Provide three types of insights:
-            1. Trends: Analyze patterns in nutrition and water intake data
-            2. Recommendations: Provide actionable advice based on the data
-            3. Goals: Suggest realistic goals and adjustments based on current progress
-            Keep each section concise, focused, and data-driven.
+            content: `You are a nutrition expert providing general insights and recommendations. 
+            Focus on overall patterns and best practices rather than specific time periods.
+            Provide three types of insights:
+            1. Trends: Analyze general nutrition patterns
+            2. Recommendations: Provide actionable advice for maintaining a healthy diet
+            3. Goals: Suggest realistic goals based on the user's targets
+            Keep each section concise and focused.
             Use ** for important numbers or key points you want to emphasize.`
           },
           {
             role: 'user',
-            content: `Please analyze this health data and provide insights. The data is for a ${timeRange} period:
+            content: `Please provide general nutrition insights and recommendations based on this user's goals:
             ${JSON.stringify(dataSummary, null, 2)}`
           }
         ],
