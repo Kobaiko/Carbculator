@@ -79,15 +79,20 @@ export function UploadSection({
       </p>
       <div className="flex flex-col gap-4">
         {isMobile && (
-          <Button
-            variant="default"
-            size="lg"
-            className="w-full"
-            onClick={() => document.getElementById("food-image")?.click()}
-          >
-            <Camera className="mr-2 h-4 w-4" />
-            Take Photo
-          </Button>
+          <div className="space-y-2">
+            <Button
+              variant="default"
+              size="lg"
+              className="w-full"
+              onClick={() => document.getElementById("food-image")?.click()}
+            >
+              <Camera className="mr-2 h-4 w-4" />
+              Take Photo
+            </Button>
+            <p className="text-center text-muted-foreground text-sm px-2">
+              For best results, take the photo from about 1 foot (30 cm) away from your plate
+            </p>
+          </div>
         )}
         
         {isMobile && (
