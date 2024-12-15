@@ -61,7 +61,7 @@ export function useGoalsEditor(initialGoals: Goals) {
 
       if (error) throw error;
 
-      // Invalidate and refetch the profile query
+      // Invalidate and refetch queries
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       
       setIsEditing(false);
