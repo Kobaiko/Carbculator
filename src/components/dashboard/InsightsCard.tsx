@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lightbulb, TrendingUp, Target, Activity } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface InsightsCardProps {
   insights: {
@@ -8,9 +9,10 @@ interface InsightsCardProps {
     recommendations: string;
     goals: string;
   };
+  isLoading?: boolean;
 }
 
-export function InsightsCard({ insights }: InsightsCardProps) {
+export function InsightsCard({ insights, isLoading }: InsightsCardProps) {
   return (
     <Card className="col-span-full glass-card">
       <CardHeader className="flex flex-row items-center space-x-2">
@@ -37,13 +39,34 @@ export function InsightsCard({ insights }: InsightsCardProps) {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="trends" className="mt-4">
-            <p className="text-muted-foreground whitespace-pre-line">{insights.trends}</p>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : (
+              <p className="text-muted-foreground whitespace-pre-line">{insights.trends}</p>
+            )}
           </TabsContent>
           <TabsContent value="recommendations" className="mt-4">
-            <p className="text-muted-foreground whitespace-pre-line">{insights.recommendations}</p>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : (
+              <p className="text-muted-foreground whitespace-pre-line">{insights.recommendations}</p>
+            )}
           </TabsContent>
           <TabsContent value="goals" className="mt-4">
-            <p className="text-muted-foreground whitespace-pre-line">{insights.goals}</p>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : (
+              <p className="text-muted-foreground whitespace-pre-line">{insights.goals}</p>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>

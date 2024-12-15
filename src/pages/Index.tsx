@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MacroTrends } from "@/components/dashboard/MacroTrends";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { toast } from "sonner";
 
 const Index = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>("weekly");
@@ -35,7 +36,6 @@ const Index = () => {
     }
   };
 
-  // Fetch food entries from Supabase
   const { data: foodEntries = [] } = useQuery({
     queryKey: ["food-entries", timeRange, customStartDate, customEndDate],
     queryFn: async () => {
@@ -127,6 +127,33 @@ const Index = () => {
     water: 2000, // Default water goal in ml
   } : undefined;
 
+  // Fetch AI insights
+  const { data: insights, isLoading: isLoadingInsights } = useQuery({
+    queryKey: ["insights", timeRange, customStartDate, customEndDate],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-insights', {
+          body: {
+            timeRange,
+            startDate: getDateRange().start.toISOString(),
+            endDate: getDateRange().end.toISOString(),
+          },
+        });
+
+        if (error) throw error;
+        return data;
+      } catch (error) {
+        console.error('Error fetching insights:', error);
+        toast.error('Failed to generate insights');
+        return {
+          trends: "Unable to analyze trends at the moment.",
+          recommendations: "Recommendations are currently unavailable.",
+          goals: "Goal analysis is temporarily unavailable.",
+        };
+      }
+    },
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary pb-16">
       <Navigation />
@@ -159,11 +186,14 @@ const Index = () => {
           waterData={chartData.water}
         />
 
-        <InsightsCard insights={{
-          trends: "Based on your recent entries, you're maintaining a consistent caloric intake.",
-          recommendations: "Try to increase your protein intake to meet your daily goals.",
-          goals: "You're on track to meet your weekly nutrition targets.",
-        }} />
+        <InsightsCard 
+          insights={insights || {
+            trends: "Loading insights...",
+            recommendations: "Analyzing your data...",
+            goals: "Calculating goals...",
+          }}
+          isLoading={isLoadingInsights}
+        />
       </div>
       <AddFoodButton />
     </div>
