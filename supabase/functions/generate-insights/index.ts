@@ -64,7 +64,7 @@ serve(async (req) => {
         protein: profile?.daily_protein || 150,
         carbs: profile?.daily_carbs || 250,
         fats: profile?.daily_fats || 70,
-        water: 2000,
+        water: profile?.daily_water || 2000,
       },
     };
 
