@@ -18,6 +18,7 @@ serve(async (req) => {
     console.log('Auth header present:', !!authHeader);
     
     if (!authHeader) {
+      console.error('No authorization header');
       throw new Error('No authorization header');
     }
 
@@ -57,30 +58,7 @@ serve(async (req) => {
       .eq('id', user.id)
       .single();
 
-    if (profileError) {
-      console.error('Error fetching profile:', profileError);
-      // Create a new profile if one doesn't exist
-      const { error: insertError } = await supabase
-        .from('profiles')
-        .insert([{ 
-          id: user.id,
-          daily_calories: 2000,
-          daily_protein: 150,
-          daily_carbs: 250,
-          daily_fats: 70,
-          daily_water: 2000,
-          height_unit: 'cm',
-          weight_unit: 'kg',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }]);
-
-      if (insertError) {
-        console.error('Error creating profile:', insertError);
-      }
-    }
-
-    // Use profile data if available, otherwise use defaults
+    // Use default values if no profile exists
     const dataSummary = {
       goals: {
         calories: profile?.daily_calories || 2000,
@@ -156,7 +134,7 @@ serve(async (req) => {
         details: error instanceof Error ? error.stack : undefined
       }), 
       {
-        status: 500,
+        status: error.message === 'Unauthorized' ? 401 : 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );

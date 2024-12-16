@@ -27,18 +27,28 @@ const App = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Sign out on initial load
-    supabase.auth.signOut().then(() => {
-      queryClient.clear(); // Clear all queries
-      toast({
-        title: "Signed out",
-        description: "You have been signed out. Please sign in again.",
-      });
-    });
+    const initializeSession = async () => {
+      try {
+        // Check if there's an existing session
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        
+        if (currentSession) {
+          // If there's a session, sign out
+          await supabase.auth.signOut();
+          queryClient.clear();
+          toast({
+            title: "Signed out",
+            description: "You have been signed out. Please sign in again.",
+          });
+        }
+      } catch (error) {
+        console.error('Session error:', error);
+      } finally {
+        setIsSessionLoading(false);
+      }
+    };
 
-    supabase.auth.getSession().then(() => {
-      setIsSessionLoading(false);
-    });
+    initializeSession();
 
     const {
       data: { subscription },
