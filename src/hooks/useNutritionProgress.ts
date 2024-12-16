@@ -51,14 +51,14 @@ export function useNutritionProgress() {
     water: 0, // This will be updated from water entries
   };
 
-  // Get daily goals from profile with fallback values
-  const goals = {
-    calories: profile?.daily_calories ?? 2000,
-    protein: profile?.daily_protein ?? 150,
-    carbs: profile?.daily_carbs ?? 250,
-    fats: profile?.daily_fats ?? 70,
-    water: profile?.daily_water ?? 2000,
-  };
+  // Get daily goals from profile without fallback values
+  const goals = profile ? {
+    calories: profile.daily_calories,
+    protein: profile.daily_protein,
+    carbs: profile.daily_carbs,
+    fats: profile.daily_fats,
+    water: profile.daily_water,
+  } : undefined;
 
   return { profile, progress, goals };
 }
