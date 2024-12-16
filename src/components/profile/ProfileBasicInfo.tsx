@@ -21,23 +21,24 @@ export function ProfileBasicInfo() {
     daily_water: '',
   });
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       if (!session?.user?.id) throw new Error('No user found');
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('username, height, weight, height_unit, weight_unit, daily_calories, daily_protein, daily_carbs, daily_fats, daily_water')
+        .select('*')
         .eq('id', session.user.id)
         .single();
-
+      
       if (error) throw error;
       return data;
     },
     enabled: !!session?.user?.id,
   });
 
+  // Update form data when profile is loaded
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -87,11 +88,10 @@ export function ProfileBasicInfo() {
 
   const handleBlur = (field: string, value: string) => {
     const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
-    if (numericFields.includes(field)) {
-      updateProfile.mutate({ [field]: parseFloat(value) || 0 });
-    } else {
-      updateProfile.mutate({ [field]: value });
-    }
+    const updateData = {
+      [field]: numericFields.includes(field) ? parseFloat(value) || 0 : value
+    };
+    updateProfile.mutate(updateData);
   };
 
   if (!profile) return null;
