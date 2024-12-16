@@ -33,6 +33,7 @@ export function ProfileBasicInfo() {
         .single();
       
       if (error) throw error;
+      console.log('Profile data fetched:', data); // Debug log
       return data;
     },
     enabled: !!session?.user?.id,
@@ -41,6 +42,7 @@ export function ProfileBasicInfo() {
   // Update form data when profile is loaded
   useEffect(() => {
     if (profile) {
+      console.log('Setting form data from profile:', profile); // Debug log
       setFormData({
         username: profile.username || '',
         height: profile.height?.toString() || '',
@@ -55,12 +57,14 @@ export function ProfileBasicInfo() {
   }, [profile]);
 
   const updateProfile = useMutation({
-    mutationFn: async (formData: Record<string, string | number>) => {
+    mutationFn: async (updateData: Record<string, string | number>) => {
       if (!session?.user?.id) throw new Error('No user found');
+
+      console.log('Updating profile with:', updateData); // Debug log
 
       const { error } = await supabase
         .from('profiles')
-        .update(formData)
+        .update(updateData)
         .eq('id', session.user.id);
 
       if (error) throw error;
@@ -73,26 +77,33 @@ export function ProfileBasicInfo() {
       });
     },
     onError: (error) => {
+      console.error('Error updating profile:', error);
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
         variant: "destructive",
       });
-      console.error('Error updating profile:', error);
     },
   });
 
   const handleChange = (field: string, value: string) => {
+    console.log('Handling change:', field, value); // Debug log
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleBlur = (field: string, value: string) => {
+    console.log('Handling blur:', field, value); // Debug log
     const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
     const updateData = {
-      [field]: numericFields.includes(field) ? parseFloat(value) || 0 : value
+      [field]: numericFields.includes(field) ? parseFloat(value) || 0 : value,
+      updated_at: new Date().toISOString(), // Add updated_at timestamp
     };
     updateProfile.mutate(updateData);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!profile) return null;
 
