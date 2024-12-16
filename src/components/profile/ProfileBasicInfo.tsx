@@ -22,10 +22,12 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
 
   const updateProfile = useMutation({
     mutationFn: async (formData: Partial<typeof profile>) => {
+      if (!session?.user?.id) throw new Error('No user found');
+
       const { error } = await supabase
         .from('profiles')
         .update(formData)
-        .eq('id', session?.user?.id);
+        .eq('id', session.user.id);
 
       if (error) throw error;
     },
