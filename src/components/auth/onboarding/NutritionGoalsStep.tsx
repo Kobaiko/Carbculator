@@ -16,6 +16,14 @@ interface NutritionGoalsStepProps {
 }
 
 export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) {
+  // Local state for form data
+  const [localGoals, setLocalGoals] = useState({
+    dailyCalories: 2000,
+    dailyProtein: 150,
+    dailyCarbs: 250,
+    dailyFats: 70,
+  });
+
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -33,35 +41,29 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
     },
   });
 
-  const [formData, setFormData] = useState({
-    dailyCalories: 0,
-    dailyProtein: 0,
-    dailyCarbs: 0,
-    dailyFats: 0,
-  });
-
-  // Update form data when profile is loaded
+  // Update local goals when profile is loaded
   useEffect(() => {
     if (profile) {
-      setFormData({
+      setLocalGoals({
         dailyCalories: profile.daily_calories || 2000,
         dailyProtein: profile.daily_protein || 150,
         dailyCarbs: profile.daily_carbs || 250,
         dailyFats: profile.daily_fats || 70,
       });
+      console.log("Loaded profile goals:", profile);
     }
   }, [profile]);
 
   const handleChange = (name: string, value: string) => {
     const numericValue = parseInt(value) || 0;
-    setFormData((prev) => ({ ...prev, [name]: numericValue }));
-    console.log("Editing field:", name, "with value:", numericValue);
+    setLocalGoals(prev => ({ ...prev, [name]: numericValue }));
+    console.log("Updated local goals:", name, numericValue);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Saving goals:", formData);
-    onNext(formData);
+    console.log("Submitting goals:", localGoals);
+    onNext(localGoals);
   };
 
   if (isLoading) {
@@ -83,7 +85,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="calories"
             type="number"
-            value={formData.dailyCalories}
+            value={localGoals.dailyCalories}
             onChange={(e) => handleChange("dailyCalories", e.target.value)}
             required
           />
@@ -94,7 +96,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="protein"
             type="number"
-            value={formData.dailyProtein}
+            value={localGoals.dailyProtein}
             onChange={(e) => handleChange("dailyProtein", e.target.value)}
             required
           />
@@ -105,7 +107,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="carbs"
             type="number"
-            value={formData.dailyCarbs}
+            value={localGoals.dailyCarbs}
             onChange={(e) => handleChange("dailyCarbs", e.target.value)}
             required
           />
@@ -116,7 +118,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="fats"
             type="number"
-            value={formData.dailyFats}
+            value={localGoals.dailyFats}
             onChange={(e) => handleChange("dailyFats", e.target.value)}
             required
           />
