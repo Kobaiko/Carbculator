@@ -45,7 +45,7 @@ export function BasicInfoSection({
             placeholder={`Enter height in ${heightUnit}`}
           />
           <p className="text-sm text-muted-foreground">
-            Current height: {formData.height ? `${formData.height} ${heightUnit}` : 'Not set'}
+            {formData.height ? `${formData.height} ${heightUnit}` : 'Not set'}
           </p>
         </div>
         <div className="space-y-2">
@@ -59,6 +59,9 @@ export function BasicInfoSection({
             onBlur={(e) => handleBlur('weight', e.target.value)}
             placeholder={`Enter weight in ${weightUnit}`}
           />
+          <p className="text-sm text-muted-foreground">
+            {formData.weight ? `${formData.weight} ${weightUnit}` : 'Not set'}
+          </p>
         </div>
       </div>
     </div>
