@@ -1,10 +1,12 @@
 import { useSession } from "@supabase/auth-helpers-react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Ruler, Weight, User2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileBasicInfo } from "@/components/profile/ProfileBasicInfo";
 import { ProfileAuth } from "@/components/profile/ProfileAuth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function Profile() {
   const session = useSession();
@@ -53,6 +55,45 @@ export default function Profile() {
 
       <div className="space-y-8">
         <ProfileAvatar profile={profile} />
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">Personal Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <User2 className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">Name</p>
+                <p className="text-sm text-muted-foreground">
+                  {profile.username || 'Not set'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <Ruler className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">Height</p>
+                <p className="text-sm text-muted-foreground">
+                  {profile.height ? `${profile.height} ${profile.height_unit}` : 'Not set'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <Weight className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">Weight</p>
+                <p className="text-sm text-muted-foreground">
+                  {profile.weight ? `${profile.weight} ${profile.weight_unit}` : 'Not set'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Separator />
         
         <div className="space-y-6">
           <ProfileBasicInfo profile={profile} />
