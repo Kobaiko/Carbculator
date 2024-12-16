@@ -1,141 +1,21 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Navigation } from "@/components/Navigation";
+import { Button } from "@/components/ui/button";
 import { Dumbbell, Flame, Wheat, Droplets, GlassWater } from "lucide-react";
-import { DailyGoalCard } from "@/components/daily-goals/DailyGoalCard";
-
-interface Goals {
-  daily_calories: number;
-  daily_protein: number;
-  daily_carbs: number;
-  daily_fats: number;
-  daily_water: number;
-}
+import { useGoals } from "@/hooks/useGoals";
+import { GoalCard } from "@/components/goals/GoalCard";
+import { Goal } from "@/types/goals.types";
 
 export default function DailyGoals() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedGoals, setEditedGoals] = useState<Goals | null>(null);
-
-  // Fetch profile data
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("daily_calories, daily_protein, daily_carbs, daily_fats, daily_water")
-        .eq("id", user.id)
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Fetch today's progress
-  const { data: todaysMeals = [] } = useQuery({
-    queryKey: ["todaysMeals"],
-    queryFn: async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { data, error } = await supabase
-        .from("food_entries")
-        .select("*")
-        .eq("user_id", user.id)
-        .gte("created_at", today.toISOString())
-        .lt("created_at", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // Calculate today's progress
-  const progress = todaysMeals.reduce(
-    (acc, meal) => ({
-      calories: acc.calories + (meal.calories || 0),
-      protein: acc.protein + (Number(meal.protein) || 0),
-      carbs: acc.carbs + (Number(meal.carbs) || 0),
-      fats: acc.fats + (Number(meal.fats) || 0),
-      water: 0,
-    }),
-    { calories: 0, protein: 0, carbs: 0, fats: 0, water: 0 }
-  );
-
-  // Update goals mutation
-  const updateGoals = useMutation({
-    mutationFn: async (newGoals: Goals) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          daily_calories: newGoals.daily_calories,
-          daily_protein: newGoals.daily_protein,
-          daily_carbs: newGoals.daily_carbs,
-          daily_fats: newGoals.daily_fats,
-          daily_water: newGoals.daily_water,
-        })
-        .eq("id", user.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      setIsEditing(false);
-      toast({
-        title: "Success",
-        description: "Your goals have been updated.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update goals. Please try again.",
-      });
-      console.error("Error updating goals:", error);
-    },
-  });
-
-  const handleEdit = () => {
-    if (profile) {
-      setEditedGoals(profile);
-      setIsEditing(true);
-    }
-  };
-
-  const handleSave = () => {
-    if (editedGoals) {
-      updateGoals.mutate(editedGoals);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedGoals(null);
-  };
-
-  const handleChange = (field: keyof Goals, value: string) => {
-    if (editedGoals) {
-      setEditedGoals({
-        ...editedGoals,
-        [field]: parseInt(value) || 0,
-      });
-    }
-  };
+  const {
+    profile,
+    isLoading,
+    isEditing,
+    editedGoals,
+    handleEdit,
+    handleSave,
+    handleCancel,
+    handleChange,
+  } = useGoals();
 
   if (isLoading) {
     return (
@@ -152,51 +32,51 @@ export default function DailyGoals() {
 
   if (!profile) return null;
 
-  const goals = [
+  const goals: Goal[] = [
     {
-      icon: Flame,
       title: "Calories",
-      current: progress.calories,
+      current: 0,
       target: profile.daily_calories,
-      field: "daily_calories",
+      icon: Flame,
       iconColor: "text-orange-500",
       bgColor: "bg-orange-500/10",
+      field: "daily_calories",
     },
     {
-      icon: Dumbbell,
       title: "Protein",
-      current: progress.protein,
+      current: 0,
       target: profile.daily_protein,
-      field: "daily_protein",
+      icon: Dumbbell,
       iconColor: "text-blue-500",
       bgColor: "bg-blue-500/10",
+      field: "daily_protein",
     },
     {
-      icon: Wheat,
       title: "Carbs",
-      current: progress.carbs,
+      current: 0,
       target: profile.daily_carbs,
-      field: "daily_carbs",
+      icon: Wheat,
       iconColor: "text-amber-500",
       bgColor: "bg-amber-500/10",
+      field: "daily_carbs",
     },
     {
-      icon: Droplets,
       title: "Fats",
-      current: progress.fats,
+      current: 0,
       target: profile.daily_fats,
-      field: "daily_fats",
+      icon: Droplets,
       iconColor: "text-green-500",
       bgColor: "bg-green-500/10",
+      field: "daily_fats",
     },
     {
-      icon: GlassWater,
       title: "Water",
-      current: progress.water,
+      current: 0,
       target: profile.daily_water,
-      field: "daily_water",
+      icon: GlassWater,
       iconColor: "text-blue-500",
       bgColor: "bg-blue-500/10",
+      field: "daily_water",
     },
   ];
 
@@ -213,12 +93,12 @@ export default function DailyGoals() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {goals.map((goal) => (
-            <DailyGoalCard
+            <GoalCard
               key={goal.field}
               {...goal}
               isEditing={isEditing}
-              editedGoals={editedGoals}
-              handleChange={handleChange}
+              editedValue={editedGoals?.[goal.field as keyof typeof editedGoals]}
+              onEdit={(value) => handleChange(goal.field as keyof typeof editedGoals, value)}
             />
           ))}
         </div>
