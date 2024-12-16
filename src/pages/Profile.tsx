@@ -56,7 +56,7 @@ export default function Profile() {
         <ProfileAvatar profile={profile} />
         
         <div className="space-y-6">
-          <ProfileBasicInfo profile={profile} />
+          <ProfileBasicInfo />
           
           <div className="border-t pt-6">
             <ProfileAuth />
