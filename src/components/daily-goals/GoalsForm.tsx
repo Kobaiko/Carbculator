@@ -34,10 +34,10 @@ export function GoalsForm({ initialGoals, onSubmit, onCancel }: GoalsFormProps) 
     try {
       // Convert form data to numbers and validate
       const goals = {
-        dailyCalories: parseInt(formData.dailyCalories),
-        dailyProtein: parseInt(formData.dailyProtein),
-        dailyCarbs: parseInt(formData.dailyCarbs),
-        dailyFats: parseInt(formData.dailyFats),
+        dailyCalories: parseInt(formData.dailyCalories || "0"),
+        dailyProtein: parseInt(formData.dailyProtein || "0"),
+        dailyCarbs: parseInt(formData.dailyCarbs || "0"),
+        dailyFats: parseInt(formData.dailyFats || "0"),
       };
 
       // Validate numbers

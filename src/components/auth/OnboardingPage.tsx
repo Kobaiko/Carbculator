@@ -127,4 +127,4 @@ export const OnboardingPage = () => {
       </div>
     </div>
   );
-};
+}
