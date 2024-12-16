@@ -26,7 +26,13 @@ serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
     );
 
     // Verify the token and get user
@@ -53,8 +59,25 @@ serve(async (req) => {
 
     if (profileError) {
       console.error('Error fetching profile:', profileError);
-      // Use default values if profile not found
-      console.log('Using default values for missing profile');
+      // Create a new profile if one doesn't exist
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert([{ 
+          id: user.id,
+          daily_calories: 2000,
+          daily_protein: 150,
+          daily_carbs: 250,
+          daily_fats: 70,
+          daily_water: 2000,
+          height_unit: 'cm',
+          weight_unit: 'kg',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }]);
+
+      if (insertError) {
+        console.error('Error creating profile:', insertError);
+      }
     }
 
     // Use profile data if available, otherwise use defaults
