@@ -45,7 +45,7 @@ export function BasicInfoSection({
             placeholder={`Enter height in ${heightUnit}`}
           />
           <p className="text-sm text-muted-foreground">
-            Current height: {formData.height} {heightUnit}
+            Current height: {formData.height || 'Not set'} {formData.height && heightUnit}
           </p>
         </div>
         <div className="space-y-2">
