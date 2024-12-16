@@ -31,7 +31,9 @@ const App = () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
-        if (!currentSession) {
+        // Only redirect if we're not already on signup or login pages
+        const currentPath = window.location.pathname;
+        if (!currentSession && !currentPath.includes('/signup') && !currentPath.includes('/login')) {
           window.location.href = '/signup';
         }
       } catch (error) {
