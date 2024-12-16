@@ -44,6 +44,9 @@ export function BasicInfoSection({
             onBlur={(e) => handleBlur('height', e.target.value)}
             placeholder={`Enter height in ${heightUnit}`}
           />
+          <p className="text-sm text-muted-foreground">
+            Current height: {formData.height} {heightUnit}
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="weight">Weight ({weightUnit})</Label>
