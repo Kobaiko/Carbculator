@@ -15,8 +15,8 @@ interface BasicInfoSectionProps {
 
 export function BasicInfoSection({
   formData,
-  heightUnit,
-  weightUnit,
+  heightUnit = 'cm',  // Provide default values
+  weightUnit = 'kg',  // Provide default values
   handleChange,
   handleBlur,
 }: BasicInfoSectionProps) {
@@ -34,23 +34,25 @@ export function BasicInfoSection({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="height">Height ({heightUnit})</Label>
+          <Label htmlFor="height">Height ({heightUnit || 'cm'})</Label>
           <Input
             id="height"
             type="number"
             value={formData.height}
             onChange={(e) => handleChange('height', e.target.value)}
             onBlur={(e) => handleBlur('height', e.target.value)}
+            placeholder={`Enter height in ${heightUnit || 'cm'}`}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="weight">Weight ({weightUnit})</Label>
+          <Label htmlFor="weight">Weight ({weightUnit || 'kg'})</Label>
           <Input
             id="weight"
             type="number"
             value={formData.weight}
             onChange={(e) => handleChange('weight', e.target.value)}
             onBlur={(e) => handleBlur('weight', e.target.value)}
+            placeholder={`Enter weight in ${weightUnit || 'kg'}`}
           />
         </div>
       </div>

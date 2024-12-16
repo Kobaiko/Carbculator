@@ -43,16 +43,15 @@ export function ProfileBasicInfo() {
   useEffect(() => {
     if (profile) {
       console.log('Setting form data from profile:', profile);
-      // Ensure we convert null/undefined values to empty strings
       setFormData({
         username: profile.username || '',
-        height: profile.height !== null && profile.height !== undefined ? profile.height.toString() : '',
-        weight: profile.weight !== null && profile.weight !== undefined ? profile.weight.toString() : '',
-        daily_calories: profile.daily_calories !== null && profile.daily_calories !== undefined ? profile.daily_calories.toString() : '',
-        daily_protein: profile.daily_protein !== null && profile.daily_protein !== undefined ? profile.daily_protein.toString() : '',
-        daily_carbs: profile.daily_carbs !== null && profile.daily_carbs !== undefined ? profile.daily_carbs.toString() : '',
-        daily_fats: profile.daily_fats !== null && profile.daily_fats !== undefined ? profile.daily_fats.toString() : '',
-        daily_water: profile.daily_water !== null && profile.daily_water !== undefined ? profile.daily_water.toString() : '',
+        height: profile.height?.toString() || '',
+        weight: profile.weight?.toString() || '',
+        daily_calories: profile.daily_calories?.toString() || '',
+        daily_protein: profile.daily_protein?.toString() || '',
+        daily_carbs: profile.daily_carbs?.toString() || '',
+        daily_fats: profile.daily_fats?.toString() || '',
+        daily_water: profile.daily_water?.toString() || '',
       });
     }
   }, [profile]);
@@ -66,8 +65,8 @@ export function ProfileBasicInfo() {
       // Convert empty strings to null for numeric fields
       const processedData = Object.entries(updateData).reduce((acc, [key, value]) => {
         const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
-        if (numericFields.includes(key) && value === '') {
-          acc[key] = null;
+        if (numericFields.includes(key)) {
+          acc[key] = value === '' ? null : parseFloat(value);
         } else {
           acc[key] = value;
         }
@@ -108,11 +107,7 @@ export function ProfileBasicInfo() {
 
   const handleBlur = (field: string, value: string) => {
     console.log('Handling blur:', field, value);
-    const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
-    const updateData = {
-      [field]: numericFields.includes(field) ? (value === '' ? null : parseFloat(value)) : value,
-    };
-    updateProfile.mutate(updateData);
+    updateProfile.mutate({ [field]: value });
   };
 
   if (isLoading) {
