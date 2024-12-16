@@ -10,6 +10,7 @@ import { Navigation } from "./components/Navigation";
 import { AddFoodButton } from "./components/AddFoodButton";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { useToast } from "./hooks/use-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,8 +24,18 @@ const queryClient = new QueryClient({
 const App = () => {
   const session = useSession();
   const [isSessionLoading, setIsSessionLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Sign out on initial load
+    supabase.auth.signOut().then(() => {
+      queryClient.clear(); // Clear all queries
+      toast({
+        title: "Signed out",
+        description: "You have been signed out. Please sign in again.",
+      });
+    });
+
     supabase.auth.getSession().then(() => {
       setIsSessionLoading(false);
     });
