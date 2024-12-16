@@ -39,7 +39,6 @@ export function ProfileBasicInfo() {
     enabled: !!session?.user?.id,
   });
 
-  // Update form data when profile is loaded
   useEffect(() => {
     if (profile) {
       console.log('Setting form data from profile:', profile);
@@ -66,7 +65,7 @@ export function ProfileBasicInfo() {
       const processedData = Object.entries(updateData).reduce((acc, [key, value]) => {
         const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
         if (numericFields.includes(key)) {
-          acc[key] = value === '' ? null : parseFloat(value);
+          acc[key] = value === '' ? null : Number(value);
         } else {
           acc[key] = value;
         }
@@ -82,9 +81,20 @@ export function ProfileBasicInfo() {
         .eq('id', session.user.id);
 
       if (error) throw error;
+
+      // Return the processed data for optimistic updates
+      return processedData;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Optimistically update the cache
+      queryClient.setQueryData(['profile'], (oldData: any) => ({
+        ...oldData,
+        ...data,
+      }));
+      
+      // Then invalidate to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
@@ -107,7 +117,11 @@ export function ProfileBasicInfo() {
 
   const handleBlur = (field: string, value: string) => {
     console.log('Handling blur:', field, value);
-    updateProfile.mutate({ [field]: value });
+    const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
+    const updateData = {
+      [field]: numericFields.includes(field) ? (value === '' ? null : Number(value)) : value,
+    };
+    updateProfile.mutate(updateData);
   };
 
   if (isLoading) {
