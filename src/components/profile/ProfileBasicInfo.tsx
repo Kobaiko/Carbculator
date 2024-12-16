@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
 
@@ -54,7 +54,7 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
         <Label htmlFor="username">Display Name</Label>
         <Input
           id="username"
-          defaultValue={profile?.username || ''}
+          value={profile?.username || ''}
           onChange={(e) => updateProfile.mutate({ username: e.target.value })}
         />
       </div>
@@ -65,7 +65,7 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
           <Input
             id="height"
             type="number"
-            defaultValue={profile?.height || ''}
+            value={profile?.height || ''}
             onChange={(e) => updateProfile.mutate({ height: parseFloat(e.target.value) })}
           />
         </div>
@@ -74,7 +74,7 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
           <Input
             id="weight"
             type="number"
-            defaultValue={profile?.weight || ''}
+            value={profile?.weight || ''}
             onChange={(e) => updateProfile.mutate({ weight: parseFloat(e.target.value) })}
           />
         </div>
