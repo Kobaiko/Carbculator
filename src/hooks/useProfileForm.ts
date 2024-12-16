@@ -14,19 +14,19 @@ export function useProfileForm(profile: any) {
   });
 
   useEffect(() => {
-    if (profile) {
-      console.log('Setting form data from profile:', profile);
-      setFormData({
-        username: profile.username || '',
-        height: profile.height !== null ? profile.height.toString() : '',
-        weight: profile.weight !== null ? profile.weight.toString() : '',
-        daily_calories: profile.daily_calories?.toString() || '',
-        daily_protein: profile.daily_protein?.toString() || '',
-        daily_carbs: profile.daily_carbs?.toString() || '',
-        daily_fats: profile.daily_fats?.toString() || '',
-        daily_water: profile.daily_water?.toString() || '',
-      });
-    }
+    if (!profile) return;
+
+    console.log('Setting form data from profile:', profile);
+    setFormData({
+      username: profile.username || '',
+      height: profile.height !== null ? profile.height.toString() : '',
+      weight: profile.weight !== null ? profile.weight.toString() : '',
+      daily_calories: profile.daily_calories?.toString() || '',
+      daily_protein: profile.daily_protein?.toString() || '',
+      daily_carbs: profile.daily_carbs?.toString() || '',
+      daily_fats: profile.daily_fats?.toString() || '',
+      daily_water: profile.daily_water?.toString() || '',
+    });
   }, [profile]);
 
   const handleChange = (field: string, value: string) => {
