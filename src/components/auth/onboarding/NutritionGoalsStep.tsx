@@ -41,10 +41,10 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
   }
 
   const initialGoals = {
-    dailyCalories: profile.daily_calories?.toString() || "",
-    dailyProtein: profile.daily_protein?.toString() || "",
-    dailyCarbs: profile.daily_carbs?.toString() || "",
-    dailyFats: profile.daily_fats?.toString() || "",
+    dailyCalories: profile.daily_calories.toString(),
+    dailyProtein: profile.daily_protein.toString(),
+    dailyCarbs: profile.daily_carbs.toString(),
+    dailyFats: profile.daily_fats.toString(),
   };
 
   return (

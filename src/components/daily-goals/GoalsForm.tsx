@@ -25,7 +25,6 @@ export function GoalsForm({ initialGoals, onSubmit, onCancel }: GoalsFormProps) 
 
   const handleChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-    console.log(`Updated ${name}:`, value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,10 +33,10 @@ export function GoalsForm({ initialGoals, onSubmit, onCancel }: GoalsFormProps) 
     try {
       // Convert form data to numbers and validate
       const goals = {
-        dailyCalories: parseInt(formData.dailyCalories || "0"),
-        dailyProtein: parseInt(formData.dailyProtein || "0"),
-        dailyCarbs: parseInt(formData.dailyCarbs || "0"),
-        dailyFats: parseInt(formData.dailyFats || "0"),
+        dailyCalories: parseInt(formData.dailyCalories),
+        dailyProtein: parseInt(formData.dailyProtein),
+        dailyCarbs: parseInt(formData.dailyCarbs),
+        dailyFats: parseInt(formData.dailyFats),
       };
 
       // Validate numbers
@@ -52,7 +51,6 @@ export function GoalsForm({ initialGoals, onSubmit, onCancel }: GoalsFormProps) 
         }
       }
 
-      console.log("Submitting goals:", goals);
       onSubmit(goals);
     } catch (error) {
       console.error("Error submitting goals:", error);
