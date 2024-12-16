@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useLocation } from "react-router-dom";
 import { useSession } from '@supabase/auth-helpers-react';
 import { AppHeader } from "./components/layout/AppHeader";
 import { AppRoutes } from "./components/routing/AppRoutes";
@@ -21,10 +21,13 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => {
+// Helper component to handle auth checks
+const AuthCheck = () => {
   const session = useSession();
   const [isSessionLoading, setIsSessionLoading] = useState(true);
   const { toast } = useToast();
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/onboarding';
 
   // Handle session loading state and check for deleted user
   useEffect(() => {
@@ -37,8 +40,10 @@ const App = () => {
           queryClient.clear();
           // Sign out
           await supabase.auth.signOut();
-          // Redirect to signup
-          window.location.href = '/signup';
+          if (!isAuthPage) {
+            // Only redirect if we're not already on an auth page
+            window.location.href = '/signup';
+          }
           return;
         }
 
@@ -53,12 +58,15 @@ const App = () => {
           // User exists in auth but not in profiles - likely deleted
           queryClient.clear();
           await supabase.auth.signOut();
-          window.location.href = '/signup';
-          toast({
-            title: "Account not found",
-            description: "Please sign up to continue.",
-            variant: "destructive",
-          });
+          if (!isAuthPage) {
+            // Only redirect if we're not already on an auth page
+            window.location.href = '/signup';
+            toast({
+              title: "Account not found",
+              description: "Please sign up to continue.",
+              variant: "destructive",
+            });
+          }
           return;
         }
       } catch (error) {
@@ -73,7 +81,7 @@ const App = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [toast]);
+  }, [toast, isAuthPage]);
 
   if (isSessionLoading) {
     return (
@@ -84,20 +92,28 @@ const App = () => {
   }
 
   return (
+    <>
+      {session && (
+        <>
+          <AppHeader />
+          <Navigation />
+          <AddFoodButton />
+        </>
+      )}
+      <AppRoutes />
+    </>
+  );
+};
+
+const App = () => {
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <div className="min-h-screen">
-            {session && (
-              <>
-                <AppHeader />
-                <Navigation />
-                <AddFoodButton />
-              </>
-            )}
-            <AppRoutes />
+            <AuthCheck />
           </div>
         </BrowserRouter>
       </TooltipProvider>
