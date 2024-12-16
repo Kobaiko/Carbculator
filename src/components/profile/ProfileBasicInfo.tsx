@@ -1,27 +1,53 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
+import { useState } from "react";
 
-type ProfileBasicInfoProps = {
-  profile: {
-    username?: string | null;
-    height?: number | null;
-    weight?: number | null;
-    height_unit?: string;
-    weight_unit?: string;
-  } | null;
-};
-
-export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
+export function ProfileBasicInfo() {
   const session = useSession();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    username: '',
+    height: '',
+    weight: '',
+  });
+
+  // Fetch profile data
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      if (!session?.user?.id) throw new Error('No user found');
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username, height, weight, height_unit, weight_unit')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) throw error;
+
+      // Update form data when profile is loaded
+      setFormData({
+        username: data.username || '',
+        height: data.height?.toString() || '',
+        weight: data.weight?.toString() || '',
+      });
+
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
 
   const updateProfile = useMutation({
-    mutationFn: async (formData: Partial<typeof profile>) => {
+    mutationFn: async (formData: {
+      username?: string;
+      height?: number;
+      weight?: number;
+    }) => {
       if (!session?.user?.id) throw new Error('No user found');
 
       const { error } = await supabase
@@ -48,14 +74,27 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
     },
   });
 
+  const handleChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleBlur = (field: string, value: string) => {
+    if (field === 'height' || field === 'weight') {
+      updateProfile.mutate({ [field]: parseFloat(value) || 0 });
+    } else {
+      updateProfile.mutate({ [field]: value });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="username">Display Name</Label>
         <Input
           id="username"
-          value={profile?.username || ''}
-          onChange={(e) => updateProfile.mutate({ username: e.target.value })}
+          value={formData.username}
+          onChange={(e) => handleChange('username', e.target.value)}
+          onBlur={(e) => handleBlur('username', e.target.value)}
         />
       </div>
 
@@ -65,8 +104,9 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
           <Input
             id="height"
             type="number"
-            value={profile?.height || ''}
-            onChange={(e) => updateProfile.mutate({ height: parseFloat(e.target.value) })}
+            value={formData.height}
+            onChange={(e) => handleChange('height', e.target.value)}
+            onBlur={(e) => handleBlur('height', e.target.value)}
           />
         </div>
         <div className="space-y-2">
@@ -74,8 +114,9 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
           <Input
             id="weight"
             type="number"
-            value={profile?.weight || ''}
-            onChange={(e) => updateProfile.mutate({ weight: parseFloat(e.target.value) })}
+            value={formData.weight}
+            onChange={(e) => handleChange('weight', e.target.value)}
+            onBlur={(e) => handleBlur('weight', e.target.value)}
           />
         </div>
       </div>
