@@ -46,6 +46,7 @@ export function useProfileData() {
       const processedData = Object.entries(updateData).reduce((acc, [key, value]) => {
         const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
         if (numericFields.includes(key)) {
+          // Convert empty strings to null, otherwise parse as float for decimal support
           acc[key] = value === '' ? null : parseFloat(value);
         } else {
           acc[key] = value;

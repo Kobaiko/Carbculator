@@ -39,7 +39,7 @@ export function BasicInfoSection({
             id="height"
             type="number"
             step="0.01"
-            value={formData.height || ''}
+            value={formData.height}
             onChange={(e) => handleChange('height', e.target.value)}
             onBlur={(e) => handleBlur('height', e.target.value)}
             placeholder={`Enter height in ${heightUnit}`}
@@ -51,7 +51,7 @@ export function BasicInfoSection({
             id="weight"
             type="number"
             step="0.01"
-            value={formData.weight || ''}
+            value={formData.weight}
             onChange={(e) => handleChange('weight', e.target.value)}
             onBlur={(e) => handleBlur('weight', e.target.value)}
             placeholder={`Enter weight in ${weightUnit}`}
