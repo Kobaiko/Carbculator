@@ -8,7 +8,7 @@ import { AppHeader } from "./components/layout/AppHeader";
 import { AppRoutes } from "./components/routing/AppRoutes";
 import { Navigation } from "./components/Navigation";
 import { AddFoodButton } from "./components/AddFoodButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,13 +23,22 @@ const App = () => {
   const session = useSession();
   const [isSessionLoading, setIsSessionLoading] = useState(true);
 
-  // Remove session loading after initial render
-  useState(() => {
-    setIsSessionLoading(false);
-  });
+  // Handle session loading state
+  useEffect(() => {
+    // Give Supabase a moment to restore the session
+    const timer = setTimeout(() => {
+      setIsSessionLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   if (isSessionLoading) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
