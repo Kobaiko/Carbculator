@@ -63,6 +63,8 @@ export const OnboardingPage = () => {
   }) => {
     try {
       setIsLoading(true);
+      console.log("Saving nutrition goals:", data);
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -76,11 +78,13 @@ export const OnboardingPage = () => {
           daily_protein: data.dailyProtein,
           daily_carbs: data.dailyCarbs,
           daily_fats: data.dailyFats,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 
       if (error) throw error;
 
+      console.log("Nutrition goals saved successfully");
       setCurrentStep("first-meal");
     } catch (error) {
       console.error("Error:", error);
