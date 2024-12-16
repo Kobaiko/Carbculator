@@ -40,10 +40,14 @@ const useDailyInsights = () => {
     queryKey: ["daily-insights", new Date().toDateString()], // Changes only once per day
     queryFn: async () => {
       try {
+        if (!session?.access_token) {
+          throw new Error('No access token available');
+        }
+
         const { data, error } = await supabase.functions.invoke('generate-insights', {
           body: { type: "general" },
           headers: {
-            Authorization: `Bearer ${session?.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
         });
 
@@ -62,6 +66,7 @@ const useDailyInsights = () => {
     enabled: !!session?.access_token,
     staleTime: 24 * 60 * 60 * 1000, // Consider data fresh for 24 hours
     gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
+    retry: 1, // Only retry once
   });
 };
 
@@ -162,6 +167,6 @@ const Index = () => {
       <AddFoodButton />
     </div>
   );
-}
+};
 
 export default Index;
