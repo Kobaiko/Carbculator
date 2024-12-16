@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, useNavigate } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { useSession } from '@supabase/auth-helpers-react';
 import { AppHeader } from "./components/layout/AppHeader";
 import { AppRoutes } from "./components/routing/AppRoutes";
@@ -27,22 +27,26 @@ const App = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const handleLogout = async () => {
+    const checkSession = async () => {
       try {
-        await supabase.auth.signOut();
-        queryClient.clear();
-        window.location.href = '/signup';
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        
+        if (!currentSession) {
+          window.location.href = '/signup';
+        }
       } catch (error) {
-        console.error('Logout error:', error);
+        console.error('Session check error:', error);
         toast({
           title: "Error",
-          description: "There was an error logging out. Please try again.",
+          description: "There was an error checking your session. Please try again.",
           variant: "destructive",
         });
+      } finally {
+        setIsSessionLoading(false);
       }
     };
 
-    handleLogout();
+    checkSession();
   }, []); // Run once on component mount
 
   if (isSessionLoading) {
