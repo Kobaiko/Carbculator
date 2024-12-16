@@ -14,12 +14,14 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Auth header present:', !!req.headers.get('Authorization'));
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
     }
 
     const token = authHeader.replace('Bearer ', '');
+    console.log('Token:', 'Present');
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -32,15 +34,16 @@ serve(async (req) => {
       }
     );
 
-    // Verify the token and get user
+    // Get user from token
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !user) {
-      throw new Error('Unauthorized');
+      console.error('User authentication error:', userError);
+      throw new Error('User authentication failed');
     }
 
     // Get or create profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .upsert([{
         id: user.id,
@@ -57,6 +60,11 @@ serve(async (req) => {
       })
       .select()
       .single();
+
+    if (profileError) {
+      console.error('Profile error:', profileError);
+      throw profileError;
+    }
 
     const dataSummary = {
       goals: {
@@ -100,7 +108,8 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${await response.text()}`);
+      console.error('OpenAI API error:', await response.text());
+      throw new Error('OpenAI API error');
     }
 
     const aiData = await response.json();
@@ -126,7 +135,7 @@ serve(async (req) => {
         details: error instanceof Error ? error.stack : undefined
       }), 
       {
-        status: error.message === 'Unauthorized' ? 401 : 500,
+        status: error.message === 'No authorization header' ? 401 : 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
