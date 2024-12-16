@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface NutritionGoalsStepProps {
   onBack: () => void;
@@ -16,15 +17,14 @@ interface NutritionGoalsStepProps {
 }
 
 export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) {
-  // Local state for form data
-  const [localGoals, setLocalGoals] = useState({
-    dailyCalories: 2000,
-    dailyProtein: 150,
-    dailyCarbs: 250,
-    dailyFats: 70,
-  });
+  const [goals, setGoals] = useState<null | {
+    dailyCalories: number;
+    dailyProtein: number;
+    dailyCarbs: number;
+    dailyFats: number;
+  }>(null);
 
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile, isLoading, error } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -32,7 +32,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("daily_calories, daily_protein, daily_carbs, daily_fats")
         .eq("id", user.id)
         .single();
 
@@ -41,33 +41,62 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
     },
   });
 
-  // Update local goals when profile is loaded
+  // Set goals only when profile data is loaded
   useEffect(() => {
     if (profile) {
-      setLocalGoals({
-        dailyCalories: profile.daily_calories || 2000,
-        dailyProtein: profile.daily_protein || 150,
-        dailyCarbs: profile.daily_carbs || 250,
-        dailyFats: profile.daily_fats || 70,
+      setGoals({
+        dailyCalories: profile.daily_calories,
+        dailyProtein: profile.daily_protein,
+        dailyCarbs: profile.daily_carbs,
+        dailyFats: profile.daily_fats,
       });
-      console.log("Loaded profile goals:", profile);
+      console.log("Profile data loaded:", profile);
     }
   }, [profile]);
 
   const handleChange = (name: string, value: string) => {
+    if (!goals) return;
+    
     const numericValue = parseInt(value) || 0;
-    setLocalGoals(prev => ({ ...prev, [name]: numericValue }));
-    console.log("Updated local goals:", name, numericValue);
+    setGoals(prev => prev ? { ...prev, [name]: numericValue } : null);
+    console.log("Updated goals:", name, numericValue);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting goals:", localGoals);
-    onNext(localGoals);
+    if (!goals) return;
+    
+    console.log("Submitting goals:", goals);
+    onNext(goals);
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (error) {
+    return (
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-semibold text-destructive">Error Loading Profile</h1>
+        <p className="text-muted-foreground">Failed to load your profile data. Please try again.</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (isLoading || !goals) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <Skeleton className="h-8 w-48 mx-auto" />
+          <Skeleton className="h-4 w-64 mx-auto" />
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -85,7 +114,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="calories"
             type="number"
-            value={localGoals.dailyCalories}
+            value={goals.dailyCalories}
             onChange={(e) => handleChange("dailyCalories", e.target.value)}
             required
           />
@@ -96,7 +125,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="protein"
             type="number"
-            value={localGoals.dailyProtein}
+            value={goals.dailyProtein}
             onChange={(e) => handleChange("dailyProtein", e.target.value)}
             required
           />
@@ -107,7 +136,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="carbs"
             type="number"
-            value={localGoals.dailyCarbs}
+            value={goals.dailyCarbs}
             onChange={(e) => handleChange("dailyCarbs", e.target.value)}
             required
           />
@@ -118,7 +147,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
           <Input
             id="fats"
             type="number"
-            value={localGoals.dailyFats}
+            value={goals.dailyFats}
             onChange={(e) => handleChange("dailyFats", e.target.value)}
             required
           />
