@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useNavigate } from "react-router-dom";
 import { useSession } from '@supabase/auth-helpers-react';
 import { AppHeader } from "./components/layout/AppHeader";
 import { AppRoutes } from "./components/routing/AppRoutes";
@@ -27,61 +27,23 @@ const App = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const initializeSession = async () => {
+    const handleLogout = async () => {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        
-        if (currentSession) {
-          // Clear any existing data
-          queryClient.clear();
-          
-          // Create profile if it doesn't exist
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .upsert([{ 
-              id: currentSession.user.id,
-              daily_calories: 2000,
-              daily_protein: 150,
-              daily_carbs: 250,
-              daily_fats: 70,
-              daily_water: 2000,
-              height_unit: 'cm',
-              weight_unit: 'kg',
-              updated_at: new Date().toISOString(),
-            }], {
-              onConflict: 'id'
-            });
-
-          if (insertError) {
-            console.error('Error creating/updating profile:', insertError);
-            await supabase.auth.signOut();
-            queryClient.clear();
-            toast({
-              title: "Error",
-              description: "There was an error setting up your profile. Please try signing in again.",
-              variant: "destructive",
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Session error:', error);
         await supabase.auth.signOut();
         queryClient.clear();
-      } finally {
-        setIsSessionLoading(false);
+        window.location.href = '/signup';
+      } catch (error) {
+        console.error('Logout error:', error);
+        toast({
+          title: "Error",
+          description: "There was an error logging out. Please try again.",
+          variant: "destructive",
+        });
       }
     };
 
-    initializeSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      queryClient.invalidateQueries();
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    handleLogout();
+  }, []); // Run once on component mount
 
   if (isSessionLoading) {
     return null;
