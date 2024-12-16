@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function ProfileBasicInfo() {
   const session = useSession();
@@ -14,6 +14,11 @@ export function ProfileBasicInfo() {
     username: '',
     height: '',
     weight: '',
+    daily_calories: '',
+    daily_protein: '',
+    daily_carbs: '',
+    daily_fats: '',
+    daily_water: '',
   });
 
   // Fetch profile data
@@ -24,29 +29,42 @@ export function ProfileBasicInfo() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('username, height, weight, height_unit, weight_unit')
+        .select('username, height, weight, height_unit, weight_unit, daily_calories, daily_protein, daily_carbs, daily_fats, daily_water')
         .eq('id', session.user.id)
         .single();
 
       if (error) throw error;
-
-      // Update form data when profile is loaded
-      setFormData({
-        username: data.username || '',
-        height: data.height?.toString() || '',
-        weight: data.weight?.toString() || '',
-      });
-
       return data;
     },
     enabled: !!session?.user?.id,
   });
+
+  // Update form data when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        username: profile.username || '',
+        height: profile.height?.toString() || '',
+        weight: profile.weight?.toString() || '',
+        daily_calories: profile.daily_calories?.toString() || '',
+        daily_protein: profile.daily_protein?.toString() || '',
+        daily_carbs: profile.daily_carbs?.toString() || '',
+        daily_fats: profile.daily_fats?.toString() || '',
+        daily_water: profile.daily_water?.toString() || '',
+      });
+    }
+  }, [profile]);
 
   const updateProfile = useMutation({
     mutationFn: async (formData: {
       username?: string;
       height?: number;
       weight?: number;
+      daily_calories?: number;
+      daily_protein?: number;
+      daily_carbs?: number;
+      daily_fats?: number;
+      daily_water?: number;
     }) => {
       if (!session?.user?.id) throw new Error('No user found');
 
@@ -79,7 +97,8 @@ export function ProfileBasicInfo() {
   };
 
   const handleBlur = (field: string, value: string) => {
-    if (field === 'height' || field === 'weight') {
+    const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
+    if (numericFields.includes(field)) {
       updateProfile.mutate({ [field]: parseFloat(value) || 0 });
     } else {
       updateProfile.mutate({ [field]: value });
@@ -87,7 +106,7 @@ export function ProfileBasicInfo() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="username">Display Name</Label>
         <Input
@@ -118,6 +137,62 @@ export function ProfileBasicInfo() {
             onChange={(e) => handleChange('weight', e.target.value)}
             onBlur={(e) => handleBlur('weight', e.target.value)}
           />
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Daily Goals</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="daily_calories">Daily Calories (kcal)</Label>
+            <Input
+              id="daily_calories"
+              type="number"
+              value={formData.daily_calories}
+              onChange={(e) => handleChange('daily_calories', e.target.value)}
+              onBlur={(e) => handleBlur('daily_calories', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="daily_protein">Daily Protein (g)</Label>
+            <Input
+              id="daily_protein"
+              type="number"
+              value={formData.daily_protein}
+              onChange={(e) => handleChange('daily_protein', e.target.value)}
+              onBlur={(e) => handleBlur('daily_protein', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="daily_carbs">Daily Carbs (g)</Label>
+            <Input
+              id="daily_carbs"
+              type="number"
+              value={formData.daily_carbs}
+              onChange={(e) => handleChange('daily_carbs', e.target.value)}
+              onBlur={(e) => handleBlur('daily_carbs', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="daily_fats">Daily Fats (g)</Label>
+            <Input
+              id="daily_fats"
+              type="number"
+              value={formData.daily_fats}
+              onChange={(e) => handleChange('daily_fats', e.target.value)}
+              onBlur={(e) => handleBlur('daily_fats', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="daily_water">Daily Water (ml)</Label>
+            <Input
+              id="daily_water"
+              type="number"
+              value={formData.daily_water}
+              onChange={(e) => handleChange('daily_water', e.target.value)}
+              onBlur={(e) => handleBlur('daily_water', e.target.value)}
+            />
+          </div>
         </div>
       </div>
     </div>
