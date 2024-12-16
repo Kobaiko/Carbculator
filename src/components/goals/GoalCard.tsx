@@ -1,5 +1,6 @@
 import { Goal } from "@/types/goals.types";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 
 interface GoalCardProps extends Goal {
   isEditing: boolean;
@@ -43,12 +44,7 @@ export function GoalCard({
         </div>
       </div>
 
-      <div className="h-2 bg-secondary rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary transition-all duration-500"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+      <Progress value={progress} className="h-2" />
 
       {isEditing && onEdit && (
         <Input

@@ -64,7 +64,7 @@ export default function DailyGoals() {
     },
   });
 
-  if (isLoading) {
+  if (isLoading || !profile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-background">
         <Navigation />
@@ -76,8 +76,6 @@ export default function DailyGoals() {
       </div>
     );
   }
-
-  if (!profile) return null;
 
   // Calculate today's totals
   const dailyTotals = todaysMeals.reduce(
