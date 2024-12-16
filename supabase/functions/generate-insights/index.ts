@@ -53,21 +53,8 @@ serve(async (req) => {
 
     if (profileError) {
       console.error('Error fetching profile:', profileError);
-      // Create a new profile if one doesn't exist
-      const { error: insertError } = await supabase
-        .from('profiles')
-        .insert([{ 
-          id: user.id,
-          daily_calories: 2000,
-          daily_protein: 150,
-          daily_carbs: 250,
-          daily_fats: 70,
-          daily_water: 2000
-        }]);
-
-      if (insertError) {
-        console.error('Error creating profile:', insertError);
-      }
+      // Use default values if profile not found
+      console.log('Using default values for missing profile');
     }
 
     // Use profile data if available, otherwise use defaults
