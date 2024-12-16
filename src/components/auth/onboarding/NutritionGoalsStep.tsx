@@ -12,10 +12,11 @@ interface NutritionGoalsStepProps {
     dailyCarbs: number;
     dailyFats: number;
   }) => void;
+  isLoading?: boolean;
 }
 
-export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) {
-  const { data: profile, isLoading, error, refetch } = useQuery({
+export function NutritionGoalsStep({ onBack, onNext, isLoading }: NutritionGoalsStepProps) {
+  const { data: profile, isLoading: isLoadingProfile, error, refetch } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -36,15 +37,15 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
     return <ErrorState onRetry={() => refetch()} />;
   }
 
-  if (isLoading || !profile) {
+  if (isLoadingProfile || !profile) {
     return <LoadingState />;
   }
 
   const initialGoals = {
-    dailyCalories: profile.daily_calories.toString(),
-    dailyProtein: profile.daily_protein.toString(),
-    dailyCarbs: profile.daily_carbs.toString(),
-    dailyFats: profile.daily_fats.toString(),
+    dailyCalories: profile.daily_calories?.toString() || "2000",
+    dailyProtein: profile.daily_protein?.toString() || "150",
+    dailyCarbs: profile.daily_carbs?.toString() || "250",
+    dailyFats: profile.daily_fats?.toString() || "70",
   };
 
   return (
@@ -60,6 +61,7 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
         initialGoals={initialGoals}
         onSubmit={onNext}
         onCancel={onBack}
+        isLoading={isLoading}
       />
     </div>
   );

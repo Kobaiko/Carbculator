@@ -18,9 +18,10 @@ interface BasicInfoStepProps {
     heightUnit: string;
     weightUnit: string;
   }) => void;
+  isLoading?: boolean;
 }
 
-export function BasicInfoStep({ onNext }: BasicInfoStepProps) {
+export function BasicInfoStep({ onNext, isLoading }: BasicInfoStepProps) {
   const [formData, setFormData] = useState({
     username: "",
     height: "",
@@ -109,7 +110,9 @@ export function BasicInfoStep({ onNext }: BasicInfoStepProps) {
         </div>
       </div>
 
-      <Button type="submit" className="w-full">Next</Button>
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? "Saving..." : "Next"}
+      </Button>
     </form>
   );
 }

@@ -17,9 +17,10 @@ interface GoalsFormProps {
     dailyFats: number;
   }) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
-export function GoalsForm({ initialGoals, onSubmit, onCancel }: GoalsFormProps) {
+export function GoalsForm({ initialGoals, onSubmit, onCancel, isLoading }: GoalsFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState(initialGoals);
 
@@ -95,11 +96,21 @@ export function GoalsForm({ initialGoals, onSubmit, onCancel }: GoalsFormProps) 
       </div>
 
       <div className="flex gap-4">
-        <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-          Cancel
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel} 
+          className="flex-1"
+          disabled={isLoading}
+        >
+          Back
         </Button>
-        <Button type="submit" className="flex-1">
-          Save Goals
+        <Button 
+          type="submit" 
+          className="flex-1"
+          disabled={isLoading}
+        >
+          {isLoading ? "Saving..." : "Save Goals"}
         </Button>
       </div>
     </form>
