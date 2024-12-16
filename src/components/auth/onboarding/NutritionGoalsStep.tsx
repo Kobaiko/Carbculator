@@ -34,30 +34,33 @@ export function NutritionGoalsStep({ onBack, onNext }: NutritionGoalsStepProps) 
   });
 
   const [formData, setFormData] = useState({
-    dailyCalories: 2000,
-    dailyProtein: 150,
-    dailyCarbs: 250,
-    dailyFats: 70,
+    dailyCalories: 0,
+    dailyProtein: 0,
+    dailyCarbs: 0,
+    dailyFats: 0,
   });
 
   // Update form data when profile is loaded
   useEffect(() => {
     if (profile) {
       setFormData({
-        dailyCalories: profile.daily_calories,
-        dailyProtein: profile.daily_protein,
-        dailyCarbs: profile.daily_carbs,
-        dailyFats: profile.daily_fats,
+        dailyCalories: profile.daily_calories || 2000,
+        dailyProtein: profile.daily_protein || 150,
+        dailyCarbs: profile.daily_carbs || 250,
+        dailyFats: profile.daily_fats || 70,
       });
     }
   }, [profile]);
 
   const handleChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
+    const numericValue = parseInt(value) || 0;
+    setFormData((prev) => ({ ...prev, [name]: numericValue }));
+    console.log("Editing field:", name, "with value:", numericValue);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Saving goals:", formData);
     onNext(formData);
   };
 
