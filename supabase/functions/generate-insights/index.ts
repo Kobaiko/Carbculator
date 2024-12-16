@@ -29,6 +29,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Verify the token and get user
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError) {
@@ -43,7 +44,7 @@ serve(async (req) => {
 
     console.log('User authenticated:', user.id);
 
-    // Fetch user's profile for goals
+    // Try to fetch user's profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
@@ -52,11 +53,24 @@ serve(async (req) => {
 
     if (profileError) {
       console.error('Error fetching profile:', profileError);
-      // Don't throw here, use default values instead
-      console.log('Using default values for missing profile');
+      // Create a new profile if one doesn't exist
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert([{ 
+          id: user.id,
+          daily_calories: 2000,
+          daily_protein: 150,
+          daily_carbs: 250,
+          daily_fats: 70,
+          daily_water: 2000
+        }]);
+
+      if (insertError) {
+        console.error('Error creating profile:', insertError);
+      }
     }
 
-    // Prepare data summary for OpenAI, using defaults if profile is missing
+    // Use profile data if available, otherwise use defaults
     const dataSummary = {
       goals: {
         calories: profile?.daily_calories || 2000,
