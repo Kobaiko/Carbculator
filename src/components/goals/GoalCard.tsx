@@ -32,7 +32,7 @@ export function GoalCard({
           <div>
             <h3 className="font-semibold">{title}</h3>
             <p className="text-sm text-muted-foreground">
-              Daily Target: {target}
+              Daily Target: {isEditing ? editedValue : target}
             </p>
           </div>
         </div>
@@ -48,9 +48,10 @@ export function GoalCard({
         <Input
           type="number"
           min="0"
-          value={editedValue || 0}
+          value={editedValue}
           onChange={(e) => onEdit(e.target.value)}
           className="mt-2"
+          placeholder={`Enter ${title.toLowerCase()} goal`}
         />
       )}
     </div>

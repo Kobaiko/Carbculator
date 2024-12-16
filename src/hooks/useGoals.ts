@@ -34,7 +34,13 @@ export function useGoals() {
 
       const { error } = await supabase
         .from("profiles")
-        .update(newGoals)
+        .update({
+          daily_calories: newGoals.daily_calories,
+          daily_protein: newGoals.daily_protein,
+          daily_carbs: newGoals.daily_carbs,
+          daily_fats: newGoals.daily_fats,
+          daily_water: newGoals.daily_water,
+        })
         .eq("id", user.id);
 
       if (error) throw error;
@@ -59,7 +65,13 @@ export function useGoals() {
 
   const handleEdit = () => {
     if (profile) {
-      setEditedGoals(profile);
+      setEditedGoals({
+        daily_calories: profile.daily_calories,
+        daily_protein: profile.daily_protein,
+        daily_carbs: profile.daily_carbs,
+        daily_fats: profile.daily_fats,
+        daily_water: profile.daily_water,
+      });
       setIsEditing(true);
     }
   };
