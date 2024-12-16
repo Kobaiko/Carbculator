@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,48 @@ export const OnboardingPage = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("basic-info");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check if user is authenticated and profile exists
+  useEffect(() => {
+    const checkProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/login');
+          return;
+        }
+
+        // Check if profile exists
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
+
+        // If no profile exists, create one
+        if (!profile) {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([{ id: user.id }]);
+
+          if (insertError) throw insertError;
+        }
+      } catch (error) {
+        console.error('Error checking profile:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "There was an error loading your profile. Please try again.",
+        });
+      }
+    };
+
+    checkProfile();
+  }, [navigate, toast]);
 
   const handleBasicInfoSubmit = async (data: {
     username: string;
@@ -37,6 +79,7 @@ export const OnboardingPage = () => {
           weight: parseFloat(data.weight),
           height_unit: data.heightUnit,
           weight_unit: data.weightUnit,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 
@@ -63,8 +106,6 @@ export const OnboardingPage = () => {
   }) => {
     try {
       setIsLoading(true);
-      console.log("Saving nutrition goals:", data);
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -84,7 +125,6 @@ export const OnboardingPage = () => {
 
       if (error) throw error;
 
-      console.log("Nutrition goals saved successfully");
       setCurrentStep("first-meal");
     } catch (error) {
       console.error("Error:", error);
@@ -110,12 +150,13 @@ export const OnboardingPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-md space-y-8 px-4 py-8">
         {currentStep === "basic-info" && (
-          <BasicInfoStep onNext={handleBasicInfoSubmit} />
+          <BasicInfoStep onNext={handleBasicInfoSubmit} isLoading={isLoading} />
         )}
         {currentStep === "nutrition-goals" && (
           <NutritionGoalsStep
             onBack={() => setCurrentStep("basic-info")}
             onNext={handleNutritionGoalsSubmit}
+            isLoading={isLoading}
           />
         )}
         {currentStep === "first-meal" && (
@@ -127,4 +168,4 @@ export const OnboardingPage = () => {
       </div>
     </div>
   );
-}
+};
