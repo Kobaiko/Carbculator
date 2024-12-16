@@ -12,10 +12,12 @@ export default function Profile() {
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
+      if (!session?.user?.id) throw new Error('No user found');
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', session?.user?.id)
+        .eq('id', session.user.id)
         .single();
       
       if (error) throw error;
@@ -28,6 +30,14 @@ export default function Profile() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Profile not found</p>
       </div>
     );
   }

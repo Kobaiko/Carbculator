@@ -4,6 +4,9 @@ import { Dumbbell, Flame, Wheat, Droplets, GlassWater } from "lucide-react";
 import { useGoals } from "@/hooks/useGoals";
 import { GoalCard } from "@/components/goals/GoalCard";
 import { Goal } from "@/types/goals.types";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { startOfDay, endOfDay } from "date-fns";
 
 export default function DailyGoals() {
   const {
@@ -16,6 +19,50 @@ export default function DailyGoals() {
     handleCancel,
     handleChange,
   } = useGoals();
+
+  // Fetch today's meals
+  const { data: todaysMeals = [] } = useQuery({
+    queryKey: ["todaysMeals"],
+    queryFn: async () => {
+      const today = startOfDay(new Date());
+      const tomorrow = endOfDay(new Date());
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("food_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("created_at", today.toISOString())
+        .lte("created_at", tomorrow.toISOString());
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Fetch today's water entries
+  const { data: waterEntries = [] } = useQuery({
+    queryKey: ["waterEntries"],
+    queryFn: async () => {
+      const today = startOfDay(new Date());
+      const tomorrow = endOfDay(new Date());
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("water_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("created_at", today.toISOString())
+        .lte("created_at", tomorrow.toISOString());
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   if (isLoading) {
     return (
@@ -32,10 +79,23 @@ export default function DailyGoals() {
 
   if (!profile) return null;
 
+  // Calculate today's totals
+  const dailyTotals = todaysMeals.reduce(
+    (acc, meal) => ({
+      calories: acc.calories + meal.calories,
+      protein: acc.protein + Number(meal.protein),
+      carbs: acc.carbs + Number(meal.carbs),
+      fats: acc.fats + Number(meal.fats),
+    }),
+    { calories: 0, protein: 0, carbs: 0, fats: 0 }
+  );
+
+  const waterTotal = waterEntries.reduce((sum, entry) => sum + entry.amount, 0);
+
   const goals: Goal[] = [
     {
       title: "Calories",
-      current: 0,
+      current: dailyTotals.calories,
       target: profile.daily_calories,
       icon: Flame,
       iconColor: "text-orange-500",
@@ -44,7 +104,7 @@ export default function DailyGoals() {
     },
     {
       title: "Protein",
-      current: 0,
+      current: dailyTotals.protein,
       target: profile.daily_protein,
       icon: Dumbbell,
       iconColor: "text-blue-500",
@@ -53,7 +113,7 @@ export default function DailyGoals() {
     },
     {
       title: "Carbs",
-      current: 0,
+      current: dailyTotals.carbs,
       target: profile.daily_carbs,
       icon: Wheat,
       iconColor: "text-amber-500",
@@ -62,7 +122,7 @@ export default function DailyGoals() {
     },
     {
       title: "Fats",
-      current: 0,
+      current: dailyTotals.fats,
       target: profile.daily_fats,
       icon: Droplets,
       iconColor: "text-green-500",
@@ -71,7 +131,7 @@ export default function DailyGoals() {
     },
     {
       title: "Water",
-      current: 0,
+      current: waterTotal,
       target: profile.daily_water,
       icon: GlassWater,
       iconColor: "text-blue-500",
