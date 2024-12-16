@@ -33,7 +33,7 @@ export function ProfileBasicInfo() {
         .single();
       
       if (error) throw error;
-      console.log('Profile data fetched:', data); // Debug log
+      console.log('Profile data fetched:', data);
       return data;
     },
     enabled: !!session?.user?.id,
@@ -42,11 +42,12 @@ export function ProfileBasicInfo() {
   // Update form data when profile is loaded
   useEffect(() => {
     if (profile) {
-      console.log('Setting form data from profile:', profile); // Debug log
+      console.log('Setting form data from profile:', profile);
+      // Ensure we convert null values to empty strings
       setFormData({
         username: profile.username || '',
-        height: profile.height?.toString() || '',
-        weight: profile.weight?.toString() || '',
+        height: profile.height !== null ? profile.height.toString() : '',
+        weight: profile.weight !== null ? profile.weight.toString() : '',
         daily_calories: profile.daily_calories?.toString() || '',
         daily_protein: profile.daily_protein?.toString() || '',
         daily_carbs: profile.daily_carbs?.toString() || '',
@@ -57,14 +58,28 @@ export function ProfileBasicInfo() {
   }, [profile]);
 
   const updateProfile = useMutation({
-    mutationFn: async (updateData: Record<string, string | number>) => {
+    mutationFn: async (updateData: Record<string, any>) => {
       if (!session?.user?.id) throw new Error('No user found');
 
-      console.log('Updating profile with:', updateData); // Debug log
+      console.log('Updating profile with:', updateData);
+
+      // Convert empty strings to null for numeric fields
+      const processedData = Object.entries(updateData).reduce((acc, [key, value]) => {
+        const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
+        if (numericFields.includes(key) && value === '') {
+          acc[key] = null;
+        } else {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as Record<string, any>);
 
       const { error } = await supabase
         .from('profiles')
-        .update(updateData)
+        .update({
+          ...processedData,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', session.user.id);
 
       if (error) throw error;
@@ -87,16 +102,15 @@ export function ProfileBasicInfo() {
   });
 
   const handleChange = (field: string, value: string) => {
-    console.log('Handling change:', field, value); // Debug log
+    console.log('Handling change:', field, value);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleBlur = (field: string, value: string) => {
-    console.log('Handling blur:', field, value); // Debug log
+    console.log('Handling blur:', field, value);
     const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
     const updateData = {
-      [field]: numericFields.includes(field) ? parseFloat(value) || 0 : value,
-      updated_at: new Date().toISOString(), // Add updated_at timestamp
+      [field]: numericFields.includes(field) ? (value === '' ? null : parseFloat(value)) : value,
     };
     updateProfile.mutate(updateData);
   };
