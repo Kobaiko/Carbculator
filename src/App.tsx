@@ -27,28 +27,28 @@ const App = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkSession = async () => {
+    const handleSignOut = async () => {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
         
-        // Only redirect if we're not already on signup or login pages
-        const currentPath = window.location.pathname;
-        if (!currentSession && !currentPath.includes('/signup') && !currentPath.includes('/login')) {
-          window.location.href = '/signup';
-        }
+        // Clear query client cache
+        queryClient.clear();
+        
+        // Redirect to signup page
+        window.location.href = '/signup';
       } catch (error) {
-        console.error('Session check error:', error);
+        console.error('Error signing out:', error);
         toast({
           title: "Error",
-          description: "There was an error checking your session. Please try again.",
+          description: "There was an error signing out. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setIsSessionLoading(false);
       }
     };
 
-    checkSession();
+    // Immediately execute sign out
+    handleSignOut();
   }, []); // Run once on component mount
 
   if (isSessionLoading) {
