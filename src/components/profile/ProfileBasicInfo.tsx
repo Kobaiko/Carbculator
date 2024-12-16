@@ -61,7 +61,6 @@ export function ProfileBasicInfo() {
 
       console.log('Updating profile with:', updateData);
 
-      // Convert empty strings to null for numeric fields
       const processedData = Object.entries(updateData).reduce((acc, [key, value]) => {
         const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
         if (numericFields.includes(key)) {
