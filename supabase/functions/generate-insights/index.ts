@@ -14,21 +14,6 @@ serve(async (req) => {
   }
 
   try {
-    const { type } = await req.json();
-    console.log('Request type:', type);
-
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      console.error('OpenAI API key not configured');
-      throw new Error('OpenAI API key not configured');
-    }
-
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    // Get the authenticated user from the Authorization header
     const authHeader = req.headers.get('Authorization');
     console.log('Auth header present:', !!authHeader);
     
@@ -38,6 +23,11 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     console.log('Token:', token ? 'Present' : 'Missing');
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
@@ -83,7 +73,7 @@ serve(async (req) => {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
