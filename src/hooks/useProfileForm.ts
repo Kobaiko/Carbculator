@@ -18,8 +18,8 @@ export function useProfileForm(profile: any) {
       console.log('Setting form data from profile:', profile);
       setFormData({
         username: profile.username || '',
-        height: profile.height?.toString() || '',
-        weight: profile.weight?.toString() || '',
+        height: profile.height !== null ? profile.height.toString() : '',
+        weight: profile.weight !== null ? profile.weight.toString() : '',
         daily_calories: profile.daily_calories?.toString() || '',
         daily_protein: profile.daily_protein?.toString() || '',
         daily_carbs: profile.daily_carbs?.toString() || '',
