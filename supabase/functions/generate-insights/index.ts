@@ -37,11 +37,18 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
+    console.log('Token:', token ? 'Present' : 'Missing');
+
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
-    if (userError || !user) {
+    if (userError) {
       console.error('User authentication error:', userError);
       throw new Error('Unauthorized');
+    }
+
+    if (!user) {
+      console.error('No user found');
+      throw new Error('No user found');
     }
 
     console.log('User authenticated:', user.id);
@@ -55,10 +62,11 @@ serve(async (req) => {
 
     if (profileError) {
       console.error('Error fetching profile:', profileError);
-      throw profileError;
+      // Don't throw here, use default values instead
+      console.log('Using default values for missing profile');
     }
 
-    // Prepare data summary for OpenAI
+    // Prepare data summary for OpenAI, using defaults if profile is missing
     const dataSummary = {
       goals: {
         calories: profile?.daily_calories || 2000,
