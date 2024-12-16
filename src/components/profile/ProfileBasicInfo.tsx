@@ -61,7 +61,7 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="height">Height ({profile?.height_unit})</Label>
+          <Label htmlFor="height">Height ({profile?.height_unit || 'cm'})</Label>
           <Input
             id="height"
             type="number"
@@ -70,7 +70,7 @@ export function ProfileBasicInfo({ profile }: ProfileBasicInfoProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="weight">Weight ({profile?.weight_unit})</Label>
+          <Label htmlFor="weight">Weight ({profile?.weight_unit || 'kg'})</Label>
           <Input
             id="weight"
             type="number"
