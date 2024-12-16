@@ -27,6 +27,9 @@ export function GoalCard({
   editValue,
   onEditChange,
 }: GoalCardProps) {
+  console.log(`GoalCard ${title} - target:`, target); // Debug log
+  console.log(`GoalCard ${title} - current:`, current); // Debug log
+
   const calculateProgress = (current: number, target: number) => {
     if (!target) return 0;
     return Math.min(Math.round((current / target) * 100), 100);

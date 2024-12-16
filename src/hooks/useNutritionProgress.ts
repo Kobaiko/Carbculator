@@ -16,6 +16,7 @@ export function useNutritionProgress() {
         .single();
 
       if (error) throw error;
+      console.log('Profile data fetched:', data); // Debug log
       return data;
     },
   });
@@ -38,6 +39,7 @@ export function useNutritionProgress() {
         .lt("created_at", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
 
       if (error) throw error;
+      console.log('Todays meals fetched:', data); // Debug log
       return data;
     },
   });
@@ -51,6 +53,8 @@ export function useNutritionProgress() {
     water: 0, // This will be updated from water entries
   };
 
+  console.log('Progress calculated:', progress); // Debug log
+
   // Get daily goals from profile
   const goals = profile ? {
     calories: profile.daily_calories,
@@ -59,6 +63,8 @@ export function useNutritionProgress() {
     fats: profile.daily_fats,
     water: profile.daily_water,
   } : undefined;
+
+  console.log('Goals from profile:', goals); // Debug log
 
   return { profile, progress, goals };
 }
