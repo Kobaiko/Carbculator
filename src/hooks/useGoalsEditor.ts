@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +31,17 @@ export function useGoalsEditor(initialGoals: Goals) {
     dailyWater: initialGoals.water,
   });
 
+  // Update edited goals when initial goals change
+  useEffect(() => {
+    setEditedGoals({
+      dailyCalories: initialGoals.calories,
+      dailyProtein: initialGoals.protein,
+      dailyCarbs: initialGoals.carbs,
+      dailyFats: initialGoals.fats,
+      dailyWater: initialGoals.water,
+    });
+  }, [initialGoals]);
+
   const handleEditClick = () => {
     setIsEditing(true);
     setEditedGoals({
@@ -61,12 +72,7 @@ export function useGoalsEditor(initialGoals: Goals) {
         })
         .eq("id", user.id);
 
-      if (error) {
-        console.error("Error saving goals:", error); // Debug log
-        throw error;
-      }
-
-      console.log("Goals saved successfully"); // Debug log
+      if (error) throw error;
 
       // Invalidate and refetch queries
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
