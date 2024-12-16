@@ -8,9 +8,7 @@ import { AppHeader } from "./components/layout/AppHeader";
 import { AppRoutes } from "./components/routing/AppRoutes";
 import { Navigation } from "./components/Navigation";
 import { AddFoodButton } from "./components/AddFoodButton";
-import { useEffect, useState } from "react";
-import { supabase } from "./integrations/supabase/client";
-import { useToast } from "./hooks/use-toast";
+import { useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,32 +22,11 @@ const queryClient = new QueryClient({
 const App = () => {
   const session = useSession();
   const [isSessionLoading, setIsSessionLoading] = useState(true);
-  const { toast } = useToast();
 
-  useEffect(() => {
-    const handleSignOut = async () => {
-      try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        
-        // Clear query client cache
-        queryClient.clear();
-        
-        // Redirect to signup page
-        window.location.href = '/signup';
-      } catch (error) {
-        console.error('Error signing out:', error);
-        toast({
-          title: "Error",
-          description: "There was an error signing out. Please try again.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    // Immediately execute sign out
-    handleSignOut();
-  }, []); // Run once on component mount
+  // Remove session loading after initial render
+  useState(() => {
+    setIsSessionLoading(false);
+  });
 
   if (isSessionLoading) {
     return null;
