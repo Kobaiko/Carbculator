@@ -58,7 +58,31 @@ serve(async (req) => {
       .eq('id', user.id)
       .single();
 
-    // Use default values if no profile exists
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      // Create a new profile if one doesn't exist
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert([{ 
+          id: user.id,
+          daily_calories: 2000,
+          daily_protein: 150,
+          daily_carbs: 250,
+          daily_fats: 70,
+          daily_water: 2000,
+          height_unit: 'cm',
+          weight_unit: 'kg',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }]);
+
+      if (insertError) {
+        console.error('Error creating profile:', insertError);
+        throw insertError;
+      }
+    }
+
+    // Use profile data if available, otherwise use defaults
     const dataSummary = {
       goals: {
         calories: profile?.daily_calories || 2000,
@@ -79,7 +103,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
