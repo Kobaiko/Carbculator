@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Navigation } from "@/components/Navigation";
 import { Dumbbell, Flame, Wheat, Droplets, GlassWater } from "lucide-react";
+import { DailyGoalCard } from "@/components/daily-goals/DailyGoalCard";
 
 interface Goals {
   daily_calories: number;
@@ -68,7 +68,7 @@ export default function DailyGoals() {
       protein: acc.protein + (Number(meal.protein) || 0),
       carbs: acc.carbs + (Number(meal.carbs) || 0),
       fats: acc.fats + (Number(meal.fats) || 0),
-      water: 0, // This will be updated from water entries
+      water: 0,
     }),
     { calories: 0, protein: 0, carbs: 0, fats: 0, water: 0 }
   );
@@ -152,58 +152,53 @@ export default function DailyGoals() {
 
   if (!profile) return null;
 
-  const renderGoalCard = (
-    icon: any,
-    title: string,
-    current: number,
-    target: number,
-    field: keyof Goals,
-    iconColor: string,
-    bgColor: string
-  ) => {
-    const progress = target > 0 ? Math.min((current / target) * 100, 100) : 0;
-
-    return (
-      <div className="glass-card p-6 rounded-2xl space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 ${bgColor} rounded-full`}>
-              {icon({ className: `h-6 w-6 ${iconColor}` })}
-            </div>
-            <div>
-              <h3 className="font-semibold">{title}</h3>
-              {!isEditing && (
-                <p className="text-sm text-muted-foreground">
-                  Daily Target: {target}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-muted-foreground">Current</div>
-            <span className="text-2xl font-bold">{current}</span>
-          </div>
-        </div>
-
-        <div className="h-2 bg-secondary rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        {isEditing && (
-          <Input
-            type="number"
-            min="0"
-            value={editedGoals?.[field] || 0}
-            onChange={(e) => handleChange(field, e.target.value)}
-            className="mt-2"
-          />
-        )}
-      </div>
-    );
-  };
+  const goals = [
+    {
+      icon: Flame,
+      title: "Calories",
+      current: progress.calories,
+      target: profile.daily_calories,
+      field: "daily_calories",
+      iconColor: "text-orange-500",
+      bgColor: "bg-orange-500/10",
+    },
+    {
+      icon: Dumbbell,
+      title: "Protein",
+      current: progress.protein,
+      target: profile.daily_protein,
+      field: "daily_protein",
+      iconColor: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      icon: Wheat,
+      title: "Carbs",
+      current: progress.carbs,
+      target: profile.daily_carbs,
+      field: "daily_carbs",
+      iconColor: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+    },
+    {
+      icon: Droplets,
+      title: "Fats",
+      current: progress.fats,
+      target: profile.daily_fats,
+      field: "daily_fats",
+      iconColor: "text-green-500",
+      bgColor: "bg-green-500/10",
+    },
+    {
+      icon: GlassWater,
+      title: "Water",
+      current: progress.water,
+      target: profile.daily_water,
+      field: "daily_water",
+      iconColor: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-background pb-16">
@@ -217,51 +212,15 @@ export default function DailyGoals() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {renderGoalCard(
-            Flame,
-            "Calories",
-            progress.calories,
-            profile.daily_calories,
-            "daily_calories",
-            "text-orange-500",
-            "bg-orange-500/10"
-          )}
-          {renderGoalCard(
-            Dumbbell,
-            "Protein",
-            progress.protein,
-            profile.daily_protein,
-            "daily_protein",
-            "text-blue-500",
-            "bg-blue-500/10"
-          )}
-          {renderGoalCard(
-            Wheat,
-            "Carbs",
-            progress.carbs,
-            profile.daily_carbs,
-            "daily_carbs",
-            "text-amber-500",
-            "bg-amber-500/10"
-          )}
-          {renderGoalCard(
-            Droplets,
-            "Fats",
-            progress.fats,
-            profile.daily_fats,
-            "daily_fats",
-            "text-green-500",
-            "bg-green-500/10"
-          )}
-          {renderGoalCard(
-            GlassWater,
-            "Water",
-            progress.water,
-            profile.daily_water,
-            "daily_water",
-            "text-blue-500",
-            "bg-blue-500/10"
-          )}
+          {goals.map((goal) => (
+            <DailyGoalCard
+              key={goal.field}
+              {...goal}
+              isEditing={isEditing}
+              editedGoals={editedGoals}
+              handleChange={handleChange}
+            />
+          ))}
         </div>
 
         <div className="flex justify-center mt-8">
