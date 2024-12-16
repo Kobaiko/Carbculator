@@ -28,6 +28,10 @@ interface GoalsGridProps {
 }
 
 export function GoalsGrid({ progress, goals, isEditing, editedGoals, onEditChange }: GoalsGridProps) {
+  console.log('Goals in GoalsGrid:', goals); // Debug log
+  console.log('Progress in GoalsGrid:', progress); // Debug log
+  console.log('Edited goals in GoalsGrid:', editedGoals); // Debug log
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <GoalCard

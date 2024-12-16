@@ -46,9 +46,9 @@ export function GoalCard({
           </div>
           <div>
             <h3 className="font-semibold">{title}</h3>
-            {!isEditing ? (
-              <p className="text-sm text-muted-foreground">Daily Target: {target}{unit}</p>
-            ) : null}
+            <p className="text-sm text-muted-foreground">
+              Daily Target: {target}{unit}
+            </p>
           </div>
         </div>
         <div className="text-right">
