@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { InsightsCard } from "@/components/dashboard/InsightsCard";
 import { TimeRange, TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
@@ -9,35 +9,42 @@ import { MacroTrends } from "@/components/dashboard/MacroTrends";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { toast } from "sonner";
 import { useNutritionData } from "@/hooks/useNutritionData";
+import { useSession } from "@supabase/auth-helpers-react";
 
 // Move data fetching logic to separate hooks for better organization
 const useProfileData = () => {
+  const session = useSession();
   return useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
+      if (!session?.user?.id) throw new Error("No user found");
 
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", session.user.id)
         .single();
 
       if (error) throw error;
       return data;
     },
+    enabled: !!session?.user?.id,
   });
 };
 
 // Separate hook for daily insights that refreshes only once per day
 const useDailyInsights = () => {
+  const session = useSession();
+  
   return useQuery({
     queryKey: ["daily-insights", new Date().toDateString()], // Changes only once per day
     queryFn: async () => {
       try {
         const { data, error } = await supabase.functions.invoke('generate-insights', {
           body: { type: "general" },
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
         });
 
         if (error) throw error;
@@ -52,12 +59,14 @@ const useDailyInsights = () => {
         };
       }
     },
+    enabled: !!session?.access_token,
     staleTime: 24 * 60 * 60 * 1000, // Consider data fresh for 24 hours
-    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours (replaced cacheTime)
+    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
   });
 };
 
 const Index = () => {
+  const session = useSession();
   const [timeRange, setTimeRange] = useState<TimeRange>("day");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [customStartDate, setCustomStartDate] = useState<Date>();
@@ -104,7 +113,7 @@ const Index = () => {
     protein: profile.daily_protein,
     carbs: profile.daily_carbs,
     fats: profile.daily_fats,
-    water: 2000, // Default water goal in ml
+    water: profile.daily_water,
   } : undefined;
 
   return (

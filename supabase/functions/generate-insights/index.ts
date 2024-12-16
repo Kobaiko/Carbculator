@@ -28,15 +28,16 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get the authenticated user
-    const authHeader = req.headers.get('Authorization')?.split(' ')[1];
+    // Get the authenticated user from the Authorization header
+    const authHeader = req.headers.get('Authorization');
     console.log('Auth header present:', !!authHeader);
     
     if (!authHeader) {
       throw new Error('No authorization header');
     }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !user) {
       console.error('User authentication error:', userError);
