@@ -32,6 +32,11 @@ export function GoalCard({
     return Math.min(Math.round((current / target) * 100), 100);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    onEditChange(value);
+  };
+
   return (
     <div className="glass-card p-6 rounded-2xl space-y-4">
       <div className="flex items-center justify-between">
@@ -41,7 +46,9 @@ export function GoalCard({
           </div>
           <div>
             <h3 className="font-semibold">{title}</h3>
-            <p className="text-sm text-muted-foreground">Daily Target: {target}{unit}</p>
+            {!isEditing && (
+              <p className="text-sm text-muted-foreground">Daily Target: {target}{unit}</p>
+            )}
           </div>
         </div>
         <div className="text-right">
@@ -51,12 +58,16 @@ export function GoalCard({
       </div>
       <Progress value={calculateProgress(current, target)} className="h-2" />
       {isEditing && (
-        <Input
-          type="number"
-          value={editValue}
-          onChange={(e) => onEditChange(parseInt(e.target.value))}
-          className="mt-2"
-        />
+        <div className="mt-2">
+          <Input
+            type="number"
+            value={editValue}
+            onChange={handleInputChange}
+            min="0"
+            className="w-full"
+            placeholder={`Enter ${title.toLowerCase()} goal`}
+          />
+        </div>
       )}
     </div>
   );
