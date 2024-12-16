@@ -15,15 +15,11 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    console.log('Auth header present:', !!authHeader);
-    
     if (!authHeader) {
-      console.error('No authorization header');
       throw new Error('No authorization header');
     }
 
     const token = authHeader.replace('Bearer ', '');
-    console.log('Token:', token ? 'Present' : 'Missing');
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -39,50 +35,29 @@ serve(async (req) => {
     // Verify the token and get user
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
-    if (userError) {
-      console.error('User authentication error:', userError);
+    if (userError || !user) {
       throw new Error('Unauthorized');
     }
 
-    if (!user) {
-      console.error('No user found');
-      throw new Error('No user found');
-    }
-
-    console.log('User authenticated:', user.id);
-
-    // Try to fetch user's profile
-    const { data: profile, error: profileError } = await supabase
+    // Get or create profile
+    const { data: profile } = await supabase
       .from('profiles')
-      .select('*')
-      .eq('id', user.id)
+      .upsert([{
+        id: user.id,
+        daily_calories: 2000,
+        daily_protein: 150,
+        daily_carbs: 250,
+        daily_fats: 70,
+        daily_water: 2000,
+        height_unit: 'cm',
+        weight_unit: 'kg',
+        updated_at: new Date().toISOString(),
+      }], {
+        onConflict: 'id'
+      })
+      .select()
       .single();
 
-    if (profileError) {
-      console.error('Error fetching profile:', profileError);
-      // Create a new profile if one doesn't exist
-      const { error: insertError } = await supabase
-        .from('profiles')
-        .insert([{ 
-          id: user.id,
-          daily_calories: 2000,
-          daily_protein: 150,
-          daily_carbs: 250,
-          daily_fats: 70,
-          daily_water: 2000,
-          height_unit: 'cm',
-          weight_unit: 'kg',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }]);
-
-      if (insertError) {
-        console.error('Error creating profile:', insertError);
-        throw insertError;
-      }
-    }
-
-    // Use profile data if available, otherwise use defaults
     const dataSummary = {
       goals: {
         calories: profile?.daily_calories || 2000,
@@ -93,8 +68,6 @@ serve(async (req) => {
       },
     };
 
-    console.log('Sending request to OpenAI with data:', dataSummary);
-
     // Generate insights using OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -103,7 +76,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -127,14 +100,11 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${errorText}`);
+      throw new Error(`OpenAI API error: ${await response.text()}`);
     }
 
     const aiData = await response.json();
-    console.log('OpenAI response:', aiData);
-
+    
     if (!aiData.choices?.[0]?.message?.content) {
       throw new Error('Invalid response format from OpenAI');
     }
@@ -144,8 +114,6 @@ serve(async (req) => {
       recommendations: aiData.choices[0].message.content.split('\n\n')[1],
       goals: aiData.choices[0].message.content.split('\n\n')[2],
     };
-
-    console.log('Generated insights:', insights);
 
     return new Response(JSON.stringify(insights), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

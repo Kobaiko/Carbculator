@@ -29,48 +29,42 @@ const App = () => {
   useEffect(() => {
     const initializeSession = async () => {
       try {
-        // Check if there's an existing session
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (currentSession) {
-          // If there's a session, check if profile exists
-          const { data: profile, error: profileError } = await supabase
+          // Clear any existing data
+          queryClient.clear();
+          
+          // Create profile if it doesn't exist
+          const { error: insertError } = await supabase
             .from('profiles')
-            .select('id')
-            .eq('id', currentSession.user.id)
-            .single();
+            .upsert([{ 
+              id: currentSession.user.id,
+              daily_calories: 2000,
+              daily_protein: 150,
+              daily_carbs: 250,
+              daily_fats: 70,
+              daily_water: 2000,
+              height_unit: 'cm',
+              weight_unit: 'kg',
+              updated_at: new Date().toISOString(),
+            }], {
+              onConflict: 'id'
+            });
 
-          if (profileError || !profile) {
-            // If no profile exists, create one
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert([{ 
-                id: currentSession.user.id,
-                daily_calories: 2000,
-                daily_protein: 150,
-                daily_carbs: 250,
-                daily_fats: 70,
-                daily_water: 2000,
-                height_unit: 'cm',
-                weight_unit: 'kg',
-              }]);
-
-            if (insertError) {
-              console.error('Error creating profile:', insertError);
-              // Sign out if we can't create a profile
-              await supabase.auth.signOut();
-              queryClient.clear();
-              toast({
-                title: "Error",
-                description: "There was an error setting up your profile. Please try signing in again.",
-                variant: "destructive",
-              });
-            }
+          if (insertError) {
+            console.error('Error creating/updating profile:', insertError);
+            await supabase.auth.signOut();
+            queryClient.clear();
+            toast({
+              title: "Error",
+              description: "There was an error setting up your profile. Please try signing in again.",
+              variant: "destructive",
+            });
           }
         }
       } catch (error) {
         console.error('Session error:', error);
-        // Sign out on error
         await supabase.auth.signOut();
         queryClient.clear();
       } finally {
