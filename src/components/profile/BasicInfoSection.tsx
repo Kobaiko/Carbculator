@@ -44,9 +44,6 @@ export function BasicInfoSection({
             onBlur={(e) => handleBlur('height', e.target.value)}
             placeholder={`Enter height in ${heightUnit}`}
           />
-          <p className="text-sm text-muted-foreground">
-            {formData.height ? `${formData.height} ${heightUnit}` : 'Not set'}
-          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="weight">Weight ({weightUnit})</Label>
@@ -59,9 +56,6 @@ export function BasicInfoSection({
             onBlur={(e) => handleBlur('weight', e.target.value)}
             placeholder={`Enter weight in ${weightUnit}`}
           />
-          <p className="text-sm text-muted-foreground">
-            {formData.weight ? `${formData.weight} ${weightUnit}` : 'Not set'}
-          </p>
         </div>
       </div>
     </div>
