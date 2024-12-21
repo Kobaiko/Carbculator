@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { startOfDay, endOfDay } from "date-fns";
 
 export function useNutritionProgress() {
   // Fetch user profile data
@@ -22,24 +23,48 @@ export function useNutritionProgress() {
   });
 
   // Fetch today's meals
-  const { data: todaysMeals, isLoading: isLoadingMeals } = useQuery({
+  const { data: todaysMeals = [], isLoading: isLoadingMeals } = useQuery({
     queryKey: ["todaysMeals"],
     queryFn: async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
+
+      const today = new Date();
+      const start = startOfDay(today);
+      const end = endOfDay(today);
 
       const { data, error } = await supabase
         .from("food_entries")
         .select("*")
         .eq("user_id", user.id)
-        .gte("created_at", today.toISOString())
-        .lt("created_at", new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString());
 
       if (error) throw error;
       console.log('Todays meals fetched:', data); // Debug log
+      return data || [];
+    },
+  });
+
+  // Fetch today's water entries
+  const { data: todaysWater = [], isLoading: isLoadingWater } = useQuery({
+    queryKey: ["todaysWater"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const today = new Date();
+      const start = startOfDay(today);
+      const end = endOfDay(today);
+
+      const { data, error } = await supabase
+        .from("water_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString());
+
+      if (error) throw error;
       return data || [];
     },
   });
@@ -50,7 +75,7 @@ export function useNutritionProgress() {
     protein: todaysMeals?.reduce((sum, meal) => sum + (Number(meal.protein) || 0), 0) || 0,
     carbs: todaysMeals?.reduce((sum, meal) => sum + (Number(meal.carbs) || 0), 0) || 0,
     fats: todaysMeals?.reduce((sum, meal) => sum + (Number(meal.fats) || 0), 0) || 0,
-    water: 0, // This will be updated from water entries
+    water: todaysWater?.reduce((sum, entry) => sum + (entry.amount || 0), 0) || 0,
   };
 
   console.log('Progress calculated:', progress); // Debug log
@@ -76,6 +101,6 @@ export function useNutritionProgress() {
     profile, 
     progress, 
     goals,
-    isLoading: isLoadingProfile || isLoadingMeals 
+    isLoading: isLoadingProfile || isLoadingMeals || isLoadingWater
   };
 }
