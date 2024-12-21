@@ -21,8 +21,6 @@ export function ProfileBasicInfo() {
     <div className="space-y-8">
       <BasicInfoSection
         formData={formData}
-        heightUnit={profile.height_unit}
-        weightUnit={profile.weight_unit}
         handleChange={handleChange}
         handleBlur={handleBlur}
       />
