@@ -34,7 +34,7 @@ export function BasicInfoSection({
         <Label htmlFor="username">Display Name</Label>
         <Input
           id="username"
-          value={formData.username}
+          value={formData.username || ''}
           onChange={(e) => handleChange('username', e.target.value)}
         />
       </div>
@@ -46,7 +46,7 @@ export function BasicInfoSection({
             <Input
               id="height"
               type="number"
-              value={formData.height}
+              value={formData.height || ''}
               onChange={(e) => handleChange('height', e.target.value)}
             />
             <Select
@@ -70,7 +70,7 @@ export function BasicInfoSection({
             <Input
               id="weight"
               type="number"
-              value={formData.weight}
+              value={formData.weight || ''}
               onChange={(e) => handleChange('weight', e.target.value)}
             />
             <Select
