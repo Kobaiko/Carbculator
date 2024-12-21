@@ -8,7 +8,13 @@ export function ProfileBasicInfo() {
 
   const handleSave = () => {
     console.log('Saving profile:', formData);
-    updateProfile.mutate({ username: formData.username });
+    updateProfile.mutate({
+      username: formData.username,
+      height: formData.height,
+      weight: formData.weight,
+      height_unit: formData.heightUnit,
+      weight_unit: formData.weightUnit,
+    });
   };
 
   if (isLoading) {

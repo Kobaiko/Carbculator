@@ -7,6 +7,8 @@ export interface ProfileFormData {
   username: string;
   height: string;
   weight: string;
+  heightUnit: string;
+  weightUnit: string;
   daily_calories: string;
   daily_protein: string;
   daily_carbs: string;
