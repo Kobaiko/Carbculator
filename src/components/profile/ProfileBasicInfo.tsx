@@ -6,9 +6,9 @@ export function ProfileBasicInfo() {
   const { profile, isLoading, updateProfile } = useProfileData();
   const { formData, handleChange } = useProfileForm(profile);
 
-  const handleBlur = (field: string, value: string) => {
-    console.log('Handling blur:', field, value);
-    updateProfile.mutate({ [field]: value });
+  const handleSave = () => {
+    console.log('Saving profile:', formData);
+    updateProfile.mutate({ username: formData.username });
   };
 
   if (isLoading) {
@@ -22,7 +22,8 @@ export function ProfileBasicInfo() {
       <BasicInfoSection
         formData={formData}
         handleChange={handleChange}
-        handleBlur={handleBlur}
+        onSave={handleSave}
+        isLoading={updateProfile.isPending}
       />
     </div>
   );
