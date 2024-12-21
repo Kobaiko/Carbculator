@@ -14,16 +14,17 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Auth header present:', !!req.headers.get('Authorization'));
+    console.log('Starting generate-insights function');
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
     }
 
     const token = authHeader.replace('Bearer ', '');
-    console.log('Token:', 'Present');
+    console.log('Token received');
 
-    const supabase = createClient(
+    // Initialize Supabase client with service role key for admin access
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
@@ -35,36 +36,28 @@ serve(async (req) => {
     );
 
     // Get user from token
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
     
     if (userError || !user) {
       console.error('User authentication error:', userError);
       throw new Error('User authentication failed');
     }
 
-    // Get or create profile
-    const { data: profile, error: profileError } = await supabase
+    console.log('User authenticated:', user.id);
+
+    // Get user profile
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .upsert([{
-        id: user.id,
-        daily_calories: 2000,
-        daily_protein: 150,
-        daily_carbs: 250,
-        daily_fats: 70,
-        daily_water: 2000,
-        height_unit: 'cm',
-        weight_unit: 'kg',
-        updated_at: new Date().toISOString(),
-      }], {
-        onConflict: 'id'
-      })
-      .select()
+      .select('*')
+      .eq('id', user.id)
       .single();
 
     if (profileError) {
-      console.error('Profile error:', profileError);
+      console.error('Profile fetch error:', profileError);
       throw profileError;
     }
+
+    console.log('Profile fetched:', profile);
 
     const dataSummary = {
       goals: {
@@ -74,24 +67,35 @@ serve(async (req) => {
         fats: profile?.daily_fats || 70,
         water: profile?.daily_water || 2000,
       },
+      metrics: {
+        height: profile?.height,
+        weight: profile?.weight,
+        height_unit: profile?.height_unit,
+        weight_unit: profile?.weight_unit,
+      }
     };
 
-    // Generate insights using OpenAI
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    console.log('Calling OpenAI API');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
-            content: `You are a nutrition expert providing general insights and recommendations. 
-            Focus on overall patterns and best practices rather than specific time periods.
+            content: `You are a nutrition expert providing insights and recommendations. 
+            Focus on overall patterns and best practices.
             Provide three types of insights:
-            1. Trends: Analyze general nutrition patterns
+            1. Trends: Analyze general nutrition patterns and metrics
             2. Recommendations: Provide actionable advice for maintaining a healthy diet
             3. Goals: Suggest realistic goals based on the user's targets
             Keep each section concise and focused.
@@ -100,7 +104,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Please provide general nutrition insights and recommendations based on this user's goals:
+            content: `Please provide nutrition insights and recommendations based on this user's data:
             ${JSON.stringify(dataSummary, null, 2)}`
           }
         ],
@@ -113,6 +117,7 @@ serve(async (req) => {
     }
 
     const aiData = await response.json();
+    console.log('OpenAI response received');
     
     if (!aiData.choices?.[0]?.message?.content) {
       throw new Error('Invalid response format from OpenAI');
@@ -124,6 +129,7 @@ serve(async (req) => {
       goals: aiData.choices[0].message.content.split('\n\n')[2],
     };
 
+    console.log('Sending insights response');
     return new Response(JSON.stringify(insights), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
