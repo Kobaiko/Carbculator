@@ -24,7 +24,12 @@ export function useProfileData() {
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      if (!session?.user?.id) throw new Error('No user found');
+      console.log('Fetching profile data for user:', session?.user?.id);
+      
+      if (!session?.user?.id) {
+        console.error('No user found in session');
+        throw new Error('No user found');
+      }
 
       const { data, error } = await supabase
         .from('profiles')
@@ -32,23 +37,36 @@ export function useProfileData() {
         .eq('id', session.user.id)
         .single();
       
-      if (error) throw error;
-      console.log('Profile data fetched:', data);
+      if (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
+
+      if (!data) {
+        console.error('No profile data found');
+        throw new Error('No profile data found');
+      }
+
+      console.log('Profile data fetched successfully:', data);
       return data;
     },
     enabled: !!session?.user?.id,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const updateProfile = useMutation({
     mutationFn: async (updateData: Record<string, any>) => {
-      if (!session?.user?.id) throw new Error('No user found');
+      if (!session?.user?.id) {
+        console.error('No user found in session during update');
+        throw new Error('No user found');
+      }
 
       console.log('Updating profile with:', updateData);
 
       const processedData = Object.entries(updateData).reduce((acc, [key, value]) => {
         const numericFields = ['height', 'weight', 'daily_calories', 'daily_protein', 'daily_carbs', 'daily_fats', 'daily_water'];
         if (numericFields.includes(key)) {
-          // Convert empty strings to null, otherwise parse as float for decimal support
           acc[key] = value === '' ? null : parseFloat(value);
         } else {
           acc[key] = value;
@@ -64,7 +82,12 @@ export function useProfileData() {
         })
         .eq('id', session.user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating profile:', error);
+        throw error;
+      }
+
+      console.log('Profile updated successfully');
       return processedData;
     },
     onSuccess: (data) => {
