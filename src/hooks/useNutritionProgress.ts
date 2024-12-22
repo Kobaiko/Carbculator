@@ -88,6 +88,7 @@ export function useNutritionProgress() {
         },
         () => {
           console.log('Food entry changed, invalidating queries');
+          // Immediately invalidate the queries to trigger a refresh
           queryClient.invalidateQueries({ queryKey: ["todaysMeals"] });
           toast({
             title: "Goals Updated",
@@ -109,6 +110,7 @@ export function useNutritionProgress() {
         },
         () => {
           console.log('Water entry changed, invalidating queries');
+          // Immediately invalidate the queries to trigger a refresh
           queryClient.invalidateQueries({ queryKey: ["todaysWater"] });
           toast({
             title: "Goals Updated",
