@@ -1,8 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfDay, endOfDay } from "date-fns";
+import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export function useNutritionProgress() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
   // Fetch user profile data
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["profile"],
@@ -17,7 +22,7 @@ export function useNutritionProgress() {
         .single();
 
       if (error) throw error;
-      console.log('Profile data fetched:', data); // Debug log
+      console.log('Profile data fetched:', data);
       return data;
     },
   });
@@ -41,7 +46,7 @@ export function useNutritionProgress() {
         .lte("created_at", end.toISOString());
 
       if (error) throw error;
-      console.log('Todays meals fetched:', data); // Debug log
+      console.log('Todays meals fetched:', data);
       return data || [];
     },
   });
@@ -69,6 +74,57 @@ export function useNutritionProgress() {
     },
   });
 
+  // Subscribe to real-time updates
+  useEffect(() => {
+    // Subscribe to food entries changes
+    const foodChannel = supabase
+      .channel('food-entries-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'food_entries'
+        },
+        () => {
+          console.log('Food entry changed, invalidating queries');
+          queryClient.invalidateQueries({ queryKey: ["todaysMeals"] });
+          toast({
+            title: "Goals Updated",
+            description: "Your nutrition progress has been updated.",
+          });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to water entries changes
+    const waterChannel = supabase
+      .channel('water-entries-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'water_entries'
+        },
+        () => {
+          console.log('Water entry changed, invalidating queries');
+          queryClient.invalidateQueries({ queryKey: ["todaysWater"] });
+          toast({
+            title: "Goals Updated",
+            description: "Your water intake progress has been updated.",
+          });
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscriptions
+    return () => {
+      supabase.removeChannel(foodChannel);
+      supabase.removeChannel(waterChannel);
+    };
+  }, [queryClient, toast]);
+
   // Calculate current progress from today's meals
   const progress = {
     calories: todaysMeals?.reduce((sum, meal) => sum + (meal.calories || 0), 0) || 0,
@@ -78,7 +134,7 @@ export function useNutritionProgress() {
     water: todaysWater?.reduce((sum, entry) => sum + (entry.amount || 0), 0) || 0,
   };
 
-  console.log('Progress calculated:', progress); // Debug log
+  console.log('Progress calculated:', progress);
 
   // Get daily goals from profile with default values if undefined
   const goals = profile ? {
@@ -95,7 +151,7 @@ export function useNutritionProgress() {
     water: 2000,
   };
 
-  console.log('Goals from profile:', goals); // Debug log
+  console.log('Goals from profile:', goals);
 
   return { 
     profile, 
